@@ -2,9 +2,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package login;
+package runproyectlogin;
 
-/*librerias para boton redondeado*/ 
 /**
  *
  * @author alan_
@@ -14,9 +13,42 @@ public class login extends javax.swing.JFrame {
     /**
      * Creates new form login
      */
-    public login() {
+    public login() 
+    {
         initComponents();
-        
+         b_crearcuenta.setEnabled(false); // Inicialmente deshabilitado hasta marcar los terminos.
+         
+        //Letras azules boton iniciar sesion
+        b_iniciarsesion.setText("Inicia sesión");
+        b_iniciarsesion.setBorder(null);
+        b_iniciarsesion.setContentAreaFilled(false);
+        b_iniciarsesion.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        b_iniciarsesion.addActionListener(new java.awt.event.ActionListener() 
+        {
+        @Override
+        public void actionPerformed(java.awt.event.ActionEvent evt) 
+        {
+        b_iniciarsesionActionPerformed(evt);
+        }
+        });
+
+        // Agrega el MouseListener para cambiar el color del texto al pasar el mouse
+        b_iniciarsesion.addMouseListener(new java.awt.event.MouseAdapter() 
+        {
+        @Override
+        public void mouseEntered(java.awt.event.MouseEvent evt) 
+        {
+        // Cambiar el color del texto cuando el mouse pasa por encima
+        b_iniciarsesion.setForeground(java.awt.Color.BLUE);
+        }
+    
+        @Override
+        public void mouseExited(java.awt.event.MouseEvent evt) 
+        {
+        // Restaurar el color original cuando el mouse sale
+        b_iniciarsesion.setForeground(java.awt.Color.BLACK);
+        }
+        });
     }
 
     /**
@@ -57,10 +89,10 @@ public class login extends javax.swing.JFrame {
         l_texttwitterlogin.setFont(new java.awt.Font("Times New Roman", 2, 60)); // NOI18N
         l_texttwitterlogin.setForeground(new java.awt.Color(255, 255, 255));
         l_texttwitterlogin.setText("Twitter");
-        panelizquierdo_login.add(l_texttwitterlogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 200, -1, 40));
+        panelizquierdo_login.add(l_texttwitterlogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, -1, 40));
 
-        l_fondoiniciosesion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/Fondologinvertical.jpg"))); // NOI18N
-        panelizquierdo_login.add(l_fondoiniciosesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 0, 270, 460));
+        l_fondoiniciosesion.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\Fondologinvertical.jpg")); // NOI18N
+        panelizquierdo_login.add(l_fondoiniciosesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 350, 460));
 
         panelderecho_login.setBackground(new java.awt.Color(255, 255, 255));
         panelderecho_login.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -87,8 +119,9 @@ public class login extends javax.swing.JFrame {
         panelderecho_login.add(tf_correo, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 150, 278, -1));
         panelderecho_login.add(tf_password, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 220, 278, -1));
 
-        b_showpassword.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/hidepassword10.png"))); // NOI18N
+        b_showpassword.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\hidepassword10.png")); // NOI18N
         b_showpassword.setBorder(null);
+        b_showpassword.setBorderPainted(false);
         b_showpassword.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 b_showpasswordActionPerformed(evt);
@@ -125,6 +158,7 @@ public class login extends javax.swing.JFrame {
         b_crearcuenta.setForeground(new java.awt.Color(255, 255, 255));
         b_crearcuenta.setText("Crear cuenta");
         b_crearcuenta.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        b_crearcuenta.setBorderPainted(false);
         b_crearcuenta.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 b_crearcuentaActionPerformed(evt);
@@ -137,6 +171,13 @@ public class login extends javax.swing.JFrame {
 
         b_iniciarsesion.setText("Inicia sesión");
         b_iniciarsesion.setBorder(null);
+        b_iniciarsesion.setContentAreaFilled(false);
+        b_iniciarsesion.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        b_iniciarsesion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b_iniciarsesionActionPerformed(evt);
+            }
+        });
         panelderecho_login.add(b_iniciarsesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 420, -1, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -146,8 +187,7 @@ public class login extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(panelizquierdo_login, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelderecho_login, javax.swing.GroupLayout.PREFERRED_SIZE, 402, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(panelderecho_login, javax.swing.GroupLayout.PREFERRED_SIZE, 404, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -167,12 +207,22 @@ public class login extends javax.swing.JFrame {
     }//GEN-LAST:event_b_showpasswordActionPerformed
 
     private void b_crearcuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_crearcuentaActionPerformed
-        // TODO add your handling code here:
+        //Cambiar a pantalla de inicio
+        PantallaInicio.perfilVisual inicio1 = new PantallaInicio.perfilVisual();
+        inicio1.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_b_crearcuentaActionPerformed
 
     private void check_terminosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_check_terminosActionPerformed
-        // TODO add your handling code here:
+        b_crearcuenta.setEnabled(check_terminos.isSelected());//Activar boton de crear cuenta al aceptar terminos.
     }//GEN-LAST:event_check_terminosActionPerformed
+
+    private void b_iniciarsesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_iniciarsesionActionPerformed
+        //Cambiar a pantalla de inicio
+        PantallaInicio.perfilVisual inicio1 = new PantallaInicio.perfilVisual();
+        inicio1.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_b_iniciarsesionActionPerformed
 
     /**
      * @param args the command line arguments
@@ -199,6 +249,9 @@ public class login extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
