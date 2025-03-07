@@ -3,16 +3,50 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package runproyectlogin;
-
+//Hola
 /**
  *
  * @author alan_
  */
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+
 public class login extends javax.swing.JFrame {
 
     /**
      * Creates new form login
      */
+    
+    //Crear verificacion de si se encuentra el nombre de usuario para crear cuenta
+    public static boolean verificarExistencianombreusuario(String nombreusuario) {
+        Connection conexion = BasededatosTwitter.conectar();
+        if (conexion == null) {
+            return false;
+        }
+
+        String consulta = "SELECT COUNT(*) FROM usuarios WHERE nombre_usuario = ?"; // Ajusta la tabla y el campo según tu BD
+
+        try {
+            PreparedStatement ps = conexion.prepareStatement(consulta);
+            ps.setString(1, nombreusuario); // Sustituye el "?" por el dato a buscar
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                return count > 0; // Si count > 0, el dato ya está registrado
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+   
     public login() 
     {
         initComponents();
@@ -116,6 +150,12 @@ public class login extends javax.swing.JFrame {
             }
         });
         panelderecho_login.add(tf_nombreusuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 90, 278, -1));
+
+        tf_correo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tf_correoActionPerformed(evt);
+            }
+        });
         panelderecho_login.add(tf_correo, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 150, 278, -1));
         panelderecho_login.add(tf_password, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 220, 278, -1));
 
@@ -166,7 +206,7 @@ public class login extends javax.swing.JFrame {
         });
         panelderecho_login.add(b_crearcuenta, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 360, 136, 35));
 
-        l_iniciarsesion.setText("Ya tienes cuenta?");
+        l_iniciarsesion.setText("¿Ya tienes cuenta?");
         panelderecho_login.add(l_iniciarsesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 420, -1, -1));
 
         b_iniciarsesion.setText("Inicia sesión");
@@ -178,7 +218,7 @@ public class login extends javax.swing.JFrame {
                 b_iniciarsesionActionPerformed(evt);
             }
         });
-        panelderecho_login.add(b_iniciarsesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 420, -1, -1));
+        panelderecho_login.add(b_iniciarsesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 420, -1, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -207,10 +247,61 @@ public class login extends javax.swing.JFrame {
     }//GEN-LAST:event_b_showpasswordActionPerformed
 
     private void b_crearcuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_crearcuentaActionPerformed
-        //Cambiar a pantalla de inicio
+
+        //Conexion al archivo de conexion de base de datos:
+         Connection conexion = BasededatosTwitter.conectar();
+         if (conexion != null) {
+        System.out.println("El archivo de base de datos se encuentra conectado correctamente.");
+        } else {
+        System.out.println("Error al conectar con base de datos.");
+        }   
+         
+        //Tomar los datos
+        String nombre_usuario = tf_nombreusuario.getText().trim();
+        String email = tf_correo.getText().trim();
+        String password = tf_password.getText().trim();
+        
+        //Verificar que se llenaron los datos
+        if(nombre_usuario.isEmpty() || email.isEmpty() || password.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
+        return;
+    }
+        //Verificar si no existe nombre de usuario
+        if (verificarExistencianombreusuario(nombre_usuario)) {
+            JOptionPane.showMessageDialog(this, "El nombre de usuario ya existe, crea uno nuevo.");
+            return;
+        } else {
+            System.out.println("Datos validados.");
+        }
+ 
+    // 2. Insertar en la base de datos
+    //try (Connection con = BasededatosTwitter.getConnection()) {
+        try{
+        String sql = "INSERT INTO usuarios (nombre_usuario, email, password) VALUES (?, ?, ?)";
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ps.setString(1, nombre_usuario);
+        ps.setString(2, email);
+        ps.setString(3, password);
+        ps.executeUpdate();
+        
+        //Si los datos se insertaron correctamente
+        JOptionPane.showMessageDialog(this, "¡Usuario creado con exito!");
+ 
+        // 3. Limpiar los campos
+        tf_nombreusuario.setText("");
+        tf_correo.setText("");
+        tf_password.setText("");
+        
+         //Cambiar a pantalla de inicio
         PantallaInicio.perfilVisual inicio1 = new PantallaInicio.perfilVisual();
         inicio1.setVisible(true);
         this.dispose();
+        
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Hubo un error al crear su cuenta, intenta mas tarde." + e.getMessage());
+    }
+     
     }//GEN-LAST:event_b_crearcuentaActionPerformed
 
     private void check_terminosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_check_terminosActionPerformed
@@ -219,10 +310,14 @@ public class login extends javax.swing.JFrame {
 
     private void b_iniciarsesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_iniciarsesionActionPerformed
         //Cambiar a pantalla de inicio
-        PantallaInicio.perfilVisual inicio1 = new PantallaInicio.perfilVisual();
-        inicio1.setVisible(true);
+        runproyectlogin.Iniciarsesionlogin inicio2 = new runproyectlogin.Iniciarsesionlogin();
+        inicio2.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_b_iniciarsesionActionPerformed
+
+    private void tf_correoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tf_correoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tf_correoActionPerformed
 
     /**
      * @param args the command line arguments
