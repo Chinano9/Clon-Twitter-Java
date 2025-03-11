@@ -12,7 +12,7 @@ import javax.swing.ImageIcon;
  * @author Jaime Paredes
  */
 public class perfilVisual extends javax.swing.JFrame {
-
+/*Jaime*/
     /**
      * Creates new form perfilVisual
      */
