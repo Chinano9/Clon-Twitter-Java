@@ -19,7 +19,7 @@ import javax.swing.JOptionPane;
 public class Iniciarsesionlogin extends javax.swing.JFrame {
 
     /**
-     * Creates new form login
+     * Creates new form login1123213
      */
     
     //Crear verificacion de si se encuentra la cuenta
