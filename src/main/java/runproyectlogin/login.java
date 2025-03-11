@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package runproyectlogin;
-//Hola prueba del cambio
+//Hola prueba del cambio 2
 /**
  *
  * @author alan_
