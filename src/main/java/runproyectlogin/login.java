@@ -22,6 +22,12 @@ public class login extends javax.swing.JFrame {
      * Creates new form login
      */
     
+    //Validar correo electronico
+    public static boolean esCorreoValido(String correo) {
+    String regex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+    return correo.matches(regex);
+}
+    
     //Validar si la contrasenia cumple con los parametros establecidos
     public static boolean validarContrasena(String password) {
     if (password.length() < 8) {
@@ -305,11 +311,17 @@ public class login extends javax.swing.JFrame {
             System.out.println("Datos validados.");
         }
         
+        
         //Validar la contrasenia con los parametros requeridos
         if (!validarContrasena(password)) {
         JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 8 caracteres, incluir números, letras y caracteres especiales.");
+         return;         
+        }
+        
+        if (!esCorreoValido(email)) {
+        JOptionPane.showMessageDialog(this, "El formato de correo electronico es incorrecto.");
          return;
-}
+        }
  
     // 2. Insertar en la base de datos
     //try (Connection con = BasededatosTwitter.getConnection()) {
