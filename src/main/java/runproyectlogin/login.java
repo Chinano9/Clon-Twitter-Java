@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package runproyectlogin;
-//Hola prueba del cambio 2
+//Hola prueba del cambio 2 holaaa
 /**
  *
  * @author alan_
@@ -22,6 +22,35 @@ public class login extends javax.swing.JFrame {
      * Creates new form login
      */
     
+    //Validar correo electronico
+    public static boolean esCorreoValido(String correo) {
+    String regex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+    return correo.matches(regex);
+}
+    
+    //Validar si la contrasenia cumple con los parametros establecidos
+    public static boolean validarContrasena(String password) {
+    if (password.length() < 8) {
+        return false; // Debe tener al menos 8 caracteres
+    }
+    
+    boolean tieneLetra = false;
+    boolean tieneNumero = false;
+    boolean tieneEspecial = false;
+    
+    for (char c : password.toCharArray()) {
+        if (Character.isLetter(c)) {
+            tieneLetra = true;
+        } else if (Character.isDigit(c)) {
+            tieneNumero = true;
+        } else if (!Character.isLetterOrDigit(c)) {
+            tieneEspecial = true;
+        }
+    }
+    
+    return tieneLetra && tieneNumero && tieneEspecial;
+}
+    
     //Crear verificacion de si se encuentra el nombre de usuario para crear cuenta
     public static boolean verificarExistencianombreusuario(String nombreusuario) {
         Connection conexion = BasededatosTwitter.conectar();
@@ -29,11 +58,11 @@ public class login extends javax.swing.JFrame {
             return false;
         }
 
-        String consulta = "SELECT COUNT(*) FROM usuarios WHERE nombre_usuario = ?"; // Ajusta la tabla y el campo según tu BD
+        String consulta = "SELECT COUNT(*) FROM usuarios WHERE nombre_usuario = ?"; 
 
         try {
             PreparedStatement ps = conexion.prepareStatement(consulta);
-            ps.setString(1, nombreusuario); // Sustituye el "?" por el dato a buscar
+            ps.setString(1, nombreusuario); // 
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -125,7 +154,7 @@ public class login extends javax.swing.JFrame {
         l_texttwitterlogin.setText("Twitter");
         panelizquierdo_login.add(l_texttwitterlogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, -1, 40));
 
-        l_fondoiniciosesion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/Fondologinvertical.jpg"))); // NOI18N
+        l_fondoiniciosesion.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\Fondologinvertical.jpg")); // NOI18N
         panelizquierdo_login.add(l_fondoiniciosesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 350, 460));
 
         panelderecho_login.setBackground(new java.awt.Color(255, 255, 255));
@@ -159,6 +188,7 @@ public class login extends javax.swing.JFrame {
         panelderecho_login.add(tf_correo, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 150, 278, -1));
         panelderecho_login.add(tf_password, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 220, 278, -1));
 
+        b_showpassword.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\hidepassword10.png")); // NOI18N
         b_showpassword.setBorder(null);
         b_showpassword.setBorderPainted(false);
         b_showpassword.addActionListener(new java.awt.event.ActionListener() {
@@ -243,6 +273,14 @@ public class login extends javax.swing.JFrame {
 
     private void b_showpasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_showpasswordActionPerformed
         // TODO add your handling code here:
+        //MOSTRAR Y OCULTAR CONTRASEÑA EN CUADRO DE PASSWORD
+        if (tf_password.getEchoChar() == '\u2022') { // Si está oculta
+        tf_password.setEchoChar((char) 0); // Mostrar la contraseña
+        b_showpassword.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\hidepassword10.png")); // Cambiar icono a "mostrar"
+    } else { // Si está visible
+        tf_password.setEchoChar('\u2022'); // Ocultar la contraseña
+        b_showpassword.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\showpassword10.png")); // Cambiar icono a "ocultar"
+    }
     }//GEN-LAST:event_b_showpasswordActionPerformed
 
     private void b_crearcuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_crearcuentaActionPerformed
@@ -271,6 +309,18 @@ public class login extends javax.swing.JFrame {
             return;
         } else {
             System.out.println("Datos validados.");
+        }
+        
+        
+        //Validar la contrasenia con los parametros requeridos
+        if (!validarContrasena(password)) {
+        JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 8 caracteres, incluir números, letras y caracteres especiales.");
+         return;         
+        }
+        
+        if (!esCorreoValido(email)) {
+        JOptionPane.showMessageDialog(this, "El formato de correo electronico es incorrecto.");
+         return;
         }
  
     // 2. Insertar en la base de datos
