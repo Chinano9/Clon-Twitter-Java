@@ -254,7 +254,7 @@ public class Iniciarsesionlogin extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this,"Bienvenido");
             
             //Cambiar a pantalla de inicio
-            PantallaInicio.perfilVisual inicio1 = new PantallaInicio.perfilVisual();
+            PantallaInicio.Home inicio1 = new PantallaInicio.Home();
             inicio1.setVisible(true);
             this.dispose();
              
