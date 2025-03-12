@@ -22,6 +22,29 @@ public class login extends javax.swing.JFrame {
      * Creates new form login
      */
     
+    //Validar si la contrasenia cumple con los parametros establecidos
+    public static boolean validarContrasena(String password) {
+    if (password.length() < 8) {
+        return false; // Debe tener al menos 8 caracteres
+    }
+    
+    boolean tieneLetra = false;
+    boolean tieneNumero = false;
+    boolean tieneEspecial = false;
+    
+    for (char c : password.toCharArray()) {
+        if (Character.isLetter(c)) {
+            tieneLetra = true;
+        } else if (Character.isDigit(c)) {
+            tieneNumero = true;
+        } else if (!Character.isLetterOrDigit(c)) {
+            tieneEspecial = true;
+        }
+    }
+    
+    return tieneLetra && tieneNumero && tieneEspecial;
+}
+    
     //Crear verificacion de si se encuentra el nombre de usuario para crear cuenta
     public static boolean verificarExistencianombreusuario(String nombreusuario) {
         Connection conexion = BasededatosTwitter.conectar();
@@ -29,11 +52,11 @@ public class login extends javax.swing.JFrame {
             return false;
         }
 
-        String consulta = "SELECT COUNT(*) FROM usuarios WHERE nombre_usuario = ?"; // Ajusta la tabla y el campo según tu BD
+        String consulta = "SELECT COUNT(*) FROM usuarios WHERE nombre_usuario = ?"; 
 
         try {
             PreparedStatement ps = conexion.prepareStatement(consulta);
-            ps.setString(1, nombreusuario); // Sustituye el "?" por el dato a buscar
+            ps.setString(1, nombreusuario); // 
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -244,6 +267,7 @@ public class login extends javax.swing.JFrame {
 
     private void b_showpasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_showpasswordActionPerformed
         // TODO add your handling code here:
+        //MOSTRAR Y OCULTAR CONTRASEÑA EN CUADRO DE PASSWORD
         if (tf_password.getEchoChar() == '\u2022') { // Si está oculta
         tf_password.setEchoChar((char) 0); // Mostrar la contraseña
         b_showpassword.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\hidepassword10.png")); // Cambiar icono a "mostrar"
@@ -280,6 +304,12 @@ public class login extends javax.swing.JFrame {
         } else {
             System.out.println("Datos validados.");
         }
+        
+        //Validar la contrasenia con los parametros requeridos
+        if (!validarContrasena(password)) {
+        JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 8 caracteres, incluir números, letras y caracteres especiales.");
+         return;
+}
  
     // 2. Insertar en la base de datos
     //try (Connection con = BasededatosTwitter.getConnection()) {

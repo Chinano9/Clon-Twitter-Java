@@ -29,13 +29,13 @@ public class Iniciarsesionlogin extends javax.swing.JFrame {
             return false;
         }
 
-        String consulta = "SELECT COUNT(*) FROM usuarios WHERE (nombre_usuario = ? OR email = ?) AND password = ?"; // Ajusta la tabla y el campo según tu BD
+        String consulta = "SELECT COUNT(*) FROM usuarios WHERE (nombre_usuario = ? OR email = ?) AND password = ?"; 
 
         try {
             PreparedStatement ps = conexion.prepareStatement(consulta);
-            ps.setString(1, nombreusuario); // Sustituye el "?" por el dato a buscar
-            ps.setString(2, email); // Sustituye el "?" por el dato a buscar
-            ps.setString(3, password);// Sustituye el "?" por el dato a buscar
+            ps.setString(1, nombreusuario); 
+            ps.setString(2, email); 
+            ps.setString(3, password);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -220,6 +220,7 @@ public class Iniciarsesionlogin extends javax.swing.JFrame {
 
     private void b_showpasswordyacuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_showpasswordyacuentaActionPerformed
         // TODO add your handling code here:
+        //MOSTRAR Y OCULTAR CONTRASEÑA EN CUADRO DE PASSWORD
         if (tf_passwordyacuenta.getEchoChar() == '\u2022') { // Si está oculta
         tf_passwordyacuenta.setEchoChar((char) 0); // Mostrar la contraseña
         b_showpasswordyacuenta.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\hidepassword10.png")); // Cambiar icono a "mostrar"
@@ -258,7 +259,7 @@ public class Iniciarsesionlogin extends javax.swing.JFrame {
             this.dispose();
              
         } else {
-            JOptionPane.showMessageDialog(this,"No se encontro la cuenta");
+            JOptionPane.showMessageDialog(this,"No se encontro la cuenta, correo y/o contraseña incorrectos");
             return;
         }
 
