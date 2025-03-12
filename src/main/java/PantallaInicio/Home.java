@@ -30,108 +30,205 @@ public class Home extends javax.swing.JFrame {
     private void initComponents() {
 
         PanelTrasero = new javax.swing.JPanel();
-        Opciones = new javax.swing.JPanel();
-        Logo_Twitter = new javax.swing.JLabel();
-        Inicio = new javax.swing.JButton();
-        Exprorar = new javax.swing.JButton();
-        Notificaciones = new javax.swing.JButton();
-        Perfil = new javax.swing.JButton();
+        Menu = new javax.swing.JPanel();
+        LogoTwitter = new javax.swing.JLabel();
+        btnInicio = new javax.swing.JButton();
+        btnExprorar = new javax.swing.JButton();
+        btnNotificaciones = new javax.swing.JButton();
+        btnPerfil = new javax.swing.JButton();
+        PanelBuscador = new javax.swing.JPanel();
+        Buscador = new javax.swing.JTextField();
+        btnBusqueda = new javax.swing.JButton();
+        PanelTweet = new javax.swing.JPanel();
+        ScrollTweet = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        LabelPerfil = new javax.swing.JLabel();
+        btnTweet = new javax.swing.JButton();
+        btnUsuario = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         PanelTrasero.setBackground(new java.awt.Color(255, 255, 255));
 
-        Opciones.setBackground(new java.awt.Color(246, 234, 250));
+        Menu.setBackground(new java.awt.Color(246, 234, 250));
 
-        Logo_Twitter.setFont(new java.awt.Font("Eras Bold ITC", 0, 36)); // NOI18N
-        Logo_Twitter.setForeground(new java.awt.Color(102, 0, 153));
-        Logo_Twitter.setText("Twitter");
+        LogoTwitter.setFont(new java.awt.Font("Eras Bold ITC", 0, 36)); // NOI18N
+        LogoTwitter.setForeground(new java.awt.Color(102, 0, 153));
+        LogoTwitter.setText("Twitter");
 
-        Inicio.setBackground(new java.awt.Color(246, 234, 250));
-        Inicio.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
-        Inicio.setForeground(new java.awt.Color(102, 0, 153));
-        Inicio.setText("Inicio");
-        Inicio.addActionListener(new java.awt.event.ActionListener() {
+        btnInicio.setBackground(new java.awt.Color(246, 234, 250));
+        btnInicio.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
+        btnInicio.setForeground(new java.awt.Color(102, 0, 153));
+        btnInicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/brujula.png"))); // NOI18N
+        btnInicio.setText("Inicio");
+        btnInicio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                InicioActionPerformed(evt);
+                btnInicioActionPerformed(evt);
             }
         });
 
-        Exprorar.setBackground(new java.awt.Color(246, 234, 250));
-        Exprorar.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
-        Exprorar.setForeground(new java.awt.Color(102, 0, 153));
-        Exprorar.setText("Exprorar");
-        Exprorar.addActionListener(new java.awt.event.ActionListener() {
+        btnExprorar.setBackground(new java.awt.Color(246, 234, 250));
+        btnExprorar.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
+        btnExprorar.setForeground(new java.awt.Color(102, 0, 153));
+        btnExprorar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/lupa.png"))); // NOI18N
+        btnExprorar.setText("Exprorar");
+        btnExprorar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ExprorarActionPerformed(evt);
+                btnExprorarActionPerformed(evt);
             }
         });
 
-        Notificaciones.setBackground(new java.awt.Color(246, 234, 250));
-        Notificaciones.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
-        Notificaciones.setForeground(new java.awt.Color(102, 0, 153));
-        Notificaciones.setText("Notificaciones");
-        Notificaciones.addActionListener(new java.awt.event.ActionListener() {
+        btnNotificaciones.setBackground(new java.awt.Color(246, 234, 250));
+        btnNotificaciones.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
+        btnNotificaciones.setForeground(new java.awt.Color(102, 0, 153));
+        btnNotificaciones.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/Notificaciones.png"))); // NOI18N
+        btnNotificaciones.setText("Notificaciones");
+        btnNotificaciones.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                NotificacionesActionPerformed(evt);
+                btnNotificacionesActionPerformed(evt);
             }
         });
 
-        Perfil.setBackground(new java.awt.Color(246, 234, 250));
-        Perfil.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
-        Perfil.setForeground(new java.awt.Color(102, 0, 153));
-        Perfil.setText("Pefil");
+        btnPerfil.setBackground(new java.awt.Color(246, 234, 250));
+        btnPerfil.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
+        btnPerfil.setForeground(new java.awt.Color(102, 0, 153));
+        btnPerfil.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/perfil.png"))); // NOI18N
+        btnPerfil.setText("Pefil");
 
-        javax.swing.GroupLayout OpcionesLayout = new javax.swing.GroupLayout(Opciones);
-        Opciones.setLayout(OpcionesLayout);
-        OpcionesLayout.setHorizontalGroup(
-            OpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, OpcionesLayout.createSequentialGroup()
-                .addContainerGap(69, Short.MAX_VALUE)
-                .addGroup(OpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(Perfil)
-                    .addComponent(Exprorar)
-                    .addComponent(Notificaciones)
-                    .addComponent(Logo_Twitter)
-                    .addComponent(Inicio))
+        javax.swing.GroupLayout MenuLayout = new javax.swing.GroupLayout(Menu);
+        Menu.setLayout(MenuLayout);
+        MenuLayout.setHorizontalGroup(
+            MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, MenuLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnPerfil)
+                    .addComponent(btnExprorar)
+                    .addComponent(btnNotificaciones)
+                    .addComponent(LogoTwitter)
+                    .addComponent(btnInicio))
                 .addGap(9, 9, 9))
         );
-        OpcionesLayout.setVerticalGroup(
-            OpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(OpcionesLayout.createSequentialGroup()
+        MenuLayout.setVerticalGroup(
+            MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(MenuLayout.createSequentialGroup()
                 .addGap(29, 29, 29)
-                .addComponent(Logo_Twitter)
+                .addComponent(LogoTwitter)
                 .addGap(37, 37, 37)
-                .addComponent(Inicio)
+                .addComponent(btnInicio)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(Exprorar)
+                .addComponent(btnExprorar)
                 .addGap(18, 18, 18)
-                .addComponent(Notificaciones)
+                .addComponent(btnNotificaciones)
                 .addGap(18, 18, 18)
-                .addComponent(Perfil)
+                .addComponent(btnPerfil)
                 .addContainerGap(286, Short.MAX_VALUE))
         );
+
+        PanelBuscador.setBackground(new java.awt.Color(255, 255, 255));
+
+        Buscador.setBackground(new java.awt.Color(246, 234, 250));
+        Buscador.setText("Buscar");
+
+        btnBusqueda.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/lupa.png"))); // NOI18N
+
+        javax.swing.GroupLayout PanelBuscadorLayout = new javax.swing.GroupLayout(PanelBuscador);
+        PanelBuscador.setLayout(PanelBuscadorLayout);
+        PanelBuscadorLayout.setHorizontalGroup(
+            PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelBuscadorLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Buscador, javax.swing.GroupLayout.PREFERRED_SIZE, 603, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnBusqueda)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        PanelBuscadorLayout.setVerticalGroup(
+            PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelBuscadorLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Buscador, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnBusqueda))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        ScrollTweet.setViewportView(jTextArea1);
+
+        LabelPerfil.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/perfil.png"))); // NOI18N
+
+        btnTweet.setBackground(new java.awt.Color(246, 234, 250));
+        btnTweet.setText("Tweet");
+
+        javax.swing.GroupLayout PanelTweetLayout = new javax.swing.GroupLayout(PanelTweet);
+        PanelTweet.setLayout(PanelTweetLayout);
+        PanelTweetLayout.setHorizontalGroup(
+            PanelTweetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelTweetLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(LabelPerfil)
+                .addGap(31, 31, 31)
+                .addComponent(ScrollTweet, javax.swing.GroupLayout.PREFERRED_SIZE, 651, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(28, 28, 28)
+                .addComponent(btnTweet)
+                .addContainerGap(86, Short.MAX_VALUE))
+        );
+        PanelTweetLayout.setVerticalGroup(
+            PanelTweetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelTweetLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelTweetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnTweet)
+                    .addGroup(PanelTweetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(LabelPerfil)
+                        .addComponent(ScrollTweet, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(38, Short.MAX_VALUE))
+        );
+
+        btnUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/perfil.png"))); // NOI18N
 
         javax.swing.GroupLayout PanelTraseroLayout = new javax.swing.GroupLayout(PanelTrasero);
         PanelTrasero.setLayout(PanelTraseroLayout);
         PanelTraseroLayout.setHorizontalGroup(
             PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelTraseroLayout.createSequentialGroup()
-                .addComponent(Opciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 610, Short.MAX_VALUE))
+                .addComponent(Menu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelTraseroLayout.createSequentialGroup()
+                        .addComponent(PanelTweet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(PanelTraseroLayout.createSequentialGroup()
+                        .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnUsuario)
+                        .addGap(33, 33, 33))))
         );
         PanelTraseroLayout.setVerticalGroup(
             PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelTraseroLayout.createSequentialGroup()
-                .addComponent(Opciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(Menu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(PanelTraseroLayout.createSequentialGroup()
+                .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelTraseroLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(PanelTraseroLayout.createSequentialGroup()
+                        .addGap(14, 14, 14)
+                        .addComponent(btnUsuario)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(PanelTrasero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(PanelTrasero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -141,17 +238,17 @@ public class Home extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void InicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_InicioActionPerformed
+    private void btnInicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInicioActionPerformed
     // TODO add your handling code here:
-    }//GEN-LAST:event_InicioActionPerformed
+    }//GEN-LAST:event_btnInicioActionPerformed
 
-    private void ExprorarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExprorarActionPerformed
+    private void btnExprorarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExprorarActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_ExprorarActionPerformed
+    }//GEN-LAST:event_btnExprorarActionPerformed
 
-    private void NotificacionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NotificacionesActionPerformed
+    private void btnNotificacionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNotificacionesActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_NotificacionesActionPerformed
+    }//GEN-LAST:event_btnNotificacionesActionPerformed
 
     /**
      * @param args the command line arguments
@@ -192,12 +289,21 @@ public class Home extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton Exprorar;
-    private javax.swing.JButton Inicio;
-    private javax.swing.JLabel Logo_Twitter;
-    private javax.swing.JButton Notificaciones;
-    private javax.swing.JPanel Opciones;
+    private javax.swing.JTextField Buscador;
+    private javax.swing.JLabel LabelPerfil;
+    private javax.swing.JLabel LogoTwitter;
+    private javax.swing.JPanel Menu;
+    private javax.swing.JPanel PanelBuscador;
     private javax.swing.JPanel PanelTrasero;
-    private javax.swing.JButton Perfil;
+    private javax.swing.JPanel PanelTweet;
+    private javax.swing.JScrollPane ScrollTweet;
+    private javax.swing.JButton btnBusqueda;
+    private javax.swing.JButton btnExprorar;
+    private javax.swing.JButton btnInicio;
+    private javax.swing.JButton btnNotificaciones;
+    private javax.swing.JButton btnPerfil;
+    private javax.swing.JButton btnTweet;
+    private javax.swing.JButton btnUsuario;
+    private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
 }
