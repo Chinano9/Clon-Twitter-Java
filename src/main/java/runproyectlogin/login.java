@@ -125,7 +125,7 @@ public class login extends javax.swing.JFrame {
         l_texttwitterlogin.setText("Twitter");
         panelizquierdo_login.add(l_texttwitterlogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, -1, 40));
 
-        l_fondoiniciosesion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/Fondologinvertical.jpg"))); // NOI18N
+        l_fondoiniciosesion.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\Fondologinvertical.jpg")); // NOI18N
         panelizquierdo_login.add(l_fondoiniciosesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 350, 460));
 
         panelderecho_login.setBackground(new java.awt.Color(255, 255, 255));
@@ -159,6 +159,7 @@ public class login extends javax.swing.JFrame {
         panelderecho_login.add(tf_correo, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 150, 278, -1));
         panelderecho_login.add(tf_password, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 220, 278, -1));
 
+        b_showpassword.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\hidepassword10.png")); // NOI18N
         b_showpassword.setBorder(null);
         b_showpassword.setBorderPainted(false);
         b_showpassword.addActionListener(new java.awt.event.ActionListener() {
@@ -243,6 +244,13 @@ public class login extends javax.swing.JFrame {
 
     private void b_showpasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_showpasswordActionPerformed
         // TODO add your handling code here:
+        if (tf_password.getEchoChar() == '\u2022') { // Si está oculta
+        tf_password.setEchoChar((char) 0); // Mostrar la contraseña
+        b_showpassword.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\hidepassword10.png")); // Cambiar icono a "mostrar"
+    } else { // Si está visible
+        tf_password.setEchoChar('\u2022'); // Ocultar la contraseña
+        b_showpassword.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\showpassword10.png")); // Cambiar icono a "ocultar"
+    }
     }//GEN-LAST:event_b_showpasswordActionPerformed
 
     private void b_crearcuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_crearcuentaActionPerformed

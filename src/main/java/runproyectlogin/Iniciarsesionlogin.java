@@ -151,7 +151,7 @@ public class Iniciarsesionlogin extends javax.swing.JFrame {
         });
         panelderecho_loginyacuenta.add(tf_passwordyacuenta, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 210, 278, -1));
 
-        b_showpasswordyacuenta.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\hidepassword10.png")); // NOI18N
+        b_showpasswordyacuenta.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\showpassword10.png")); // NOI18N
         b_showpasswordyacuenta.setBorder(null);
         b_showpasswordyacuenta.setBorderPainted(false);
         b_showpasswordyacuenta.addActionListener(new java.awt.event.ActionListener() {
@@ -220,6 +220,13 @@ public class Iniciarsesionlogin extends javax.swing.JFrame {
 
     private void b_showpasswordyacuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_showpasswordyacuentaActionPerformed
         // TODO add your handling code here:
+        if (tf_passwordyacuenta.getEchoChar() == '\u2022') { // Si está oculta
+        tf_passwordyacuenta.setEchoChar((char) 0); // Mostrar la contraseña
+        b_showpasswordyacuenta.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\hidepassword10.png")); // Cambiar icono a "mostrar"
+    } else { // Si está visible
+        tf_passwordyacuenta.setEchoChar('\u2022'); // Ocultar la contraseña
+        b_showpasswordyacuenta.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\showpassword10.png")); // Cambiar icono a "ocultar"
+    }
     }//GEN-LAST:event_b_showpasswordyacuentaActionPerformed
 
     private void b_iniciarsesionyacuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_iniciarsesionyacuentaActionPerformed

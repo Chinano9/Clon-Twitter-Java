@@ -68,7 +68,7 @@
         <Component class="javax.swing.JLabel" name="l_fondoiniciosesion">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/imagenes/Fondologinvertical.jpg"/>
+              <Image iconType="2" name="C:\Users\alan_\Documents\NetBeansProjects\twitterproyect\src\main\Resource\Fondologinvertical.jpg"/>
             </Property>
           </Properties>
           <Constraints>
@@ -162,6 +162,9 @@
         </Component>
         <Component class="javax.swing.JButton" name="b_showpassword">
           <Properties>
+            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+              <Image iconType="2" name="C:\Users\alan_\Documents\NetBeansProjects\twitterproyect\src\main\Resource\hidepassword10.png"/>
+            </Property>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="null"/>
             </Property>
