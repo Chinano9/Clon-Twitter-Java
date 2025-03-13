@@ -76,7 +76,7 @@ public class Home extends javax.swing.JFrame {
         btnInicio.setBackground(new java.awt.Color(246, 234, 250));
         btnInicio.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnInicio.setForeground(new java.awt.Color(102, 0, 153));
-        btnInicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/brujula.png"))); // NOI18N
+        btnInicio.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\brujula.png")); // NOI18N
         btnInicio.setText("Inicio");
         btnInicio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -87,7 +87,7 @@ public class Home extends javax.swing.JFrame {
         btnExprorar.setBackground(new java.awt.Color(246, 234, 250));
         btnExprorar.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnExprorar.setForeground(new java.awt.Color(102, 0, 153));
-        btnExprorar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/lupa.png"))); // NOI18N
+        btnExprorar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\lupa.png")); // NOI18N
         btnExprorar.setText("Exprorar");
         btnExprorar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -98,7 +98,7 @@ public class Home extends javax.swing.JFrame {
         btnNotificaciones.setBackground(new java.awt.Color(246, 234, 250));
         btnNotificaciones.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnNotificaciones.setForeground(new java.awt.Color(102, 0, 153));
-        btnNotificaciones.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/Notificaciones.png"))); // NOI18N
+        btnNotificaciones.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\Notificaciones.png")); // NOI18N
         btnNotificaciones.setText("Notificaciones");
         btnNotificaciones.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -109,7 +109,7 @@ public class Home extends javax.swing.JFrame {
         btnPerfil.setBackground(new java.awt.Color(246, 234, 250));
         btnPerfil.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnPerfil.setForeground(new java.awt.Color(102, 0, 153));
-        btnPerfil.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/perfil.png"))); // NOI18N
+        btnPerfil.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\perfil.png")); // NOI18N
         btnPerfil.setText("Pefil");
 
         javax.swing.GroupLayout MenuLayout = new javax.swing.GroupLayout(Menu);
@@ -146,9 +146,14 @@ public class Home extends javax.swing.JFrame {
 
         Buscador.setBackground(new java.awt.Color(246, 234, 250));
         Buscador.setText("Buscar");
+        Buscador.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BuscadorActionPerformed(evt);
+            }
+        });
 
         btnBusqueda.setBackground(new java.awt.Color(246, 234, 250));
-        btnBusqueda.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/lupa.png"))); // NOI18N
+        btnBusqueda.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\lupa.png")); // NOI18N
 
         javax.swing.GroupLayout PanelBuscadorLayout = new javax.swing.GroupLayout(PanelBuscador);
         PanelBuscador.setLayout(PanelBuscadorLayout);
@@ -177,18 +182,18 @@ public class Home extends javax.swing.JFrame {
         jTextArea1.setRows(5);
         ScrollTweet.setViewportView(jTextArea1);
 
-        LabelPerfil.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/perfil.png"))); // NOI18N
+        LabelPerfil.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\perfil.png")); // NOI18N
 
         btnTweet.setBackground(new java.awt.Color(246, 234, 250));
         btnTweet.setText("Tweet");
 
-        btnMultimedia.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/multimedia.png"))); // NOI18N
+        btnMultimedia.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\multimedia.png")); // NOI18N
 
-        btnGif.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/gif.png"))); // NOI18N
+        btnGif.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\gif.png")); // NOI18N
 
-        btnEmojis.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/emoji.png"))); // NOI18N
+        btnEmojis.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\emoji.png")); // NOI18N
 
-        btnCalendario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/calendario.png"))); // NOI18N
+        btnCalendario.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\calendario.png")); // NOI18N
 
         javax.swing.GroupLayout PanelTweetLayout = new javax.swing.GroupLayout(PanelTweet);
         PanelTweet.setLayout(PanelTweetLayout);
@@ -231,13 +236,13 @@ public class Home extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        btnUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/perfil.png"))); // NOI18N
+        btnUsuario.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\perfil.png")); // NOI18N
 
         Panel.setBackground(new java.awt.Color(255, 255, 255));
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
-        LabelPerfil1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/perfil.png"))); // NOI18N
+        LabelPerfil1.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\perfil.png")); // NOI18N
 
         NomUsuario.setText("NomUsuario");
 
@@ -249,13 +254,13 @@ public class Home extends javax.swing.JFrame {
 
         ImagenPublicacion.setText("Imagen de la publicacion");
 
-        btnComentarios.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/Comentario.png"))); // NOI18N
+        btnComentarios.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\Comentario.png")); // NOI18N
         btnComentarios.setText("61");
 
-        btnRetwett.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/repetir.png"))); // NOI18N
+        btnRetwett.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\repetir.png")); // NOI18N
         btnRetwett.setText("12");
 
-        btnRetwett1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/ImgHome/corazon.png"))); // NOI18N
+        btnRetwett1.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\corazon.png")); // NOI18N
         btnRetwett1.setText("6.2k");
 
         btniniciarsesion.setText("Show this thread");
@@ -412,6 +417,10 @@ public class Home extends javax.swing.JFrame {
         inicio2.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btniniciarsesionActionPerformed
+
+    private void BuscadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscadorActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BuscadorActionPerformed
 
     /**
      * @param args the command line arguments

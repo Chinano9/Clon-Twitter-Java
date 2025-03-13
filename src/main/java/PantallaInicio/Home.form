@@ -161,7 +161,7 @@
                   <Color blue="99" green="0" red="66" type="rgb"/>
                 </Property>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/imagenes/ImgHome/brujula.png"/>
+                  <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\brujula.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Inicio"/>
               </Properties>
@@ -181,7 +181,7 @@
                   <Color blue="99" green="0" red="66" type="rgb"/>
                 </Property>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/imagenes/ImgHome/lupa.png"/>
+                  <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\lupa.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Exprorar"/>
               </Properties>
@@ -201,7 +201,7 @@
                   <Color blue="99" green="0" red="66" type="rgb"/>
                 </Property>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/imagenes/ImgHome/Notificaciones.png"/>
+                  <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\Notificaciones.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Notificaciones"/>
               </Properties>
@@ -221,7 +221,7 @@
                   <Color blue="99" green="0" red="66" type="rgb"/>
                 </Property>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/imagenes/ImgHome/perfil.png"/>
+                  <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\perfil.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Pefil"/>
               </Properties>
@@ -268,6 +268,9 @@
                 </Property>
                 <Property name="text" type="java.lang.String" value="Buscar"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BuscadorActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="btnBusqueda">
               <Properties>
@@ -275,7 +278,7 @@
                   <Color blue="fa" green="ea" red="f6" type="rgb"/>
                 </Property>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/imagenes/ImgHome/lupa.png"/>
+                  <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\lupa.png"/>
                 </Property>
               </Properties>
             </Component>
@@ -357,7 +360,7 @@
             <Component class="javax.swing.JLabel" name="LabelPerfil">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/imagenes/ImgHome/perfil.png"/>
+                  <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\perfil.png"/>
                 </Property>
               </Properties>
             </Component>
@@ -372,28 +375,28 @@
             <Component class="javax.swing.JButton" name="btnMultimedia">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/imagenes/ImgHome/multimedia.png"/>
+                  <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\multimedia.png"/>
                 </Property>
               </Properties>
             </Component>
             <Component class="javax.swing.JButton" name="btnGif">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/imagenes/ImgHome/gif.png"/>
+                  <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\gif.png"/>
                 </Property>
               </Properties>
             </Component>
             <Component class="javax.swing.JButton" name="btnEmojis">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/imagenes/ImgHome/emoji.png"/>
+                  <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\emoji.png"/>
                 </Property>
               </Properties>
             </Component>
             <Component class="javax.swing.JButton" name="btnCalendario">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/imagenes/ImgHome/calendario.png"/>
+                  <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\calendario.png"/>
                 </Property>
               </Properties>
             </Component>
@@ -402,7 +405,7 @@
         <Component class="javax.swing.JButton" name="btnUsuario">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/imagenes/ImgHome/perfil.png"/>
+              <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\perfil.png"/>
             </Property>
           </Properties>
         </Component>
@@ -508,7 +511,7 @@
                     <Component class="javax.swing.JLabel" name="LabelPerfil1">
                       <Properties>
                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                          <Image iconType="3" name="/imagenes/ImgHome/perfil.png"/>
+                          <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\perfil.png"/>
                         </Property>
                       </Properties>
                     </Component>
@@ -540,7 +543,7 @@
                     <Component class="javax.swing.JButton" name="btnComentarios">
                       <Properties>
                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                          <Image iconType="3" name="/imagenes/ImgHome/Comentario.png"/>
+                          <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\Comentario.png"/>
                         </Property>
                         <Property name="text" type="java.lang.String" value="61"/>
                       </Properties>
@@ -548,7 +551,7 @@
                     <Component class="javax.swing.JButton" name="btnRetwett">
                       <Properties>
                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                          <Image iconType="3" name="/imagenes/ImgHome/repetir.png"/>
+                          <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\repetir.png"/>
                         </Property>
                         <Property name="text" type="java.lang.String" value="12"/>
                       </Properties>
@@ -556,7 +559,7 @@
                     <Component class="javax.swing.JButton" name="btnRetwett1">
                       <Properties>
                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                          <Image iconType="3" name="/imagenes/ImgHome/corazon.png"/>
+                          <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\corazon.png"/>
                         </Property>
                         <Property name="text" type="java.lang.String" value="6.2k"/>
                       </Properties>
