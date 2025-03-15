@@ -50,8 +50,8 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <Component id="Menu" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
+                  <Component id="MenuTweets" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="jLabel4" min="-2" pref="262" max="-2" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
@@ -75,7 +75,7 @@
                           <Component id="txtTweets" min="-2" pref="388" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace pref="59" max="32767" attributes="0"/>
+                  <EmptySpace pref="76" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -106,7 +106,7 @@
                   </Group>
                   <EmptySpace pref="84" max="32767" attributes="0"/>
               </Group>
-              <Component id="Menu" alignment="0" max="32767" attributes="0"/>
+              <Component id="MenuTweets" alignment="0" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -173,7 +173,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLoadActionPerformed"/>
           </Events>
         </Component>
-        <Container class="javax.swing.JPanel" name="Menu">
+        <Container class="javax.swing.JPanel" name="MenuTweets">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="fa" green="ea" red="f6" type="rgb"/>
@@ -184,13 +184,13 @@
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace pref="37" max="32767" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="btnNotificaciones" min="-2" max="-2" attributes="0"/>
                           <Component id="btnPerfil" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="btnExprorar" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="btnNotificaciones" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="LogoTwitter" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="btnInicio" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnExprorar" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
                   </Group>
@@ -201,14 +201,14 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
                       <Component id="LogoTwitter" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
                       <Component id="btnInicio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="btnExprorar" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="btnNotificaciones" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
                       <Component id="btnPerfil" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="42" max="-2" attributes="0"/>
+                      <Component id="btnExprorar" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
+                      <Component id="btnNotificaciones" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
@@ -241,6 +241,13 @@
                   <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\brujula.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Inicio"/>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="null"/>
+                </Property>
+                <Property name="contentAreaFilled" type="boolean" value="false"/>
+                <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+                  <Color id="Hand Cursor"/>
+                </Property>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnInicioActionPerformed"/>
@@ -261,6 +268,13 @@
                   <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\lupa.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Exprorar"/>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="null"/>
+                </Property>
+                <Property name="contentAreaFilled" type="boolean" value="false"/>
+                <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+                  <Color id="Hand Cursor"/>
+                </Property>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnExprorarActionPerformed"/>
@@ -281,6 +295,13 @@
                   <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\Notificaciones.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Notificaciones"/>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="null"/>
+                </Property>
+                <Property name="contentAreaFilled" type="boolean" value="false"/>
+                <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+                  <Color id="Hand Cursor"/>
+                </Property>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnNotificacionesActionPerformed"/>
@@ -301,6 +322,13 @@
                   <Image iconType="2" name="C:\Users\Jaime Paredes\Documents\NetBeansProjects\Twitterproyect\src\main\Resource\ImgHome\perfil.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Pefil"/>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="null"/>
+                </Property>
+                <Property name="contentAreaFilled" type="boolean" value="false"/>
+                <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+                  <Color id="Hand Cursor"/>
+                </Property>
               </Properties>
             </Component>
           </SubComponents>

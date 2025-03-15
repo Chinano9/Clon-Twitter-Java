@@ -6,6 +6,8 @@ package PantallaInicio;
 
 import java.awt.Image;
 import javax.swing.ImageIcon;
+import com.twitter.twitterprime.tweets;
+import Explorar.Buscador;
 
 /**
  *
@@ -30,12 +32,12 @@ public class Home extends javax.swing.JFrame {
     private void initComponents() {
 
         PanelTrasero = new javax.swing.JPanel();
-        Menu = new javax.swing.JPanel();
-        LogoTwitter = new javax.swing.JLabel();
-        btnInicio = new javax.swing.JButton();
-        btnExprorar = new javax.swing.JButton();
-        btnNotificaciones = new javax.swing.JButton();
-        btnPerfil = new javax.swing.JButton();
+        Menu2 = new javax.swing.JPanel();
+        LogoTwitter2 = new javax.swing.JLabel();
+        btnInicio2 = new javax.swing.JButton();
+        btnExprorar2 = new javax.swing.JButton();
+        btnNotificaciones2 = new javax.swing.JButton();
+        btnPerfil2 = new javax.swing.JButton();
         PanelBuscador = new javax.swing.JPanel();
         Buscador = new javax.swing.JTextField();
         btnBusqueda = new javax.swing.JButton();
@@ -67,78 +69,90 @@ public class Home extends javax.swing.JFrame {
 
         PanelTrasero.setBackground(new java.awt.Color(255, 255, 255));
 
-        Menu.setBackground(new java.awt.Color(246, 234, 250));
+        Menu2.setBackground(new java.awt.Color(246, 234, 250));
 
-        LogoTwitter.setFont(new java.awt.Font("Eras Bold ITC", 0, 36)); // NOI18N
-        LogoTwitter.setForeground(new java.awt.Color(102, 0, 153));
-        LogoTwitter.setText("Twitter");
+        LogoTwitter2.setFont(new java.awt.Font("Eras Bold ITC", 0, 36)); // NOI18N
+        LogoTwitter2.setForeground(new java.awt.Color(102, 0, 153));
+        LogoTwitter2.setText("Twitter");
 
-        btnInicio.setBackground(new java.awt.Color(246, 234, 250));
-        btnInicio.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
-        btnInicio.setForeground(new java.awt.Color(102, 0, 153));
-        btnInicio.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\brujula.png")); // NOI18N
-        btnInicio.setText("Inicio");
-        btnInicio.addActionListener(new java.awt.event.ActionListener() {
+        btnInicio2.setBackground(new java.awt.Color(246, 234, 250));
+        btnInicio2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
+        btnInicio2.setForeground(new java.awt.Color(102, 0, 153));
+        btnInicio2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\brujula.png")); // NOI18N
+        btnInicio2.setText("Inicio");
+        btnInicio2.setBorder(null);
+        btnInicio2.setContentAreaFilled(false);
+        btnInicio2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnInicio2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnInicioActionPerformed(evt);
+                btnInicio2ActionPerformed(evt);
             }
         });
 
-        btnExprorar.setBackground(new java.awt.Color(246, 234, 250));
-        btnExprorar.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
-        btnExprorar.setForeground(new java.awt.Color(102, 0, 153));
-        btnExprorar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\lupa.png")); // NOI18N
-        btnExprorar.setText("Exprorar");
-        btnExprorar.addActionListener(new java.awt.event.ActionListener() {
+        btnExprorar2.setBackground(new java.awt.Color(246, 234, 250));
+        btnExprorar2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
+        btnExprorar2.setForeground(new java.awt.Color(102, 0, 153));
+        btnExprorar2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\lupa.png")); // NOI18N
+        btnExprorar2.setText("Exprorar");
+        btnExprorar2.setBorder(null);
+        btnExprorar2.setContentAreaFilled(false);
+        btnExprorar2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnExprorar2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnExprorarActionPerformed(evt);
+                btnExprorar2ActionPerformed(evt);
             }
         });
 
-        btnNotificaciones.setBackground(new java.awt.Color(246, 234, 250));
-        btnNotificaciones.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
-        btnNotificaciones.setForeground(new java.awt.Color(102, 0, 153));
-        btnNotificaciones.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\Notificaciones.png")); // NOI18N
-        btnNotificaciones.setText("Notificaciones");
-        btnNotificaciones.addActionListener(new java.awt.event.ActionListener() {
+        btnNotificaciones2.setBackground(new java.awt.Color(246, 234, 250));
+        btnNotificaciones2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
+        btnNotificaciones2.setForeground(new java.awt.Color(102, 0, 153));
+        btnNotificaciones2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\Notificaciones.png")); // NOI18N
+        btnNotificaciones2.setText("Notificaciones");
+        btnNotificaciones2.setBorder(null);
+        btnNotificaciones2.setContentAreaFilled(false);
+        btnNotificaciones2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnNotificaciones2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnNotificacionesActionPerformed(evt);
+                btnNotificaciones2ActionPerformed(evt);
             }
         });
 
-        btnPerfil.setBackground(new java.awt.Color(246, 234, 250));
-        btnPerfil.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
-        btnPerfil.setForeground(new java.awt.Color(102, 0, 153));
-        btnPerfil.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\perfil.png")); // NOI18N
-        btnPerfil.setText("Pefil");
+        btnPerfil2.setBackground(new java.awt.Color(246, 234, 250));
+        btnPerfil2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
+        btnPerfil2.setForeground(new java.awt.Color(102, 0, 153));
+        btnPerfil2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\perfil.png")); // NOI18N
+        btnPerfil2.setText("Pefil");
+        btnPerfil2.setBorder(null);
+        btnPerfil2.setContentAreaFilled(false);
+        btnPerfil2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        javax.swing.GroupLayout MenuLayout = new javax.swing.GroupLayout(Menu);
-        Menu.setLayout(MenuLayout);
-        MenuLayout.setHorizontalGroup(
-            MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, MenuLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnPerfil)
-                    .addComponent(btnExprorar)
-                    .addComponent(btnNotificaciones)
-                    .addComponent(LogoTwitter)
-                    .addComponent(btnInicio))
+        javax.swing.GroupLayout Menu2Layout = new javax.swing.GroupLayout(Menu2);
+        Menu2.setLayout(Menu2Layout);
+        Menu2Layout.setHorizontalGroup(
+            Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Menu2Layout.createSequentialGroup()
+                .addContainerGap(37, Short.MAX_VALUE)
+                .addGroup(Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnNotificaciones2)
+                    .addComponent(btnInicio2)
+                    .addComponent(btnExprorar2)
+                    .addComponent(btnPerfil2)
+                    .addComponent(LogoTwitter2))
                 .addGap(9, 9, 9))
         );
-        MenuLayout.setVerticalGroup(
-            MenuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(MenuLayout.createSequentialGroup()
+        Menu2Layout.setVerticalGroup(
+            Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Menu2Layout.createSequentialGroup()
                 .addGap(29, 29, 29)
-                .addComponent(LogoTwitter)
-                .addGap(37, 37, 37)
-                .addComponent(btnInicio)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnExprorar)
-                .addGap(18, 18, 18)
-                .addComponent(btnNotificaciones)
-                .addGap(18, 18, 18)
-                .addComponent(btnPerfil)
+                .addComponent(LogoTwitter2)
+                .addGap(35, 35, 35)
+                .addComponent(btnInicio2)
+                .addGap(34, 34, 34)
+                .addComponent(btnPerfil2)
+                .addGap(41, 41, 41)
+                .addComponent(btnExprorar2)
+                .addGap(43, 43, 43)
+                .addComponent(btnNotificaciones2)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -188,12 +202,24 @@ public class Home extends javax.swing.JFrame {
         btnTweet.setText("Tweet");
 
         btnMultimedia.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\multimedia.png")); // NOI18N
+        btnMultimedia.setBorder(null);
+        btnMultimedia.setContentAreaFilled(false);
+        btnMultimedia.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         btnGif.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\gif.png")); // NOI18N
+        btnGif.setBorder(null);
+        btnGif.setContentAreaFilled(false);
+        btnGif.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         btnEmojis.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\emoji.png")); // NOI18N
+        btnEmojis.setBorder(null);
+        btnEmojis.setContentAreaFilled(false);
+        btnEmojis.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         btnCalendario.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\calendario.png")); // NOI18N
+        btnCalendario.setBorder(null);
+        btnCalendario.setContentAreaFilled(false);
+        btnCalendario.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         javax.swing.GroupLayout PanelTweetLayout = new javax.swing.GroupLayout(PanelTweet);
         PanelTweet.setLayout(PanelTweetLayout);
@@ -256,12 +282,26 @@ public class Home extends javax.swing.JFrame {
 
         btnComentarios.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\Comentario.png")); // NOI18N
         btnComentarios.setText("61");
+        btnComentarios.setBorder(null);
+        btnComentarios.setContentAreaFilled(false);
+        btnComentarios.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnComentarios.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnComentariosActionPerformed(evt);
+            }
+        });
 
         btnRetwett.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\repetir.png")); // NOI18N
         btnRetwett.setText("12");
+        btnRetwett.setBorder(null);
+        btnRetwett.setContentAreaFilled(false);
+        btnRetwett.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         btnRetwett1.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\corazon.png")); // NOI18N
         btnRetwett1.setText("6.2k");
+        btnRetwett1.setBorder(null);
+        btnRetwett1.setContentAreaFilled(false);
+        btnRetwett1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         btniniciarsesion.setText("Show this thread");
         btniniciarsesion.setBorder(null);
@@ -293,9 +333,9 @@ public class Home extends javax.swing.JFrame {
                     .addComponent(ImagenPublicacion, javax.swing.GroupLayout.PREFERRED_SIZE, 690, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(btnComentarios)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(72, 72, 72)
                         .addComponent(btnRetwett)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(82, 82, 82)
                         .addComponent(btnRetwett1)))
                 .addContainerGap(28, Short.MAX_VALUE))
         );
@@ -337,7 +377,7 @@ public class Home extends javax.swing.JFrame {
             .addGroup(PanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(215, Short.MAX_VALUE))
+                .addContainerGap(231, Short.MAX_VALUE))
         );
 
         ScrollHome.setViewportView(Panel);
@@ -347,8 +387,8 @@ public class Home extends javax.swing.JFrame {
         PanelTraseroLayout.setHorizontalGroup(
             PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelTraseroLayout.createSequentialGroup()
-                .addComponent(Menu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(Menu2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(24, 24, 24)
                 .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelTraseroLayout.createSequentialGroup()
                         .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -359,11 +399,11 @@ public class Home extends javax.swing.JFrame {
                         .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(ScrollHome, javax.swing.GroupLayout.PREFERRED_SIZE, 797, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap(18, Short.MAX_VALUE))))
         );
         PanelTraseroLayout.setVerticalGroup(
             PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PanelTraseroLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelTraseroLayout.createSequentialGroup()
                 .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelTraseroLayout.createSequentialGroup()
                         .addContainerGap()
@@ -374,42 +414,24 @@ public class Home extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(ScrollHome)
+                .addComponent(ScrollHome, javax.swing.GroupLayout.DEFAULT_SIZE, 545, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(Menu, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(Menu2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(PanelTrasero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(PanelTrasero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(PanelTrasero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+            .addComponent(PanelTrasero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnInicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInicioActionPerformed
-    // TODO add your handling code here:
-    }//GEN-LAST:event_btnInicioActionPerformed
-
-    private void btnExprorarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExprorarActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnExprorarActionPerformed
-
-    private void btnNotificacionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNotificacionesActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnNotificacionesActionPerformed
 
     private void btniniciarsesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btniniciarsesionActionPerformed
         //Cambiar a pantalla de inicio
@@ -421,6 +443,28 @@ public class Home extends javax.swing.JFrame {
     private void BuscadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscadorActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_BuscadorActionPerformed
+
+    private void btnComentariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComentariosActionPerformed
+        tweets ventanaTweets = new tweets();
+        ventanaTweets.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnComentariosActionPerformed
+
+    private void btnInicio2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInicio2ActionPerformed
+        Home h = new Home();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnInicio2ActionPerformed
+
+    private void btnExprorar2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExprorar2ActionPerformed
+        Buscador b = new Buscador();
+        b.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnExprorar2ActionPerformed
+
+    private void btnNotificaciones2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNotificaciones2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnNotificaciones2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -468,8 +512,8 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JLabel ImagenPublicacion;
     private javax.swing.JLabel LabelPerfil;
     private javax.swing.JLabel LabelPerfil1;
-    private javax.swing.JLabel LogoTwitter;
-    private javax.swing.JPanel Menu;
+    private javax.swing.JLabel LogoTwitter2;
+    private javax.swing.JPanel Menu2;
     private javax.swing.JLabel NomUsuario;
     private javax.swing.JPanel Panel;
     private javax.swing.JPanel PanelBuscador;
@@ -481,12 +525,12 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JButton btnCalendario;
     private javax.swing.JButton btnComentarios;
     private javax.swing.JButton btnEmojis;
-    private javax.swing.JButton btnExprorar;
+    private javax.swing.JButton btnExprorar2;
     private javax.swing.JButton btnGif;
-    private javax.swing.JButton btnInicio;
+    private javax.swing.JButton btnInicio2;
     private javax.swing.JButton btnMultimedia;
-    private javax.swing.JButton btnNotificaciones;
-    private javax.swing.JButton btnPerfil;
+    private javax.swing.JButton btnNotificaciones2;
+    private javax.swing.JButton btnPerfil2;
     private javax.swing.JButton btnRetwett;
     private javax.swing.JButton btnRetwett1;
     private javax.swing.JButton btnTweet;
