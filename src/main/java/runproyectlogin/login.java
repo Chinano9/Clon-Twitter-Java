@@ -8,13 +8,23 @@ package runproyectlogin;
  *
  * @author alan_
  */
-
+import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import javax.swing.JFileChooser;
+
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import java.io.File;
+
+import javax.swing.ImageIcon;
+
+import java.awt.Image;
 
 public class login extends javax.swing.JFrame {
 
@@ -143,6 +153,8 @@ public class login extends javax.swing.JFrame {
         b_crearcuenta = new javax.swing.JButton();
         l_iniciarsesion = new javax.swing.JLabel();
         b_iniciarsesion = new javax.swing.JButton();
+        lblFoto = new javax.swing.JLabel();
+        btnSeleccionarFoto = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -153,8 +165,6 @@ public class login extends javax.swing.JFrame {
         l_texttwitterlogin.setForeground(new java.awt.Color(255, 255, 255));
         l_texttwitterlogin.setText("Twitter");
         panelizquierdo_login.add(l_texttwitterlogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, -1, 40));
-
-        l_fondoiniciosesion.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\Fondologinvertical.jpg")); // NOI18N
         panelizquierdo_login.add(l_fondoiniciosesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 350, 460));
 
         panelderecho_login.setBackground(new java.awt.Color(255, 255, 255));
@@ -162,33 +172,32 @@ public class login extends javax.swing.JFrame {
 
         l_textcraeteaccount.setFont(new java.awt.Font("Verdana", 1, 12)); // NOI18N
         l_textcraeteaccount.setText("Create an account");
-        panelderecho_login.add(l_textcraeteaccount, new org.netbeans.lib.awtextra.AbsoluteConstraints(49, 20, -1, -1));
+        panelderecho_login.add(l_textcraeteaccount, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, -1, -1));
 
         l_nombreusuario.setText("Nombre de usuario");
-        panelderecho_login.add(l_nombreusuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 70, -1, -1));
+        panelderecho_login.add(l_nombreusuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, -1, -1));
 
         l_correo.setText("Correo");
-        panelderecho_login.add(l_correo, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 130, -1, -1));
+        panelderecho_login.add(l_correo, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 100, -1, -1));
 
         l_password.setText("Contraseña");
-        panelderecho_login.add(l_password, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 200, -1, -1));
+        panelderecho_login.add(l_password, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 150, -1, -1));
 
         tf_nombreusuario.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tf_nombreusuarioActionPerformed(evt);
             }
         });
-        panelderecho_login.add(tf_nombreusuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 90, 278, -1));
+        panelderecho_login.add(tf_nombreusuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 70, 278, -1));
 
         tf_correo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tf_correoActionPerformed(evt);
             }
         });
-        panelderecho_login.add(tf_correo, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 150, 278, -1));
-        panelderecho_login.add(tf_password, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 220, 278, -1));
+        panelderecho_login.add(tf_correo, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 120, 278, -1));
+        panelderecho_login.add(tf_password, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 170, 278, -1));
 
-        b_showpassword.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\hidepassword10.png")); // NOI18N
         b_showpassword.setBorder(null);
         b_showpassword.setBorderPainted(false);
         b_showpassword.addActionListener(new java.awt.event.ActionListener() {
@@ -196,31 +205,31 @@ public class login extends javax.swing.JFrame {
                 b_showpasswordActionPerformed(evt);
             }
         });
-        panelderecho_login.add(b_showpassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(306, 200, 20, 20));
+        panelderecho_login.add(b_showpassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 240, 20, 20));
 
         l1_passwordconditions.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         l1_passwordconditions.setForeground(new java.awt.Color(153, 153, 153));
         l1_passwordconditions.setText("Usa 8 o mas caracteres con una mezcla de numeros, letras y ");
-        panelderecho_login.add(l1_passwordconditions, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 250, -1, -1));
+        panelderecho_login.add(l1_passwordconditions, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 240, -1, -1));
 
         l2_passwordconditions.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         l2_passwordconditions.setForeground(new java.awt.Color(153, 153, 153));
         l2_passwordconditions.setText("caracteres especiales.");
-        panelderecho_login.add(l2_passwordconditions, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 270, -1, -1));
+        panelderecho_login.add(l2_passwordconditions, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 260, -1, -1));
 
         l1_terminos.setForeground(new java.awt.Color(153, 153, 153));
         l1_terminos.setText("Al crear una cuenta aceptas nuestros");
-        panelderecho_login.add(l1_terminos, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 310, -1, -1));
+        panelderecho_login.add(l1_terminos, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 280, -1, -1));
 
         l2_terminos.setText("Terminos de uso y políticas de privacidad");
-        panelderecho_login.add(l2_terminos, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 330, -1, -1));
+        panelderecho_login.add(l2_terminos, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 300, -1, -1));
 
         check_terminos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 check_terminosActionPerformed(evt);
             }
         });
-        panelderecho_login.add(check_terminos, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 330, -1, -1));
+        panelderecho_login.add(check_terminos, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 300, -1, -1));
 
         b_crearcuenta.setBackground(new java.awt.Color(237, 186, 250));
         b_crearcuenta.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -233,7 +242,7 @@ public class login extends javax.swing.JFrame {
                 b_crearcuentaActionPerformed(evt);
             }
         });
-        panelderecho_login.add(b_crearcuenta, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 360, 136, 35));
+        panelderecho_login.add(b_crearcuenta, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 330, 136, 35));
 
         l_iniciarsesion.setText("¿Ya tienes cuenta?");
         panelderecho_login.add(l_iniciarsesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 420, -1, -1));
@@ -248,6 +257,17 @@ public class login extends javax.swing.JFrame {
             }
         });
         panelderecho_login.add(b_iniciarsesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 420, -1, -1));
+
+        lblFoto.setText("mostrar");
+        panelderecho_login.add(lblFoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 210, -1, -1));
+
+        btnSeleccionarFoto.setText("Selecciona Foto");
+        btnSeleccionarFoto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSeleccionarFotoActionPerformed(evt);
+            }
+        });
+        panelderecho_login.add(btnSeleccionarFoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 210, -1, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -284,72 +304,85 @@ public class login extends javax.swing.JFrame {
     }//GEN-LAST:event_b_showpasswordActionPerformed
 
     private void b_crearcuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_crearcuentaActionPerformed
+// Conexión a la base de datos
+Connection conexion = BasededatosTwitter.conectar();
+if (conexion != null) {
+    System.out.println("El archivo de base de datos se encuentra conectado correctamente.");
+} else {
+    System.out.println("Error al conectar con base de datos.");
+}   
 
-        //Conexion al archivo de conexion de base de datos:
-         Connection conexion = BasededatosTwitter.conectar();
-         if (conexion != null) {
-        System.out.println("El archivo de base de datos se encuentra conectado correctamente.");
-        } else {
-        System.out.println("Error al conectar con base de datos.");
-        }   
-         
-        //Tomar los datos
-        String nombre_usuario = tf_nombreusuario.getText().trim();
-        String email = tf_correo.getText().trim();
-        String password = tf_password.getText().trim();
-        
-        //Verificar que se llenaron los datos
-        if(nombre_usuario.isEmpty() || email.isEmpty() || password.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
-        return;
+// Tomar los datos
+String nombre_usuario = tf_nombreusuario.getText().trim();
+String email = tf_correo.getText().trim();
+String password = tf_password.getText().trim();
+
+// Verificar que se llenaron los datos
+if(nombre_usuario.isEmpty() || email.isEmpty() || password.isEmpty()) {
+    JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
+    return;
+}
+
+// Verificar si no existe nombre de usuario
+if (verificarExistencianombreusuario(nombre_usuario)) {
+    JOptionPane.showMessageDialog(this, "El nombre de usuario ya existe, crea uno nuevo.");
+    return;
+} else {
+    System.out.println("Datos validados.");
+}
+
+// Validar la contraseña con los parámetros requeridos
+if (!validarContrasena(password)) {
+    JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 8 caracteres, incluir números, letras y caracteres especiales.");
+    return;         
+}
+
+if (!esCorreoValido(email)) {
+    JOptionPane.showMessageDialog(this, "El formato de correo electrónico es incorrecto.");
+    return;
+}
+
+// 2. Insertar en la base de datos
+try {
+    // Adaptamos la consulta para incluir la columna de foto de perfil
+    String sql = "INSERT INTO usuarios (nombre_usuario, email, password, foto_perfil) VALUES (?, ?, ?, ?)";
+    PreparedStatement ps = conexion.prepareStatement(sql);
+    ps.setString(1, nombre_usuario);
+    ps.setString(2, email);
+    ps.setString(3, password);
+    
+    // Verificar si se seleccionó una foto
+    if (archivoFotoSeleccionada != null) {
+        FileInputStream fis = new FileInputStream(archivoFotoSeleccionada);
+        ps.setBinaryStream(4, fis, (int) archivoFotoSeleccionada.length());
+    } else {
+        // Si no se seleccionó imagen, se puede asignar nulo
+        ps.setNull(4, java.sql.Types.BLOB);
     }
-        //Verificar si no existe nombre de usuario
-        if (verificarExistencianombreusuario(nombre_usuario)) {
-            JOptionPane.showMessageDialog(this, "El nombre de usuario ya existe, crea uno nuevo.");
-            return;
-        } else {
-            System.out.println("Datos validados.");
-        }
-        
-        
-        //Validar la contrasenia con los parametros requeridos
-        if (!validarContrasena(password)) {
-        JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 8 caracteres, incluir números, letras y caracteres especiales.");
-         return;         
-        }
-        
-        if (!esCorreoValido(email)) {
-        JOptionPane.showMessageDialog(this, "El formato de correo electronico es incorrecto.");
-         return;
-        }
- 
-    // 2. Insertar en la base de datos
-    //try (Connection con = BasededatosTwitter.getConnection()) {
-        try{
-        String sql = "INSERT INTO usuarios (nombre_usuario, email, password) VALUES (?, ?, ?)";
-        PreparedStatement ps = conexion.prepareStatement(sql);
-        ps.setString(1, nombre_usuario);
-        ps.setString(2, email);
-        ps.setString(3, password);
-        ps.executeUpdate();
-        
-        //Si los datos se insertaron correctamente
-        JOptionPane.showMessageDialog(this, "¡Usuario creado con exito!");
- 
-        // 3. Limpiar los campos
-        tf_nombreusuario.setText("");
-        tf_correo.setText("");
-        tf_password.setText("");
-        
-         //Cambiar a pantalla de inicio
-        PantallaInicio.Home inicio1 = new PantallaInicio.Home();
-        inicio1.setVisible(true);
-        this.dispose();
-        
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Hubo un error al crear su cuenta, intenta mas tarde." + e.getMessage());
-    }
+    
+    ps.executeUpdate();
+    
+    // Si los datos se insertaron correctamente
+    JOptionPane.showMessageDialog(this, "¡Usuario creado con éxito!");
+    
+    // 3. Limpiar los campos
+    tf_nombreusuario.setText("");
+    tf_correo.setText("");
+    tf_password.setText("");
+    
+    // Cambiar a pantalla de inicio
+    PantallaInicio.Home inicio1 = new PantallaInicio.Home();
+    inicio1.setVisible(true);
+    this.dispose();
+    
+} catch (SQLException e) {
+    e.printStackTrace();
+    JOptionPane.showMessageDialog(this, "Hubo un error al crear su cuenta, intenta más tarde: " + e.getMessage());
+} catch (FileNotFoundException e) {
+    e.printStackTrace();
+    JOptionPane.showMessageDialog(this, "Error al cargar la imagen: " + e.getMessage());
+}
+
      
     }//GEN-LAST:event_b_crearcuentaActionPerformed
 
@@ -367,6 +400,35 @@ public class login extends javax.swing.JFrame {
     private void tf_correoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tf_correoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_tf_correoActionPerformed
+private File archivoFotoSeleccionada;
+
+
+    private void btnSeleccionarFotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarFotoActionPerformed
+ JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setFileFilter(new FileNameExtensionFilter("Imágenes", "jpg", "png", "jpeg", "gif"));
+    
+    int resultado = fileChooser.showOpenDialog(this);
+    if (resultado == JFileChooser.APPROVE_OPTION) {
+        archivoFotoSeleccionada = fileChooser.getSelectedFile();
+
+        // 1. Crear ImageIcon con la ruta de la imagen
+        ImageIcon icono = new ImageIcon(archivoFotoSeleccionada.getAbsolutePath());
+        
+        // 2. Escalar la imagen al tamaño del JLabel
+        Image imagenEscalada = icono.getImage().getScaledInstance(
+            lblFoto.getWidth(),
+            lblFoto.getHeight(),
+            Image.SCALE_SMOOTH
+        );
+        
+        // 3. Crear un nuevo ImageIcon con la imagen escalada
+        icono = new ImageIcon(imagenEscalada);
+
+        // 4. Asignar el icono al JLabel
+        lblFoto.setIcon(icono);
+        lblFoto.setText(""); // Por si tenía algún texto
+    }
+    }//GEN-LAST:event_btnSeleccionarFotoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -410,6 +472,7 @@ public class login extends javax.swing.JFrame {
     private javax.swing.JButton b_crearcuenta;
     private javax.swing.JButton b_iniciarsesion;
     private javax.swing.JButton b_showpassword;
+    private javax.swing.JButton btnSeleccionarFoto;
     private javax.swing.JCheckBox check_terminos;
     private javax.swing.JLabel l1_passwordconditions;
     private javax.swing.JLabel l1_terminos;
@@ -422,6 +485,7 @@ public class login extends javax.swing.JFrame {
     private javax.swing.JLabel l_password;
     private javax.swing.JLabel l_textcraeteaccount;
     private javax.swing.JLabel l_texttwitterlogin;
+    private javax.swing.JLabel lblFoto;
     private javax.swing.JPanel panelderecho_login;
     private javax.swing.JPanel panelizquierdo_login;
     private javax.swing.JTextField tf_correo;

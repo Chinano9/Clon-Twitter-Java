@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.twitter.twitterprime;
+package TweetVisual;
 import Explorar.Buscador;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -107,7 +107,6 @@ public class tweets extends javax.swing.JFrame {
         btnInicio.setBackground(new java.awt.Color(246, 234, 250));
         btnInicio.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnInicio.setForeground(new java.awt.Color(102, 0, 153));
-        btnInicio.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\brujula.png")); // NOI18N
         btnInicio.setText("Inicio");
         btnInicio.setBorder(null);
         btnInicio.setContentAreaFilled(false);
@@ -121,7 +120,6 @@ public class tweets extends javax.swing.JFrame {
         btnExprorar.setBackground(new java.awt.Color(246, 234, 250));
         btnExprorar.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnExprorar.setForeground(new java.awt.Color(102, 0, 153));
-        btnExprorar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\lupa.png")); // NOI18N
         btnExprorar.setText("Exprorar");
         btnExprorar.setBorder(null);
         btnExprorar.setContentAreaFilled(false);
@@ -135,7 +133,6 @@ public class tweets extends javax.swing.JFrame {
         btnNotificaciones.setBackground(new java.awt.Color(246, 234, 250));
         btnNotificaciones.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnNotificaciones.setForeground(new java.awt.Color(102, 0, 153));
-        btnNotificaciones.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\Notificaciones.png")); // NOI18N
         btnNotificaciones.setText("Notificaciones");
         btnNotificaciones.setBorder(null);
         btnNotificaciones.setContentAreaFilled(false);
@@ -149,7 +146,6 @@ public class tweets extends javax.swing.JFrame {
         btnPerfil.setBackground(new java.awt.Color(246, 234, 250));
         btnPerfil.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnPerfil.setForeground(new java.awt.Color(102, 0, 153));
-        btnPerfil.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\perfil.png")); // NOI18N
         btnPerfil.setText("Pefil");
         btnPerfil.setBorder(null);
         btnPerfil.setContentAreaFilled(false);
