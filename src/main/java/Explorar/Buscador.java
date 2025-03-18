@@ -5,6 +5,7 @@
 package Explorar;
 
 import PantallaInicio.Home;
+import java.awt.Color;
 
 /**
  *
@@ -12,6 +13,14 @@ import PantallaInicio.Home;
  */
 public class Buscador extends javax.swing.JFrame {
 
+    Color colorNormal = new Color(255, 255, 255);
+    Color colorOscuro = new Color(246, 246, 246);
+    /*
+    Colores Para el Menu / Es para que cambie de color 
+    cuando el cursor pase por ensima.
+    Color colorOscuroMenu = new Color(241, 241, 241);
+    Color colorNormalMenu = new Color(246,234,250);
+    */
     /**
      * Creates new form Buscador
      */
@@ -55,6 +64,12 @@ public class Buscador extends javax.swing.JFrame {
         btnInfoSerie = new javax.swing.JButton();
         LabelImagenSerie = new javax.swing.JLabel();
         LabelInfoPosts1 = new javax.swing.JLabel();
+        Tendencia = new javax.swing.JPanel();
+        TendenciaDeportes = new javax.swing.JPanel();
+        btnInfoDeportes = new javax.swing.JButton();
+        InfoDeportes = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -167,6 +182,11 @@ public class Buscador extends javax.swing.JFrame {
         btnForYou.setBorder(null);
         btnForYou.setContentAreaFilled(false);
         btnForYou.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnForYou.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnForYouActionPerformed(evt);
+            }
+        });
 
         btnTrending.setText("Trending");
         btnTrending.setBorder(null);
@@ -235,6 +255,15 @@ public class Buscador extends javax.swing.JFrame {
         TituloNoticias.setText("Noticias del Dia");
 
         PanelPeliculas.setBackground(new java.awt.Color(255, 255, 255));
+        PanelPeliculas.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        PanelPeliculas.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                PanelPeliculasMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                PanelPeliculasMouseExited(evt);
+            }
+        });
 
         btnInfoPeliculas.setText("Las Mejores Peliculas De Netflix 2025");
         btnInfoPeliculas.setBorder(null);
@@ -272,6 +301,15 @@ public class Buscador extends javax.swing.JFrame {
         );
 
         PanelSeries.setBackground(new java.awt.Color(255, 255, 255));
+        PanelSeries.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        PanelSeries.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                PanelSeriesMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                PanelSeriesMouseExited(evt);
+            }
+        });
 
         btnInfoSerie.setText("Las Series Mas Populares Del Momento");
         btnInfoSerie.setBorder(null);
@@ -334,13 +372,112 @@ public class Buscador extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        Tendencia.setBackground(new java.awt.Color(255, 255, 255));
+
+        TendenciaDeportes.setBackground(new java.awt.Color(255, 255, 255));
+        TendenciaDeportes.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        TendenciaDeportes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                TendenciaDeportesMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                TendenciaDeportesMouseExited(evt);
+            }
+        });
+
+        btnInfoDeportes.setText("Deportes - Chihuahua");
+        btnInfoDeportes.setBorder(null);
+        btnInfoDeportes.setContentAreaFilled(false);
+        btnInfoDeportes.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnInfoDeportes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnInfoDeportesActionPerformed(evt);
+            }
+        });
+
+        InfoDeportes.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\emoji.png")); // NOI18N
+        InfoDeportes.setText("Hace 11 horas - Nuevos - 1K posts");
+
+        javax.swing.GroupLayout TendenciaDeportesLayout = new javax.swing.GroupLayout(TendenciaDeportes);
+        TendenciaDeportes.setLayout(TendenciaDeportesLayout);
+        TendenciaDeportesLayout.setHorizontalGroup(
+            TendenciaDeportesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(TendenciaDeportesLayout.createSequentialGroup()
+                .addGroup(TendenciaDeportesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(TendenciaDeportesLayout.createSequentialGroup()
+                        .addGap(29, 29, 29)
+                        .addComponent(InfoDeportes))
+                    .addComponent(btnInfoDeportes, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        TendenciaDeportesLayout.setVerticalGroup(
+            TendenciaDeportesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(TendenciaDeportesLayout.createSequentialGroup()
+                .addComponent(btnInfoDeportes, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(InfoDeportes)
+                .addGap(0, 12, Short.MAX_VALUE))
+        );
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+
+        jLabel1.setText("Noticias - Mexico");
+        jLabel1.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                jLabel1AncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(26, 26, 26)
+                .addComponent(jLabel1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jLabel1)
+                .addGap(0, 50, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout TendenciaLayout = new javax.swing.GroupLayout(Tendencia);
+        Tendencia.setLayout(TendenciaLayout);
+        TendenciaLayout.setHorizontalGroup(
+            TendenciaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(TendenciaLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(TendenciaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(TendenciaDeportes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        TendenciaLayout.setVerticalGroup(
+            TendenciaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(TendenciaLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(TendenciaDeportes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(67, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout PanelPrincipalScrollLayout = new javax.swing.GroupLayout(PanelPrincipalScroll);
         PanelPrincipalScroll.setLayout(PanelPrincipalScrollLayout);
         PanelPrincipalScrollLayout.setHorizontalGroup(
             PanelPrincipalScrollLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelPrincipalScrollLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(NoticiasDelDia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(PanelPrincipalScrollLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(NoticiasDelDia, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(Tendencia, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(85, Short.MAX_VALUE))
         );
         PanelPrincipalScrollLayout.setVerticalGroup(
@@ -348,7 +485,9 @@ public class Buscador extends javax.swing.JFrame {
             .addGroup(PanelPrincipalScrollLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(NoticiasDelDia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(798, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(Tendencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(532, Short.MAX_VALUE))
         );
 
         ScrollBusqueda.setViewportView(PanelPrincipalScroll);
@@ -414,6 +553,42 @@ public class Buscador extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_BuscadorActionPerformed
 
+    private void btnInfoDeportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInfoDeportesActionPerformed
+        
+    }//GEN-LAST:event_btnInfoDeportesActionPerformed
+
+    private void btnForYouActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnForYouActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnForYouActionPerformed
+
+    private void TendenciaDeportesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TendenciaDeportesMouseEntered
+        TendenciaDeportes.setBackground(colorOscuro);
+    }//GEN-LAST:event_TendenciaDeportesMouseEntered
+
+    private void TendenciaDeportesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TendenciaDeportesMouseExited
+        TendenciaDeportes.setBackground(colorNormal);
+    }//GEN-LAST:event_TendenciaDeportesMouseExited
+
+    private void PanelPeliculasMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PanelPeliculasMouseEntered
+        PanelPeliculas.setBackground(colorOscuro);
+    }//GEN-LAST:event_PanelPeliculasMouseEntered
+
+    private void PanelPeliculasMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PanelPeliculasMouseExited
+        PanelPeliculas.setBackground(colorNormal);
+    }//GEN-LAST:event_PanelPeliculasMouseExited
+
+    private void PanelSeriesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PanelSeriesMouseEntered
+        PanelSeries.setBackground(colorOscuro);
+    }//GEN-LAST:event_PanelSeriesMouseEntered
+
+    private void PanelSeriesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PanelSeriesMouseExited
+        PanelSeries.setBackground(colorNormal);
+    }//GEN-LAST:event_PanelSeriesMouseExited
+
+    private void jLabel1AncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_jLabel1AncestorAdded
+        
+    }//GEN-LAST:event_jLabel1AncestorAdded
+
     /**
      * @param args the command line arguments
      */
@@ -447,15 +622,12 @@ public class Buscador extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField Buscador;
+    private javax.swing.JLabel InfoDeportes;
     private javax.swing.JLabel LabelImagenPeliculas;
     private javax.swing.JLabel LabelImagenSerie;
     private javax.swing.JLabel LabelInfoPosts;
     private javax.swing.JLabel LabelInfoPosts1;
-    private javax.swing.JLabel LogoTwitter;
-    private javax.swing.JLabel LogoTwitter1;
     private javax.swing.JLabel LogoTwitter2;
-    private javax.swing.JPanel Menu;
-    private javax.swing.JPanel Menu1;
     private javax.swing.JPanel Menu2;
     private javax.swing.JPanel NoticiasDelDia;
     private javax.swing.JPanel PanelBuscador;
@@ -464,30 +636,24 @@ public class Buscador extends javax.swing.JFrame {
     private javax.swing.JPanel PanelPrincipalScroll;
     private javax.swing.JPanel PanelSeries;
     private javax.swing.JScrollPane ScrollBusqueda;
+    private javax.swing.JPanel Tendencia;
+    private javax.swing.JPanel TendenciaDeportes;
     private javax.swing.JLabel TituloNoticias;
-    private javax.swing.JButton b_crearcuentayacuenta;
-    private javax.swing.JButton b_crearcuentayacuenta1;
-    private javax.swing.JButton b_crearcuentayacuenta2;
     private javax.swing.JButton btnBusqueda;
     private javax.swing.JButton btnEntretenimiento;
-    private javax.swing.JButton btnExprorar;
-    private javax.swing.JButton btnExprorar1;
     private javax.swing.JButton btnExprorar2;
     private javax.swing.JButton btnForYou;
+    private javax.swing.JButton btnInfoDeportes;
     private javax.swing.JButton btnInfoPeliculas;
     private javax.swing.JButton btnInfoSerie;
-    private javax.swing.JButton btnInicio;
-    private javax.swing.JButton btnInicio1;
     private javax.swing.JButton btnInicio2;
     private javax.swing.JButton btnNews;
-    private javax.swing.JButton btnNotificaciones;
-    private javax.swing.JButton btnNotificaciones1;
     private javax.swing.JButton btnNotificaciones2;
-    private javax.swing.JButton btnPerfil;
-    private javax.swing.JButton btnPerfil1;
     private javax.swing.JButton btnPerfil2;
     private javax.swing.JButton btnSports;
     private javax.swing.JButton btnTrending;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 
     private static class RunnableImpl implements Runnable {
