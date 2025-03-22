@@ -15,38 +15,60 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import PantallaInicio.UsuarioSesion; // Agregar esta línea arriba de la clase
+
 
 public class Iniciarsesionlogin extends javax.swing.JFrame {
 
     /**
      * Creates new form login1123213
      */
+    private int obtenerIdUsuario(String email, String password) {
+    int idUsuario = -1;  // Valor por defecto si no encuentra el usuario
+
+    String query = "SELECT id_usuarios FROM usuarios WHERE email = ? AND password = ?";
     
+    try (Connection con = BasededatosTwitter.getConnection();
+         PreparedStatement ps = con.prepareStatement(query)) {
+
+        ps.setString(1, email);
+        ps.setString(2, password);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            idUsuario = rs.getInt("id_usuarios");
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return idUsuario;
+}
     //Crear verificacion de si se encuentra la cuenta
-    public static boolean verificarExistenciacuenta(String nombreusuario, String email, String password) {
-        Connection conexion = BasededatosTwitter.conectar();
-        if (conexion == null) {
-            return false;
-        }
-
-        String consulta = "SELECT COUNT(*) FROM usuarios WHERE (nombre_usuario = ? OR email = ?) AND password = ?"; 
-
-        try {
-            PreparedStatement ps = conexion.prepareStatement(consulta);
-            ps.setString(1, nombreusuario); 
-            ps.setString(2, email); 
-            ps.setString(3, password);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                int count = rs.getInt(1);
-                return count > 0; // Si count > 0, el dato ya está registrado
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+   public static boolean verificarExistencianombreusuario(String nombreusuario) {
+Connection conexion = BasededatosTwitter.getConnection();
+    
+    if (conexion == null) {
         return false;
     }
+
+    String consulta = "SELECT COUNT(*) FROM usuarios WHERE nombre_usuario = ?"; 
+
+    try {
+        PreparedStatement ps = conexion.prepareStatement(consulta);
+        ps.setString(1, nombreusuario);  
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            int count = rs.getInt(1);
+            return count > 0; // Si count > 0, el usuario existe
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false;
+}
+
     
     public Iniciarsesionlogin() 
     {
@@ -85,6 +107,7 @@ public class Iniciarsesionlogin extends javax.swing.JFrame {
         }
         });
     }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -231,37 +254,52 @@ public class Iniciarsesionlogin extends javax.swing.JFrame {
     }//GEN-LAST:event_b_showpasswordyacuentaActionPerformed
 
     private void b_iniciarsesionyacuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_iniciarsesionyacuentaActionPerformed
-        //Cambiar a pantalla de inicio
-        Connection conexion = BasededatosTwitter.conectar();
-         if (conexion != null) {
-        System.out.println("El archivo de base de datos se encuentra conectado correctamente.");
-        } else {
-        System.out.println("Error al conectar con base de datos.");
-        }   
-         
-        //Tomar los datos
+ Connection conexion = null;
+    
+    try {
+        // Obtener conexión a la base de datos
+        conexion = BasededatosTwitter.getConnection();
+        if (conexion == null) {
+            JOptionPane.showMessageDialog(this, "Error al conectar con la base de datos.");
+            return;
+        }
+
+        // Tomar los datos ingresados por el usuario
         String nombre_usuario = tf_correoyacuenta.getText().trim();
         String email = tf_correoyacuenta.getText().trim();
         String password = tf_passwordyacuenta.getText().trim();
-        
-        //Verificar que se llenaron los datos
-        if(email.isEmpty() || password.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
-        return;
-    }
-        //Verificar si no existe nombre de usuario
-        if (verificarExistenciacuenta(nombre_usuario,email,password)) {
-            JOptionPane.showMessageDialog(this,"Bienvenido");
-            
-            //Cambiar a pantalla de inicio
+
+        // Verificar que los campos no estén vacíos
+        if (email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
+            return;
+        }
+
+        // Verificar si el usuario existe en la base de datos
+        int idUsuario = obtenerIdUsuario(email, password);  // Método que obtiene el ID del usuario
+
+        if (idUsuario != -1) {  // Si el usuario existe en la base de datos
+            JOptionPane.showMessageDialog(this, "¡Bienvenido!");
+
+            // Guardar el ID del usuario en sesión
+            UsuarioSesion.setUsuarioId(idUsuario); 
+            System.out.println("Usuario en sesión: " + idUsuario); 
+
+            // Cambiar a pantalla de inicio
             PantallaInicio.Home inicio1 = new PantallaInicio.Home();
             inicio1.setVisible(true);
             this.dispose();
-             
         } else {
-            JOptionPane.showMessageDialog(this,"No se encontro la cuenta, correo y/o contraseña incorrectos");
-            return;
+            JOptionPane.showMessageDialog(this, "No se encontró la cuenta, correo y/o contraseña incorrectos");
         }
+
+    }  finally {
+        try {
+            if (conexion != null) conexion.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     }//GEN-LAST:event_b_iniciarsesionyacuentaActionPerformed
 

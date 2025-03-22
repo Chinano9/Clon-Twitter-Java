@@ -17,6 +17,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.JFileChooser;
+import java.io.IOException;
+
 
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -62,29 +64,30 @@ public class login extends javax.swing.JFrame {
 }
     
     //Crear verificacion de si se encuentra el nombre de usuario para crear cuenta
-    public static boolean verificarExistencianombreusuario(String nombreusuario) {
-        Connection conexion = BasededatosTwitter.conectar();
-        if (conexion == null) {
-            return false;
-        }
+public static boolean verificarExistencianombreusuario(String nombreusuario) {
+Connection conexion = BasededatosTwitter.getConnection();
+    
 
-        String consulta = "SELECT COUNT(*) FROM usuarios WHERE nombre_usuario = ?"; 
-
-        try {
-            PreparedStatement ps = conexion.prepareStatement(consulta);
-            ps.setString(1, nombreusuario); // 
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                int count = rs.getInt(1);
-                return count > 0; // Si count > 0, el dato ya está registrado
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    if (conexion == null) {
         return false;
     }
-    
+
+    String consulta = "SELECT COUNT(*) FROM usuarios WHERE nombre_usuario = ?"; 
+
+    try {
+        PreparedStatement ps = conexion.prepareStatement(consulta);
+        ps.setString(1, nombreusuario);  
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            int count = rs.getInt(1);
+            return count > 0; // Si count > 0, el usuario existe
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false;
+}
    
     public login() 
     {
@@ -304,86 +307,102 @@ public class login extends javax.swing.JFrame {
     }//GEN-LAST:event_b_showpasswordActionPerformed
 
     private void b_crearcuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_crearcuentaActionPerformed
-// Conexión a la base de datos
-Connection conexion = BasededatosTwitter.conectar();
-if (conexion != null) {
-    System.out.println("El archivo de base de datos se encuentra conectado correctamente.");
-} else {
-    System.out.println("Error al conectar con base de datos.");
-}   
-
-// Tomar los datos
-String nombre_usuario = tf_nombreusuario.getText().trim();
-String email = tf_correo.getText().trim();
-String password = tf_password.getText().trim();
-
-// Verificar que se llenaron los datos
-if(nombre_usuario.isEmpty() || email.isEmpty() || password.isEmpty()) {
-    JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
-    return;
-}
-
-// Verificar si no existe nombre de usuario
-if (verificarExistencianombreusuario(nombre_usuario)) {
-    JOptionPane.showMessageDialog(this, "El nombre de usuario ya existe, crea uno nuevo.");
-    return;
-} else {
-    System.out.println("Datos validados.");
-}
-
-// Validar la contraseña con los parámetros requeridos
-if (!validarContrasena(password)) {
-    JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 8 caracteres, incluir números, letras y caracteres especiales.");
-    return;         
-}
-
-if (!esCorreoValido(email)) {
-    JOptionPane.showMessageDialog(this, "El formato de correo electrónico es incorrecto.");
-    return;
-}
-
-// 2. Insertar en la base de datos
-try {
-    // Adaptamos la consulta para incluir la columna de foto de perfil
-    String sql = "INSERT INTO usuarios (nombre_usuario, email, password, foto_perfil) VALUES (?, ?, ?, ?)";
-    PreparedStatement ps = conexion.prepareStatement(sql);
-    ps.setString(1, nombre_usuario);
-    ps.setString(2, email);
-    ps.setString(3, password);
+ // Conexión a la base de datos
+    Connection conexion = null;
     
-    // Verificar si se seleccionó una foto
-    if (archivoFotoSeleccionada != null) {
-        FileInputStream fis = new FileInputStream(archivoFotoSeleccionada);
-        ps.setBinaryStream(4, fis, (int) archivoFotoSeleccionada.length());
-    } else {
-        // Si no se seleccionó imagen, se puede asignar nulo
-        ps.setNull(4, java.sql.Types.BLOB);
+    try {
+        // Obtener conexión a la base de datos
+        conexion = BasededatosTwitter.getConnection();
+        
+        if (conexion == null) {
+            JOptionPane.showMessageDialog(this, "Error al conectar con la base de datos.");
+            return;
+        }
+
+        // Tomar los datos
+        String nombre_usuario = tf_nombreusuario.getText().trim();
+        String email = tf_correo.getText().trim();
+        String password = tf_password.getText().trim();
+
+        // Verificar que se llenaron los datos
+        if (nombre_usuario.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
+            return;
+        }
+
+        // Verificar si no existe nombre de usuario
+        if (verificarExistencianombreusuario(nombre_usuario)) {
+            JOptionPane.showMessageDialog(this, "El nombre de usuario ya existe, crea uno nuevo.");
+            return;
+        } else {
+            System.out.println("Datos validados.");
+        }
+
+        // Validar la contraseña con los parámetros requeridos
+        if (!validarContrasena(password)) {
+            JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 8 caracteres, incluir números, letras y caracteres especiales.");
+            return;
+        }
+
+        if (!esCorreoValido(email)) {
+            JOptionPane.showMessageDialog(this, "El formato de correo electrónico es incorrecto.");
+            return;
+        }
+
+        // Insertar en la base de datos
+        String sql = "INSERT INTO usuarios (nombre_usuario, email, password, foto_perfil) VALUES (?, ?, ?, ?)";
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ps.setString(1, nombre_usuario);
+        ps.setString(2, email);
+        ps.setString(3, password);
+
+        // Verificar si se seleccionó una foto
+        FileInputStream fis = null;
+        try {
+            if (archivoFotoSeleccionada != null) {
+                fis = new FileInputStream(archivoFotoSeleccionada);
+                ps.setBinaryStream(4, fis, (int) archivoFotoSeleccionada.length());
+            } else {
+                ps.setNull(4, java.sql.Types.BLOB);
+            }
+
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(this, "¡Usuario creado con éxito!");
+
+            // Limpiar los campos
+            tf_nombreusuario.setText("");
+            tf_correo.setText("");
+            tf_password.setText("");
+
+            // Cambiar a pantalla de inicio
+            PantallaInicio.Home inicio1 = new PantallaInicio.Home();
+            inicio1.setVisible(true);
+            this.dispose();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al cargar la imagen: " + e.getMessage());
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Error al cerrar el archivo: " + e.getMessage());
+                }
+            }
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Hubo un error al crear su cuenta, intenta más tarde: " + e.getMessage());
+    } finally {
+        try {
+            if (conexion != null) conexion.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
-    
-    ps.executeUpdate();
-    
-    // Si los datos se insertaron correctamente
-    JOptionPane.showMessageDialog(this, "¡Usuario creado con éxito!");
-    
-    // 3. Limpiar los campos
-    tf_nombreusuario.setText("");
-    tf_correo.setText("");
-    tf_password.setText("");
-    
-    // Cambiar a pantalla de inicio
-    PantallaInicio.Home inicio1 = new PantallaInicio.Home();
-    inicio1.setVisible(true);
-    this.dispose();
-    
-} catch (SQLException e) {
-    e.printStackTrace();
-    JOptionPane.showMessageDialog(this, "Hubo un error al crear su cuenta, intenta más tarde: " + e.getMessage());
-} catch (FileNotFoundException e) {
-    e.printStackTrace();
-    JOptionPane.showMessageDialog(this, "Error al cargar la imagen: " + e.getMessage());
-}
-
-     
     }//GEN-LAST:event_b_crearcuentaActionPerformed
 
     private void check_terminosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_check_terminosActionPerformed

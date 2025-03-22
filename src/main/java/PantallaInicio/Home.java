@@ -4,10 +4,17 @@
  */
 package PantallaInicio;
 
-import java.awt.Image;
-import javax.swing.ImageIcon;
 import TweetVisual.tweets;
 import Explorar.Buscador;
+import java.awt.Dimension;
+import javax.swing.SwingConstants;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.ImageIcon;
+import java.awt.Image;
+import javax.swing.JLabel;
+
 
 /**
  *
@@ -15,14 +22,30 @@ import Explorar.Buscador;
  */
 public class Home extends javax.swing.JFrame {
 /*Jaime*/
+
+    // Este método carga la imagen automáticamente
+public void cargarFotoPerfil() {
+int idUsuario = UsuarioSesion.getUsuarioId(); // Ahora sí existe
+    UsuarioDAO usuarioDAO = new UsuarioDAO(); // Instancia de UsuarioDAO
     
-    
+    byte[] imgBytes = usuarioDAO.getFotoPerfil(idUsuario); // Obtener foto desde la BD
+
+    if (imgBytes != null) {
+        ImageIcon imageIcon = new ImageIcon(imgBytes);
+        Image image = imageIcon.getImage().getScaledInstance(
+            lblFotoPerfil.getWidth(), lblFotoPerfil.getHeight(), Image.SCALE_SMOOTH
+        );
+        lblFotoPerfil.setIcon(new ImageIcon(image)); // Mostrar imagen en JLabel
+    }
+}
+
     /**
      * Creates new form perfilVisual
      */
-    public Home() {
-        initComponents();
-    }
+public Home() {
+    initComponents();  // Método generado por NetBeans GUI Builder
+    cargarFotoPerfil(); // Cargar imagen del usuario en sesión
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -40,6 +63,9 @@ public class Home extends javax.swing.JFrame {
         btnExprorar2 = new javax.swing.JButton();
         btnNotificaciones2 = new javax.swing.JButton();
         btnPerfil2 = new javax.swing.JButton();
+        FotoPerfilPanel = new javax.swing.JPanel();
+        lblFotoPerfil = new javax.swing.JLabel();
+        btnCargarFoto = new javax.swing.JButton();
         PanelBuscador = new javax.swing.JPanel();
         Buscador = new javax.swing.JTextField();
         btnBusqueda = new javax.swing.JButton();
@@ -80,7 +106,6 @@ public class Home extends javax.swing.JFrame {
         btnInicio2.setBackground(new java.awt.Color(246, 234, 250));
         btnInicio2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnInicio2.setForeground(new java.awt.Color(102, 0, 153));
-        btnInicio2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\brujula.png")); // NOI18N
         btnInicio2.setText("Inicio");
         btnInicio2.setBorder(null);
         btnInicio2.setContentAreaFilled(false);
@@ -94,7 +119,6 @@ public class Home extends javax.swing.JFrame {
         btnExprorar2.setBackground(new java.awt.Color(246, 234, 250));
         btnExprorar2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnExprorar2.setForeground(new java.awt.Color(102, 0, 153));
-        btnExprorar2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\lupa.png")); // NOI18N
         btnExprorar2.setText("Exprorar");
         btnExprorar2.setBorder(null);
         btnExprorar2.setContentAreaFilled(false);
@@ -108,7 +132,6 @@ public class Home extends javax.swing.JFrame {
         btnNotificaciones2.setBackground(new java.awt.Color(246, 234, 250));
         btnNotificaciones2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnNotificaciones2.setForeground(new java.awt.Color(102, 0, 153));
-        btnNotificaciones2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\Notificaciones.png")); // NOI18N
         btnNotificaciones2.setText("Notificaciones");
         btnNotificaciones2.setBorder(null);
         btnNotificaciones2.setContentAreaFilled(false);
@@ -122,11 +145,50 @@ public class Home extends javax.swing.JFrame {
         btnPerfil2.setBackground(new java.awt.Color(246, 234, 250));
         btnPerfil2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnPerfil2.setForeground(new java.awt.Color(102, 0, 153));
-        btnPerfil2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\perfil.png")); // NOI18N
         btnPerfil2.setText("Pefil");
         btnPerfil2.setBorder(null);
         btnPerfil2.setContentAreaFilled(false);
         btnPerfil2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        FotoPerfilPanel.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                FotoPerfilPanelAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+
+        javax.swing.GroupLayout FotoPerfilPanelLayout = new javax.swing.GroupLayout(FotoPerfilPanel);
+        FotoPerfilPanel.setLayout(FotoPerfilPanelLayout);
+        FotoPerfilPanelLayout.setHorizontalGroup(
+            FotoPerfilPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+        FotoPerfilPanelLayout.setVerticalGroup(
+            FotoPerfilPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
+        lblFotoPerfil.setText("jLabel1");
+        lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
+        lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                lblFotoPerfilAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+
+        btnCargarFoto.setText("jButton1");
+        btnCargarFoto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCargarFotoActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout Menu2Layout = new javax.swing.GroupLayout(Menu2);
         Menu2.setLayout(Menu2Layout);
@@ -141,6 +203,17 @@ public class Home extends javax.swing.JFrame {
                     .addComponent(btnPerfil2)
                     .addComponent(LogoTwitter2))
                 .addGap(9, 9, 9))
+            .addGroup(Menu2Layout.createSequentialGroup()
+                .addGroup(Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(Menu2Layout.createSequentialGroup()
+                        .addGap(63, 63, 63)
+                        .addComponent(btnCargarFoto))
+                    .addGroup(Menu2Layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addGroup(Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(FotoPerfilPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         Menu2Layout.setVerticalGroup(
             Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -155,6 +228,12 @@ public class Home extends javax.swing.JFrame {
                 .addComponent(btnExprorar2)
                 .addGap(43, 43, 43)
                 .addComponent(btnNotificaciones2)
+                .addGap(63, 63, 63)
+                .addComponent(FotoPerfilPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(59, 59, 59)
+                .addComponent(btnCargarFoto)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -169,7 +248,6 @@ public class Home extends javax.swing.JFrame {
         });
 
         btnBusqueda.setBackground(new java.awt.Color(246, 234, 250));
-        btnBusqueda.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\lupa.png")); // NOI18N
 
         javax.swing.GroupLayout PanelBuscadorLayout = new javax.swing.GroupLayout(PanelBuscador);
         PanelBuscador.setLayout(PanelBuscadorLayout);
@@ -198,27 +276,21 @@ public class Home extends javax.swing.JFrame {
         jTextArea1.setRows(5);
         ScrollTweet.setViewportView(jTextArea1);
 
-        LabelPerfil.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\perfil.png")); // NOI18N
-
         btnTweet.setBackground(new java.awt.Color(246, 234, 250));
         btnTweet.setText("Tweet");
 
-        btnMultimedia.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\multimedia.png")); // NOI18N
         btnMultimedia.setBorder(null);
         btnMultimedia.setContentAreaFilled(false);
         btnMultimedia.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        btnGif.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\gif.png")); // NOI18N
         btnGif.setBorder(null);
         btnGif.setContentAreaFilled(false);
         btnGif.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        btnEmojis.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\emoji.png")); // NOI18N
         btnEmojis.setBorder(null);
         btnEmojis.setContentAreaFilled(false);
         btnEmojis.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        btnCalendario.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\calendario.png")); // NOI18N
         btnCalendario.setBorder(null);
         btnCalendario.setContentAreaFilled(false);
         btnCalendario.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -264,13 +336,9 @@ public class Home extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        btnUsuario.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\perfil.png")); // NOI18N
-
         Panel.setBackground(new java.awt.Color(255, 255, 255));
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-
-        LabelPerfil1.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\perfil.png")); // NOI18N
 
         NomUsuario.setText("NomUsuario");
 
@@ -282,7 +350,6 @@ public class Home extends javax.swing.JFrame {
 
         ImagenPublicacion.setText("Imagen de la publicacion");
 
-        btnComentarios.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\Comentario.png")); // NOI18N
         btnComentarios.setText("61");
         btnComentarios.setBorder(null);
         btnComentarios.setContentAreaFilled(false);
@@ -293,13 +360,11 @@ public class Home extends javax.swing.JFrame {
             }
         });
 
-        btnRetwett.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\repetir.png")); // NOI18N
         btnRetwett.setText("12");
         btnRetwett.setBorder(null);
         btnRetwett.setContentAreaFilled(false);
         btnRetwett.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        btnRetwett1.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\corazon.png")); // NOI18N
         btnRetwett1.setText("6.2k");
         btnRetwett1.setBorder(null);
         btnRetwett1.setContentAreaFilled(false);
@@ -332,13 +397,14 @@ public class Home extends javax.swing.JFrame {
                         .addComponent(Apodo)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(Hora))
-                    .addComponent(ImagenPublicacion, javax.swing.GroupLayout.PREFERRED_SIZE, 690, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(btnComentarios)
                         .addGap(72, 72, 72)
                         .addComponent(btnRetwett)
                         .addGap(82, 82, 82)
-                        .addComponent(btnRetwett1)))
+                        .addComponent(btnRetwett1)
+                        .addGap(152, 152, 152)
+                        .addComponent(ImagenPublicacion, javax.swing.GroupLayout.PREFERRED_SIZE, 690, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -467,6 +533,55 @@ public class Home extends javax.swing.JFrame {
     private void btnNotificaciones2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNotificaciones2ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnNotificaciones2ActionPerformed
+byte[] fotoBytes = null; // Declaración
+
+    private void btnCargarFotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarFotoActionPerformed
+   
+lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta tamaño
+lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
+lblFotoPerfil.setVerticalAlignment(SwingConstants.CENTER);
+lblFotoPerfil.repaint();
+
+     int usuarioId = UsuarioSesion.getUsuarioId();  // Obtener el usuario en sesión
+
+    UsuarioDAO usuarioDAO = new UsuarioDAO();
+    byte[] fotoBytes = usuarioDAO.getFotoPerfil(usuarioId);  // Obtener la foto del usuario en sesión
+
+    // Verificar si se obtiene la imagen
+    System.out.println("Usuario en sesión: " + usuarioId);
+    System.out.println("Bytes de imagen: " + (fotoBytes != null ? fotoBytes.length : "No hay imagen"));
+
+    if (fotoBytes != null && fotoBytes.length > 0) {
+        ImageIcon imagenIcon = new ImageIcon(fotoBytes);
+        Image imagen = imagenIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+        lblFotoPerfil.setIcon(new ImageIcon(imagen));
+    } else {
+        lblFotoPerfil.setText("Sin foto");
+    }
+
+    }//GEN-LAST:event_btnCargarFotoActionPerformed
+
+    private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
+       lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
+lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
+
+    }//GEN-LAST:event_lblFotoPerfilAncestorAdded
+
+    private void FotoPerfilPanelAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_FotoPerfilPanelAncestorAdded
+byte[] fotoBytes = null; // Declaración
+
+        if (fotoBytes != null && fotoBytes.length > 0) {
+    ImageIcon icon = new ImageIcon(fotoBytes);
+    System.out.println("Icono creado correctamente: " + (icon.getIconWidth() > 0));
+    JLabel label = new JLabel(icon);
+    this.add(label);
+    revalidate();
+    repaint();
+} else {
+    System.out.println("No se pudo cargar la imagen.");
+}
+
+    }//GEN-LAST:event_FotoPerfilPanelAncestorAdded
 
     /**
      * @param args the command line arguments
@@ -510,6 +625,7 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JLabel Apodo;
     private javax.swing.JTextField Buscador;
     private javax.swing.JLabel Contenido;
+    private javax.swing.JPanel FotoPerfilPanel;
     private javax.swing.JLabel Hora;
     private javax.swing.JLabel ImagenPublicacion;
     private javax.swing.JLabel LabelPerfil;
@@ -525,6 +641,7 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JScrollPane ScrollTweet;
     private javax.swing.JButton btnBusqueda;
     private javax.swing.JButton btnCalendario;
+    private javax.swing.JButton btnCargarFoto;
     private javax.swing.JButton btnComentarios;
     private javax.swing.JButton btnEmojis;
     private javax.swing.JButton btnExprorar2;
@@ -540,5 +657,6 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JButton btniniciarsesion;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JLabel lblFotoPerfil;
     // End of variables declaration//GEN-END:variables
 }
