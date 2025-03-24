@@ -14,6 +14,32 @@ import java.sql.ResultSet;
 import javax.swing.ImageIcon;
 import java.awt.Image;
 import javax.swing.JLabel;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.JScrollPane;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.border.Border;
+
+
+
+
+
 
 
 /**
@@ -22,6 +48,12 @@ import javax.swing.JLabel;
  */
 public class Home extends javax.swing.JFrame {
 /*Jaime*/
+private javax.swing.JTextArea txtTweet;
+private File archivoImagen; 
+private JScrollPane scrollPane;
+
+
+
 
     // Este método carga la imagen automáticamente
 public void cargarFotoPerfil() {
@@ -39,12 +71,86 @@ int idUsuario = UsuarioSesion.getUsuarioId(); // Ahora sí existe
     }
 }
 
+
+
+
+private void cargarTweets() {
+    try (Connection conexion = BasededatosTwitter.getConnection()) {
+        String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion " +
+                     "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios " +
+                     "ORDER BY t.fecha_creacion DESC";
+
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+
+        // Limpiar el área de tweets antes de actualizar
+        jTextAreaTweets.setText("");
+
+        while (rs.next()) {
+            String nombre = rs.getString("nombre_usuario");
+            String alias = rs.getString("alias");
+            String contenido = rs.getString("contenido");
+            String fecha = rs.getString("fecha_creacion");
+
+            String tweetFormateado = alias + " (" + nombre + ") " + "📅 " + fecha + "\n" + contenido + "\n\n";
+            
+            jTextAreaTweets.append(tweetFormateado);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al cargar los tweets.");
+    }
+}
+
+
+
+
+
+private void actualizarNombreYAlias() {
+    int idUsuario = UsuarioSesion.getUsuarioId(); // Obtener el ID del usuario en sesión
+
+    if (idUsuario != -1) {
+        try (Connection conexion = BasededatosTwitter.getConnection()) {
+            String sql = "SELECT nombre_usuario, alias FROM usuarios WHERE id_usuarios = ?";
+            PreparedStatement ps = conexion.prepareStatement(sql);
+            ps.setInt(1, idUsuario);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                String nombre = rs.getString("nombre_usuario");
+                String alias = rs.getString("alias");
+
+                // Verifica si los valores son nulos
+                if (nombre == null || alias == null) {
+                    lblAliasNombre.setText("Datos no disponibles");
+                } else {
+                    lblAliasNombre.setText(nombre + "  @" + alias);
+                }
+            } else {
+                lblAliasNombre.setText("Usuario no encontrado");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            lblAliasNombre.setText("Error SQL: " + e.getMessage());
+        }
+    } else {
+        lblAliasNombre.setText("No hay usuario en sesión");
+    }
+}
+
+
     /**
      * Creates new form perfilVisual
      */
 public Home() {
     initComponents();  // Método generado por NetBeans GUI Builder
-    cargarFotoPerfil(); // Cargar imagen del usuario en sesión
+      
+
+        // 🔹 Cargar los tweets al iniciar
+        cargarTweets();
+
+        setVisible(true);
+
 }
 
     /**
@@ -63,35 +169,25 @@ public Home() {
         btnExprorar2 = new javax.swing.JButton();
         btnNotificaciones2 = new javax.swing.JButton();
         btnPerfil2 = new javax.swing.JButton();
-        FotoPerfilPanel = new javax.swing.JPanel();
-        lblFotoPerfil = new javax.swing.JLabel();
-        btnCargarFoto = new javax.swing.JButton();
         PanelBuscador = new javax.swing.JPanel();
         Buscador = new javax.swing.JTextField();
         btnBusqueda = new javax.swing.JButton();
+        lblFotoPerfil = new javax.swing.JLabel();
         PanelTweet = new javax.swing.JPanel();
         ScrollTweet = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         LabelPerfil = new javax.swing.JLabel();
-        btnTweet = new javax.swing.JButton();
+        b_enviarTweet = new javax.swing.JButton();
         btnMultimedia = new javax.swing.JButton();
         btnGif = new javax.swing.JButton();
         btnEmojis = new javax.swing.JButton();
         btnCalendario = new javax.swing.JButton();
-        btnUsuario = new javax.swing.JButton();
+        lblImagenPrevia = new javax.swing.JLabel();
+        btnSubirImagen = new javax.swing.JButton();
         ScrollHome = new javax.swing.JScrollPane();
-        Panel = new javax.swing.JPanel();
-        jPanel1 = new javax.swing.JPanel();
-        LabelPerfil1 = new javax.swing.JLabel();
-        NomUsuario = new javax.swing.JLabel();
-        Apodo = new javax.swing.JLabel();
-        Hora = new javax.swing.JLabel();
-        Contenido = new javax.swing.JLabel();
-        ImagenPublicacion = new javax.swing.JLabel();
-        btnComentarios = new javax.swing.JButton();
-        btnRetwett = new javax.swing.JButton();
-        btnRetwett1 = new javax.swing.JButton();
-        btniniciarsesion = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextAreaTweets = new javax.swing.JTextArea();
+        lblAliasNombre = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -150,46 +246,6 @@ public Home() {
         btnPerfil2.setContentAreaFilled(false);
         btnPerfil2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        FotoPerfilPanel.addAncestorListener(new javax.swing.event.AncestorListener() {
-            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                FotoPerfilPanelAncestorAdded(evt);
-            }
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
-            }
-        });
-
-        javax.swing.GroupLayout FotoPerfilPanelLayout = new javax.swing.GroupLayout(FotoPerfilPanel);
-        FotoPerfilPanel.setLayout(FotoPerfilPanelLayout);
-        FotoPerfilPanelLayout.setHorizontalGroup(
-            FotoPerfilPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-        FotoPerfilPanelLayout.setVerticalGroup(
-            FotoPerfilPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-
-        lblFotoPerfil.setText("jLabel1");
-        lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
-        lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
-            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                lblFotoPerfilAncestorAdded(evt);
-            }
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
-            }
-        });
-
-        btnCargarFoto.setText("jButton1");
-        btnCargarFoto.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCargarFotoActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout Menu2Layout = new javax.swing.GroupLayout(Menu2);
         Menu2.setLayout(Menu2Layout);
         Menu2Layout.setHorizontalGroup(
@@ -203,17 +259,6 @@ public Home() {
                     .addComponent(btnPerfil2)
                     .addComponent(LogoTwitter2))
                 .addGap(9, 9, 9))
-            .addGroup(Menu2Layout.createSequentialGroup()
-                .addGroup(Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(Menu2Layout.createSequentialGroup()
-                        .addGap(63, 63, 63)
-                        .addComponent(btnCargarFoto))
-                    .addGroup(Menu2Layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addGroup(Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(FotoPerfilPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         Menu2Layout.setVerticalGroup(
             Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -228,12 +273,6 @@ public Home() {
                 .addComponent(btnExprorar2)
                 .addGap(43, 43, 43)
                 .addComponent(btnNotificaciones2)
-                .addGap(63, 63, 63)
-                .addComponent(FotoPerfilPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(59, 59, 59)
-                .addComponent(btnCargarFoto)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -249,6 +288,18 @@ public Home() {
 
         btnBusqueda.setBackground(new java.awt.Color(246, 234, 250));
 
+        lblFotoPerfil.setText("jLabel1");
+        lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
+        lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                lblFotoPerfilAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+
         javax.swing.GroupLayout PanelBuscadorLayout = new javax.swing.GroupLayout(PanelBuscador);
         PanelBuscador.setLayout(PanelBuscadorLayout);
         PanelBuscadorLayout.setHorizontalGroup(
@@ -257,7 +308,9 @@ public Home() {
                 .addContainerGap()
                 .addComponent(Buscador, javax.swing.GroupLayout.PREFERRED_SIZE, 603, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnBusqueda)
+                .addComponent(btnBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 1, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         PanelBuscadorLayout.setVerticalGroup(
@@ -268,6 +321,9 @@ public Home() {
                     .addComponent(Buscador, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnBusqueda))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(PanelBuscadorLayout.createSequentialGroup()
+                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         PanelTweet.setBackground(new java.awt.Color(255, 255, 255));
@@ -276,8 +332,13 @@ public Home() {
         jTextArea1.setRows(5);
         ScrollTweet.setViewportView(jTextArea1);
 
-        btnTweet.setBackground(new java.awt.Color(246, 234, 250));
-        btnTweet.setText("Tweet");
+        b_enviarTweet.setBackground(new java.awt.Color(246, 234, 250));
+        b_enviarTweet.setText("Tweet");
+        b_enviarTweet.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                b_enviarTweetActionPerformed(evt);
+            }
+        });
 
         btnMultimedia.setBorder(null);
         btnMultimedia.setContentAreaFilled(false);
@@ -295,6 +356,15 @@ public Home() {
         btnCalendario.setContentAreaFilled(false);
         btnCalendario.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
+        lblImagenPrevia.setText("jLabel1");
+
+        btnSubirImagen.setText("jButton1");
+        btnSubirImagen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSubirImagenActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout PanelTweetLayout = new javax.swing.GroupLayout(PanelTweet);
         PanelTweet.setLayout(PanelTweetLayout);
         PanelTweetLayout.setHorizontalGroup(
@@ -307,26 +377,38 @@ public Home() {
                     .addGroup(PanelTweetLayout.createSequentialGroup()
                         .addComponent(ScrollTweet, javax.swing.GroupLayout.PREFERRED_SIZE, 651, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnTweet))
+                        .addComponent(b_enviarTweet))
                     .addGroup(PanelTweetLayout.createSequentialGroup()
                         .addComponent(btnMultimedia)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnGif)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnEmojis)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnCalendario)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblImagenPrevia, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(PanelTweetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(PanelTweetLayout.createSequentialGroup()
+                                .addComponent(btnGif)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnEmojis)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnCalendario))
+                            .addComponent(btnSubirImagen))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         PanelTweetLayout.setVerticalGroup(
             PanelTweetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelTweetLayout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(PanelTweetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(LabelPerfil)
-                    .addGroup(PanelTweetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(btnTweet)
-                        .addComponent(ScrollTweet, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(PanelTweetLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(LabelPerfil))
+                    .addGroup(PanelTweetLayout.createSequentialGroup()
+                        .addGap(22, 22, 22)
+                        .addGroup(PanelTweetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(b_enviarTweet)
+                            .addComponent(ScrollTweet, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(PanelTweetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblImagenPrevia)
+                    .addComponent(btnSubirImagen))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(PanelTweetLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnMultimedia)
@@ -336,119 +418,31 @@ public Home() {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        Panel.setBackground(new java.awt.Color(255, 255, 255));
-
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-
-        NomUsuario.setText("NomUsuario");
-
-        Apodo.setText("@Apodo");
-
-        Hora.setText("23s");
-
-        Contenido.setText("Esta es una buena publicacion.");
-
-        ImagenPublicacion.setText("Imagen de la publicacion");
-
-        btnComentarios.setText("61");
-        btnComentarios.setBorder(null);
-        btnComentarios.setContentAreaFilled(false);
-        btnComentarios.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnComentarios.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnComentariosActionPerformed(evt);
+        jTextAreaTweets.setColumns(20);
+        jTextAreaTweets.setRows(5);
+        jTextAreaTweets.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                jTextAreaTweetsAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
             }
         });
+        jScrollPane1.setViewportView(jTextAreaTweets);
 
-        btnRetwett.setText("12");
-        btnRetwett.setBorder(null);
-        btnRetwett.setContentAreaFilled(false);
-        btnRetwett.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        ScrollHome.setViewportView(jScrollPane1);
 
-        btnRetwett1.setText("6.2k");
-        btnRetwett1.setBorder(null);
-        btnRetwett1.setContentAreaFilled(false);
-        btnRetwett1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        btniniciarsesion.setText("Show this thread");
-        btniniciarsesion.setBorder(null);
-        btniniciarsesion.setContentAreaFilled(false);
-        btniniciarsesion.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btniniciarsesion.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btniniciarsesionActionPerformed(evt);
+        lblAliasNombre.setText("jLabel1");
+        lblAliasNombre.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                lblAliasNombreAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
             }
         });
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(LabelPerfil1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btniniciarsesion)
-                    .addComponent(Contenido)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(NomUsuario)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Apodo)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Hora))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(btnComentarios)
-                        .addGap(72, 72, 72)
-                        .addComponent(btnRetwett)
-                        .addGap(82, 82, 82)
-                        .addComponent(btnRetwett1)
-                        .addGap(152, 152, 152)
-                        .addComponent(ImagenPublicacion, javax.swing.GroupLayout.PREFERRED_SIZE, 690, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(NomUsuario)
-                        .addComponent(Apodo)
-                        .addComponent(Hora))
-                    .addComponent(LabelPerfil1))
-                .addGap(18, 18, 18)
-                .addComponent(Contenido)
-                .addGap(18, 18, 18)
-                .addComponent(ImagenPublicacion, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnComentarios)
-                    .addComponent(btnRetwett)
-                    .addComponent(btnRetwett1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btniniciarsesion)
-                .addContainerGap())
-        );
-
-        javax.swing.GroupLayout PanelLayout = new javax.swing.GroupLayout(Panel);
-        Panel.setLayout(PanelLayout);
-        PanelLayout.setHorizontalGroup(
-            PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(56, Short.MAX_VALUE))
-        );
-        PanelLayout.setVerticalGroup(
-            PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(257, Short.MAX_VALUE))
-        );
-
-        ScrollHome.setViewportView(Panel);
 
         javax.swing.GroupLayout PanelTraseroLayout = new javax.swing.GroupLayout(PanelTrasero);
         PanelTrasero.setLayout(PanelTraseroLayout);
@@ -456,33 +450,29 @@ public Home() {
             PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelTraseroLayout.createSequentialGroup()
                 .addComponent(Menu2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelTraseroLayout.createSequentialGroup()
-                        .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnUsuario)
-                        .addGap(33, 33, 33))
-                    .addGroup(PanelTraseroLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(ScrollHome, javax.swing.GroupLayout.PREFERRED_SIZE, 797, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(12, Short.MAX_VALUE))))
+                            .addComponent(ScrollHome, javax.swing.GroupLayout.PREFERRED_SIZE, 797, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(PanelTraseroLayout.createSequentialGroup()
+                        .addGap(591, 591, 591)
+                        .addComponent(lblAliasNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(193, Short.MAX_VALUE))
         );
         PanelTraseroLayout.setVerticalGroup(
             PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelTraseroLayout.createSequentialGroup()
-                .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(PanelTraseroLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(PanelTraseroLayout.createSequentialGroup()
-                        .addGap(14, 14, 14)
-                        .addComponent(btnUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+            .addGroup(PanelTraseroLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(lblAliasNombre)
+                .addGap(18, 18, 18)
                 .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(ScrollHome)
+                .addComponent(ScrollHome, javax.swing.GroupLayout.DEFAULT_SIZE, 435, Short.MAX_VALUE)
                 .addContainerGap())
             .addComponent(Menu2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
@@ -501,22 +491,9 @@ public Home() {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btniniciarsesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btniniciarsesionActionPerformed
-        //Cambiar a pantalla de inicio
-        runproyectlogin.Iniciarsesionlogin inicio2 = new runproyectlogin.Iniciarsesionlogin();
-        inicio2.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_btniniciarsesionActionPerformed
-
     private void BuscadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscadorActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_BuscadorActionPerformed
-
-    private void btnComentariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComentariosActionPerformed
-        tweets ventanaTweets = new tweets();
-        ventanaTweets.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_btnComentariosActionPerformed
 
     private void btnInicio2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInicio2ActionPerformed
         Home h = new Home();
@@ -535,53 +512,69 @@ public Home() {
     }//GEN-LAST:event_btnNotificaciones2ActionPerformed
 byte[] fotoBytes = null; // Declaración
 
-    private void btnCargarFotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarFotoActionPerformed
-   
-lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta tamaño
-lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
-lblFotoPerfil.setVerticalAlignment(SwingConstants.CENTER);
-lblFotoPerfil.repaint();
-
-     int usuarioId = UsuarioSesion.getUsuarioId();  // Obtener el usuario en sesión
-
-    UsuarioDAO usuarioDAO = new UsuarioDAO();
-    byte[] fotoBytes = usuarioDAO.getFotoPerfil(usuarioId);  // Obtener la foto del usuario en sesión
-
-    // Verificar si se obtiene la imagen
-    System.out.println("Usuario en sesión: " + usuarioId);
-    System.out.println("Bytes de imagen: " + (fotoBytes != null ? fotoBytes.length : "No hay imagen"));
-
-    if (fotoBytes != null && fotoBytes.length > 0) {
-        ImageIcon imagenIcon = new ImageIcon(fotoBytes);
-        Image imagen = imagenIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-        lblFotoPerfil.setIcon(new ImageIcon(imagen));
-    } else {
-        lblFotoPerfil.setText("Sin foto");
-    }
-
-    }//GEN-LAST:event_btnCargarFotoActionPerformed
-
     private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
        lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
 lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
 
     }//GEN-LAST:event_lblFotoPerfilAncestorAdded
 
-    private void FotoPerfilPanelAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_FotoPerfilPanelAncestorAdded
-byte[] fotoBytes = null; // Declaración
+    private void lblAliasNombreAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblAliasNombreAncestorAdded
+    actualizarNombreYAlias(); // Llamar al método al cargar la interfaz
+    }//GEN-LAST:event_lblAliasNombreAncestorAdded
 
-        if (fotoBytes != null && fotoBytes.length > 0) {
-    ImageIcon icon = new ImageIcon(fotoBytes);
-    System.out.println("Icono creado correctamente: " + (icon.getIconWidth() > 0));
-    JLabel label = new JLabel(icon);
-    this.add(label);
-    revalidate();
-    repaint();
-} else {
-    System.out.println("No se pudo cargar la imagen.");
-}
+    private void b_enviarTweetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_enviarTweetActionPerformed
+        String contenido = jTextArea1.getText().trim();
+int usuarioId = UsuarioSesion.getUsuarioId(); 
 
-    }//GEN-LAST:event_FotoPerfilPanelAncestorAdded
+    if (contenido.isEmpty() && archivoImagen == null) {
+        JOptionPane.showMessageDialog(this, "No puedes publicar un tweet vacío.");
+        return;
+    }
+
+    try (Connection conexion = BasededatosTwitter.getConnection()) {
+        String sql = "INSERT INTO tweets (usuario_id, contenido, fecha_creacion, multimedia) VALUES (?, ?, NOW(), ?)";
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ps.setInt(1, usuarioId);
+        ps.setString(2, contenido);
+
+        if (archivoImagen != null) {
+            FileInputStream fis = new FileInputStream(archivoImagen);
+            ps.setBinaryStream(3, fis, (int) archivoImagen.length());
+        } else {
+            ps.setNull(3, java.sql.Types.BLOB);
+        }
+
+        ps.executeUpdate();
+        JOptionPane.showMessageDialog(this, "¡Tweet publicado con éxito!");
+
+        // Limpiar los campos después de publicar
+        jTextArea1.setText("");
+        lblImagenPrevia.setIcon(null);
+        archivoImagen = null;
+
+    } catch (SQLException | FileNotFoundException e) {
+        JOptionPane.showMessageDialog(this, "Error al publicar el tweet: " + e.getMessage());
+        e.printStackTrace();
+    }
+    }//GEN-LAST:event_b_enviarTweetActionPerformed
+
+    private void btnSubirImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubirImagenActionPerformed
+          JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setFileFilter(new FileNameExtensionFilter("Imágenes y GIFs", "jpg", "png", "gif"));
+    
+    int seleccion = fileChooser.showOpenDialog(this);
+    if (seleccion == JFileChooser.APPROVE_OPTION) {
+        archivoImagen = fileChooser.getSelectedFile();
+        
+        // Mostrar vista previa de la imagen
+        ImageIcon imagen = new ImageIcon(archivoImagen.getAbsolutePath());
+        lblImagenPrevia.setIcon(new ImageIcon(imagen.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH)));
+    }
+    }//GEN-LAST:event_btnSubirImagenActionPerformed
+
+    private void jTextAreaTweetsAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_jTextAreaTweetsAncestorAdded
+
+    }//GEN-LAST:event_jTextAreaTweetsAncestorAdded
 
     /**
      * @param args the command line arguments
@@ -622,27 +615,18 @@ byte[] fotoBytes = null; // Declaración
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel Apodo;
     private javax.swing.JTextField Buscador;
-    private javax.swing.JLabel Contenido;
-    private javax.swing.JPanel FotoPerfilPanel;
-    private javax.swing.JLabel Hora;
-    private javax.swing.JLabel ImagenPublicacion;
     private javax.swing.JLabel LabelPerfil;
-    private javax.swing.JLabel LabelPerfil1;
     private javax.swing.JLabel LogoTwitter2;
     private javax.swing.JPanel Menu2;
-    private javax.swing.JLabel NomUsuario;
-    private javax.swing.JPanel Panel;
     private javax.swing.JPanel PanelBuscador;
     private javax.swing.JPanel PanelTrasero;
     private javax.swing.JPanel PanelTweet;
     private javax.swing.JScrollPane ScrollHome;
     private javax.swing.JScrollPane ScrollTweet;
+    private javax.swing.JButton b_enviarTweet;
     private javax.swing.JButton btnBusqueda;
     private javax.swing.JButton btnCalendario;
-    private javax.swing.JButton btnCargarFoto;
-    private javax.swing.JButton btnComentarios;
     private javax.swing.JButton btnEmojis;
     private javax.swing.JButton btnExprorar2;
     private javax.swing.JButton btnGif;
@@ -650,13 +634,12 @@ byte[] fotoBytes = null; // Declaración
     private javax.swing.JButton btnMultimedia;
     private javax.swing.JButton btnNotificaciones2;
     private javax.swing.JButton btnPerfil2;
-    private javax.swing.JButton btnRetwett;
-    private javax.swing.JButton btnRetwett1;
-    private javax.swing.JButton btnTweet;
-    private javax.swing.JButton btnUsuario;
-    private javax.swing.JButton btniniciarsesion;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JButton btnSubirImagen;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jTextAreaTweets;
+    private javax.swing.JLabel lblAliasNombre;
     private javax.swing.JLabel lblFotoPerfil;
+    private javax.swing.JLabel lblImagenPrevia;
     // End of variables declaration//GEN-END:variables
 }

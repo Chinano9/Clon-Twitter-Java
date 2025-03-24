@@ -9,6 +9,7 @@ public class UsuarioSesion {
 
     public static void setUsuarioId(int id) {
         usuarioId = id;
+        
     }
 
     public static int getUsuarioId() {  // Método corregido
