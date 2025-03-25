@@ -246,10 +246,10 @@ Connection conexion = BasededatosTwitter.getConnection();
         //MOSTRAR Y OCULTAR CONTRASEÑA EN CUADRO DE PASSWORD
         if (tf_passwordyacuenta.getEchoChar() == '\u2022') { // Si está oculta
         tf_passwordyacuenta.setEchoChar((char) 0); // Mostrar la contraseña
-        b_showpasswordyacuenta.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\hidepassword10.png")); // Cambiar icono a "mostrar"
+        b_showpasswordyacuenta.setIcon(new javax.swing.ImageIcon("src\\main\\resources\\Resource\\hidepassword10.png")); // Cambiar icono a "mostrar"
     } else { // Si está visible
         tf_passwordyacuenta.setEchoChar('\u2022'); // Ocultar la contraseña
-        b_showpasswordyacuenta.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\showpassword10.png")); // Cambiar icono a "ocultar"
+        b_showpasswordyacuenta.setIcon(new javax.swing.ImageIcon("src\\main\\resources\\Resource\\showpassword10.png")); // Cambiar icono a "ocultar"
     }
     }//GEN-LAST:event_b_showpasswordyacuentaActionPerformed
 
