@@ -203,6 +203,7 @@ Connection conexion = BasededatosTwitter.getConnection();
         panelderecho_login.add(tf_correo, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 120, 278, -1));
         panelderecho_login.add(tf_password, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 170, 278, -1));
 
+        b_showpassword.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/hidepassword10.png"))); // NOI18N
         b_showpassword.setBorder(null);
         b_showpassword.setBorderPainted(false);
         b_showpassword.addActionListener(new java.awt.event.ActionListener() {
@@ -210,17 +211,17 @@ Connection conexion = BasededatosTwitter.getConnection();
                 b_showpasswordActionPerformed(evt);
             }
         });
-        panelderecho_login.add(b_showpassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 240, 20, 20));
+        panelderecho_login.add(b_showpassword, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 150, 20, 20));
 
         l1_passwordconditions.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         l1_passwordconditions.setForeground(new java.awt.Color(153, 153, 153));
         l1_passwordconditions.setText("Usa 8 o mas caracteres con una mezcla de numeros, letras y ");
-        panelderecho_login.add(l1_passwordconditions, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 240, -1, -1));
+        panelderecho_login.add(l1_passwordconditions, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 200, -1, -1));
 
         l2_passwordconditions.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
         l2_passwordconditions.setForeground(new java.awt.Color(153, 153, 153));
         l2_passwordconditions.setText("caracteres especiales.");
-        panelderecho_login.add(l2_passwordconditions, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 260, -1, -1));
+        panelderecho_login.add(l2_passwordconditions, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 220, -1, -1));
 
         l1_terminos.setForeground(new java.awt.Color(153, 153, 153));
         l1_terminos.setText("Al crear una cuenta aceptas nuestros");
@@ -262,9 +263,7 @@ Connection conexion = BasededatosTwitter.getConnection();
             }
         });
         panelderecho_login.add(b_iniciarsesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 420, -1, -1));
-
-        lblFoto.setText("mostrar");
-        panelderecho_login.add(lblFoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 210, -1, -1));
+        panelderecho_login.add(lblFoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 250, 50, 20));
 
         btnSeleccionarFoto.setText("Selecciona Foto");
         btnSeleccionarFoto.addActionListener(new java.awt.event.ActionListener() {
@@ -272,7 +271,7 @@ Connection conexion = BasededatosTwitter.getConnection();
                 btnSeleccionarFotoActionPerformed(evt);
             }
         });
-        panelderecho_login.add(btnSeleccionarFoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 210, -1, -1));
+        panelderecho_login.add(btnSeleccionarFoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 250, -1, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -301,10 +300,10 @@ Connection conexion = BasededatosTwitter.getConnection();
         //MOSTRAR Y OCULTAR CONTRASEÑA EN CUADRO DE PASSWORD
         if (tf_password.getEchoChar() == '\u2022') { // Si está oculta
         tf_password.setEchoChar((char) 0); // Mostrar la contraseña
-        b_showpassword.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\hidepassword10.png")); // Cambiar icono a "mostrar"
+        b_showpassword.setIcon(new javax.swing.ImageIcon("src\\main\\resources\\Resource\\hidepassword10.png")); // Cambiar icono a "mostrar"
     } else { // Si está visible
         tf_password.setEchoChar('\u2022'); // Ocultar la contraseña
-        b_showpassword.setIcon(new javax.swing.ImageIcon("C:\\Users\\alan_\\Documents\\NetBeansProjects\\twitterproyect\\src\\main\\Resource\\showpassword10.png")); // Cambiar icono a "ocultar"
+        b_showpassword.setIcon(new javax.swing.ImageIcon("src\\main\\resources\\Resource\\showpassword10.png")); // Cambiar icono a "ocultar"
     }
     }//GEN-LAST:event_b_showpasswordActionPerformed
 

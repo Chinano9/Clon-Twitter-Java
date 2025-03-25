@@ -174,6 +174,7 @@ Connection conexion = BasededatosTwitter.getConnection();
         });
         panelderecho_loginyacuenta.add(tf_passwordyacuenta, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 210, 278, -1));
 
+        b_showpasswordyacuenta.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/hidepassword10.png"))); // NOI18N
         b_showpasswordyacuenta.setBorder(null);
         b_showpasswordyacuenta.setBorderPainted(false);
         b_showpasswordyacuenta.addActionListener(new java.awt.event.ActionListener() {
