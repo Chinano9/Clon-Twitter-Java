@@ -6,6 +6,16 @@ package Explorar;
 
 import PantallaInicio.Home;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
+import PantallaInicio.UsuarioSesion;
 
 /**
  *
@@ -15,19 +25,73 @@ public class Buscador extends javax.swing.JFrame {
 
     Color colorNormal = new Color(255, 255, 255);
     Color colorOscuro = new Color(246, 246, 246);
-    /*
-    Colores Para el Menu / Es para que cambie de color 
-    cuando el cursor pase por ensima.
-    Color colorOscuroMenu = new Color(241, 241, 241);
-    Color colorNormalMenu = new Color(246,234,250);
-    */
-    /**
-     * Creates new form Buscador
-     */
-    public Buscador() {
-        initComponents();
-    }
+    // Este método carga la imagen automáticamente
+    // Este método carga la imagen automáticamente
+private void cargarFotoPerfil() {
+    int idUsuario = UsuarioSesion.getUsuarioId();  // Obtener el ID del usuario actual
+    UsuarioDAO usuarioDAO = new UsuarioDAO(); // Instancia del DAO
+    
+    byte[] imgBytes = usuarioDAO.getFotoPerfil(idUsuario); // Obtener la imagen desde la base de datos
 
+    if (imgBytes != null && imgBytes.length > 0) {
+        // Si la imagen está presente, crear una ImageIcon
+        ImageIcon imageIcon = new ImageIcon(imgBytes);
+        Image image = imageIcon.getImage().getScaledInstance(
+            lblFotoPerfil1.getWidth(), lblFotoPerfil1.getHeight(), Image.SCALE_SMOOTH); // Escalar la imagen
+        lblFotoPerfil1.setIcon(new ImageIcon(image)); // Establecer la imagen en el JLabel
+    } else {
+        // Si no hay imagen, mostrar un mensaje o imagen por defecto
+        lblFotoPerfil1.setIcon(null); // O puedes poner una imagen por defecto si lo prefieres
+        System.out.println("No se encontró imagen para el usuario.");
+    }
+}
+
+
+private void actualizarNombreYAlias() {
+    int idUsuario = PantallaInicio.UsuarioSesion.getUsuarioId(); // Obtener el ID del usuario en sesión
+
+    if (idUsuario != -1) {
+        try (Connection conexion = PantallaInicio.BasededatosTwitter.getConnection()) {
+            String sql = "SELECT nombre_usuario, alias FROM usuarios WHERE id_usuarios = ?";
+            PreparedStatement ps = conexion.prepareStatement(sql);
+            ps.setInt(1, idUsuario);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                String nombre = rs.getString("nombre_usuario");
+                String alias = rs.getString("alias");
+
+                // Verifica si los valores son nulos
+                if (nombre == null || alias == null) {
+                    lblAliasNombre.setText("Datos no disponibles");
+                } else {
+                    lblAliasNombre.setText(nombre + "  @" + alias);
+                }
+            } else {
+                lblAliasNombre.setText("Usuario no encontrado");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            lblAliasNombre.setText("Error SQL: " + e.getMessage());
+        }
+    } else {
+        lblAliasNombre.setText("No hay usuario en sesión");
+    }
+}
+
+
+    /**
+     * Creates new form perfilVisual
+     */
+public Buscador() {
+    initComponents();  // Método generado por NetBeans GUI Builder
+      cargarFotoPerfil(); // Llamamos al método para cargar la imagen de perfil
+
+
+
+        setVisible(true);
+
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -37,6 +101,7 @@ public class Buscador extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        lblFotoPerfil = new javax.swing.JLabel();
         PanelPrincipal = new javax.swing.JPanel();
         Menu2 = new javax.swing.JPanel();
         LogoTwitter2 = new javax.swing.JLabel();
@@ -70,6 +135,20 @@ public class Buscador extends javax.swing.JFrame {
         InfoDeportes = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        lblFotoPerfil1 = new javax.swing.JLabel();
+        lblAliasNombre = new javax.swing.JLabel();
+
+        lblFotoPerfil.setText("Foto de Perfil");
+        lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
+        lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                lblFotoPerfilAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -84,7 +163,6 @@ public class Buscador extends javax.swing.JFrame {
         btnInicio2.setBackground(new java.awt.Color(246, 234, 250));
         btnInicio2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnInicio2.setForeground(new java.awt.Color(102, 0, 153));
-        btnInicio2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\brujula.png")); // NOI18N
         btnInicio2.setText("Inicio");
         btnInicio2.setBorder(null);
         btnInicio2.setContentAreaFilled(false);
@@ -98,7 +176,6 @@ public class Buscador extends javax.swing.JFrame {
         btnExprorar2.setBackground(new java.awt.Color(246, 234, 250));
         btnExprorar2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnExprorar2.setForeground(new java.awt.Color(102, 0, 153));
-        btnExprorar2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\lupa.png")); // NOI18N
         btnExprorar2.setText("Exprorar");
         btnExprorar2.setBorder(null);
         btnExprorar2.setContentAreaFilled(false);
@@ -112,7 +189,6 @@ public class Buscador extends javax.swing.JFrame {
         btnNotificaciones2.setBackground(new java.awt.Color(246, 234, 250));
         btnNotificaciones2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnNotificaciones2.setForeground(new java.awt.Color(102, 0, 153));
-        btnNotificaciones2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\Notificaciones.png")); // NOI18N
         btnNotificaciones2.setText("Notificaciones");
         btnNotificaciones2.setBorder(null);
         btnNotificaciones2.setContentAreaFilled(false);
@@ -126,7 +202,6 @@ public class Buscador extends javax.swing.JFrame {
         btnPerfil2.setBackground(new java.awt.Color(246, 234, 250));
         btnPerfil2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnPerfil2.setForeground(new java.awt.Color(102, 0, 153));
-        btnPerfil2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\perfil.png")); // NOI18N
         btnPerfil2.setText("Pefil");
         btnPerfil2.setBorder(null);
         btnPerfil2.setContentAreaFilled(false);
@@ -159,7 +234,7 @@ public class Buscador extends javax.swing.JFrame {
                 .addComponent(btnExprorar2)
                 .addGap(43, 43, 43)
                 .addComponent(btnNotificaciones2)
-                .addContainerGap(801, Short.MAX_VALUE))
+                .addContainerGap(798, Short.MAX_VALUE))
         );
 
         PanelBuscador.setBackground(new java.awt.Color(255, 255, 255));
@@ -173,7 +248,6 @@ public class Buscador extends javax.swing.JFrame {
         });
 
         btnBusqueda.setBackground(new java.awt.Color(246, 234, 250));
-        btnBusqueda.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\lupa.png")); // NOI18N
         btnBusqueda.setBorder(null);
         btnBusqueda.setContentAreaFilled(false);
         btnBusqueda.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -270,10 +344,7 @@ public class Buscador extends javax.swing.JFrame {
         btnInfoPeliculas.setContentAreaFilled(false);
         btnInfoPeliculas.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        LabelInfoPosts.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\emoji.png")); // NOI18N
         LabelInfoPosts.setText("Hace 18 horas - Nuevos - 8K posts");
-
-        LabelImagenPeliculas.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\ImgNetflix.png")); // NOI18N
 
         javax.swing.GroupLayout PanelPeliculasLayout = new javax.swing.GroupLayout(PanelPeliculas);
         PanelPeliculas.setLayout(PanelPeliculasLayout);
@@ -316,9 +387,6 @@ public class Buscador extends javax.swing.JFrame {
         btnInfoSerie.setContentAreaFilled(false);
         btnInfoSerie.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        LabelImagenSerie.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\ImgSerie.jpg")); // NOI18N
-
-        LabelInfoPosts1.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\emoji.png")); // NOI18N
         LabelInfoPosts1.setText("Hace 15 horas - Nuevos - 16K posts");
 
         javax.swing.GroupLayout PanelSeriesLayout = new javax.swing.GroupLayout(PanelSeries);
@@ -395,7 +463,6 @@ public class Buscador extends javax.swing.JFrame {
             }
         });
 
-        InfoDeportes.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\emoji.png")); // NOI18N
         InfoDeportes.setText("Hace 11 horas - Nuevos - 1K posts");
 
         javax.swing.GroupLayout TendenciaDeportesLayout = new javax.swing.GroupLayout(TendenciaDeportes);
@@ -408,7 +475,7 @@ public class Buscador extends javax.swing.JFrame {
                         .addGap(29, 29, 29)
                         .addComponent(InfoDeportes))
                     .addComponent(btnInfoDeportes, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(285, Short.MAX_VALUE))
         );
         TendenciaDeportesLayout.setVerticalGroup(
             TendenciaDeportesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -478,7 +545,7 @@ public class Buscador extends javax.swing.JFrame {
                 .addGroup(PanelPrincipalScrollLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(NoticiasDelDia, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(Tendencia, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(85, Short.MAX_VALUE))
+                .addContainerGap(122, Short.MAX_VALUE))
         );
         PanelPrincipalScrollLayout.setVerticalGroup(
             PanelPrincipalScrollLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -487,10 +554,33 @@ public class Buscador extends javax.swing.JFrame {
                 .addComponent(NoticiasDelDia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(Tendencia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(532, Short.MAX_VALUE))
+                .addContainerGap(622, Short.MAX_VALUE))
         );
 
         ScrollBusqueda.setViewportView(PanelPrincipalScroll);
+
+        lblFotoPerfil1.setText("Foto de Perfil");
+        lblFotoPerfil1.setPreferredSize(new java.awt.Dimension(150, 150));
+        lblFotoPerfil1.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                lblFotoPerfil1AncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+
+        lblAliasNombre.setText("Nombre y usuario");
+        lblAliasNombre.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                lblAliasNombreAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
 
         javax.swing.GroupLayout PanelPrincipalLayout = new javax.swing.GroupLayout(PanelPrincipal);
         PanelPrincipal.setLayout(PanelPrincipalLayout);
@@ -500,7 +590,15 @@ public class Buscador extends javax.swing.JFrame {
                 .addComponent(Menu2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                        .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addComponent(lblFotoPerfil1, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                                .addGap(10, 10, 10)
+                                .addComponent(lblAliasNombre))))
                     .addComponent(ScrollBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 638, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 25, Short.MAX_VALUE))
         );
@@ -509,7 +607,12 @@ public class Buscador extends javax.swing.JFrame {
             .addComponent(Menu2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(PanelPrincipalLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                        .addComponent(lblFotoPerfil1, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblAliasNombre)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ScrollBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addContainerGap())
@@ -589,6 +692,20 @@ public class Buscador extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jLabel1AncestorAdded
 
+    private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
+
+    }//GEN-LAST:event_lblFotoPerfilAncestorAdded
+
+    private void lblFotoPerfil1AncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfil1AncestorAdded
+     lblFotoPerfil1.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
+lblFotoPerfil1.setHorizontalAlignment(SwingConstants.CENTER);
+    }//GEN-LAST:event_lblFotoPerfil1AncestorAdded
+
+    private void lblAliasNombreAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblAliasNombreAncestorAdded
+           actualizarNombreYAlias(); // Llamar al método al cargar la interfaz
+
+    }//GEN-LAST:event_lblAliasNombreAncestorAdded
+
     /**
      * @param args the command line arguments
      */
@@ -654,6 +771,9 @@ public class Buscador extends javax.swing.JFrame {
     private javax.swing.JButton btnTrending;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel lblAliasNombre;
+    private javax.swing.JLabel lblFotoPerfil;
+    private javax.swing.JLabel lblFotoPerfil1;
     // End of variables declaration//GEN-END:variables
 
     private static class RunnableImpl implements Runnable {

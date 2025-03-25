@@ -56,20 +56,25 @@ private JScrollPane scrollPane;
 
 
     // Este método carga la imagen automáticamente
-public void cargarFotoPerfil() {
-int idUsuario = UsuarioSesion.getUsuarioId(); // Ahora sí existe
-    UsuarioDAO usuarioDAO = new UsuarioDAO(); // Instancia de UsuarioDAO
+private void cargarFotoPerfil() {
+    int idUsuario = UsuarioSesion.getUsuarioId();  // Obtener el ID del usuario actual
+    UsuarioDAO usuarioDAO = new UsuarioDAO(); // Instancia del DAO
     
-    byte[] imgBytes = usuarioDAO.getFotoPerfil(idUsuario); // Obtener foto desde la BD
+    byte[] imgBytes = usuarioDAO.getFotoPerfil(idUsuario); // Obtener la imagen desde la base de datos
 
-    if (imgBytes != null) {
+    if (imgBytes != null && imgBytes.length > 0) {
+        // Si la imagen está presente, crear una ImageIcon
         ImageIcon imageIcon = new ImageIcon(imgBytes);
         Image image = imageIcon.getImage().getScaledInstance(
-            lblFotoPerfil.getWidth(), lblFotoPerfil.getHeight(), Image.SCALE_SMOOTH
-        );
-        lblFotoPerfil.setIcon(new ImageIcon(image)); // Mostrar imagen en JLabel
+            lblFotoPerfil.getWidth(), lblFotoPerfil.getHeight(), Image.SCALE_SMOOTH); // Escalar la imagen
+        lblFotoPerfil.setIcon(new ImageIcon(image)); // Establecer la imagen en el JLabel
+    } else {
+        // Si no hay imagen, mostrar un mensaje o imagen por defecto
+        lblFotoPerfil.setIcon(null); // O puedes poner una imagen por defecto si lo prefieres
+        System.out.println("No se encontró imagen para el usuario.");
     }
 }
+
 
 
 
@@ -144,7 +149,8 @@ private void actualizarNombreYAlias() {
      */
 public Home() {
     initComponents();  // Método generado por NetBeans GUI Builder
-      
+          cargarFotoPerfil(); // Llamamos al método para cargar la imagen de perfil
+
 
         // 🔹 Cargar los tweets al iniciar
         cargarTweets();
