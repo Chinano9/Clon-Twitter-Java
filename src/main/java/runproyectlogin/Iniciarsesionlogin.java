@@ -144,7 +144,7 @@ Connection conexion = BasededatosTwitter.getConnection();
         l_texttwitterloginyacuenta.setText("Twitter");
         panelizquierdo_loginyacuenta.add(l_texttwitterloginyacuenta, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, -1, 40));
 
-        l_fondoiniciosesionyacuenta.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\Fondologinvertical.jpg")); // NOI18N
+        l_fondoiniciosesionyacuenta.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/Fondologinvertical.jpg"))); // NOI18N
         panelizquierdo_loginyacuenta.add(l_fondoiniciosesionyacuenta, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 320, 460));
 
         panelderecho_loginyacuenta.setBackground(new java.awt.Color(255, 255, 255));
