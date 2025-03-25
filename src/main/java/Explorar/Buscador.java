@@ -248,6 +248,7 @@ public Buscador() {
         });
 
         btnBusqueda.setBackground(new java.awt.Color(246, 234, 250));
+        btnBusqueda.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/lupa.png"))); // NOI18N
         btnBusqueda.setBorder(null);
         btnBusqueda.setContentAreaFilled(false);
         btnBusqueda.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));

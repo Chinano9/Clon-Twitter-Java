@@ -401,9 +401,7 @@ public Home() {
         btnCalendario.setContentAreaFilled(false);
         btnCalendario.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        lblImagenPrevia.setText("jLabel1");
-
-        btnSubirImagen.setText("jButton1");
+        btnSubirImagen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/multimedia.png"))); // NOI18N
         btnSubirImagen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSubirImagenActionPerformed(evt);
