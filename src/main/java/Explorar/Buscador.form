@@ -539,6 +539,11 @@
                           </Properties>
                         </Component>
                         <Component class="javax.swing.JLabel" name="LabelImagenPeliculas">
+                          <Properties>
+                            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                              <Image iconType="3" name="/Resource/ImgHome/ImgNetflix.png"/>
+                            </Property>
+                          </Properties>
                         </Component>
                       </SubComponents>
                     </Container>
@@ -603,6 +608,11 @@
                           </Properties>
                         </Component>
                         <Component class="javax.swing.JLabel" name="LabelImagenSerie">
+                          <Properties>
+                            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                              <Image iconType="3" name="/Resource/ImgHome/ImgSerie.jpg"/>
+                            </Property>
+                          </Properties>
                         </Component>
                         <Component class="javax.swing.JLabel" name="LabelInfoPosts1">
                           <Properties>
@@ -671,7 +681,7 @@
                                       </Group>
                                       <Component id="btnInfoDeportes" alignment="0" min="-2" pref="164" max="-2" attributes="0"/>
                                   </Group>
-                                  <EmptySpace pref="285" max="32767" attributes="0"/>
+                                  <EmptySpace pref="387" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>

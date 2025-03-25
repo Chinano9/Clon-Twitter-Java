@@ -168,6 +168,8 @@ Connection conexion = BasededatosTwitter.getConnection();
         l_texttwitterlogin.setForeground(new java.awt.Color(255, 255, 255));
         l_texttwitterlogin.setText("Twitter");
         panelizquierdo_login.add(l_texttwitterlogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, -1, 40));
+
+        l_fondoiniciosesion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/Fondologinvertical.jpg"))); // NOI18N
         panelizquierdo_login.add(l_fondoiniciosesion, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 350, 460));
 
         panelderecho_login.setBackground(new java.awt.Color(255, 255, 255));

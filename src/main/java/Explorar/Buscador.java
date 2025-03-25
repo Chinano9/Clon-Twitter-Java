@@ -346,6 +346,8 @@ public Buscador() {
 
         LabelInfoPosts.setText("Hace 18 horas - Nuevos - 8K posts");
 
+        LabelImagenPeliculas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/ImgNetflix.png"))); // NOI18N
+
         javax.swing.GroupLayout PanelPeliculasLayout = new javax.swing.GroupLayout(PanelPeliculas);
         PanelPeliculas.setLayout(PanelPeliculasLayout);
         PanelPeliculasLayout.setHorizontalGroup(
@@ -386,6 +388,8 @@ public Buscador() {
         btnInfoSerie.setBorder(null);
         btnInfoSerie.setContentAreaFilled(false);
         btnInfoSerie.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        LabelImagenSerie.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/ImgSerie.jpg"))); // NOI18N
 
         LabelInfoPosts1.setText("Hace 15 horas - Nuevos - 16K posts");
 
@@ -475,7 +479,7 @@ public Buscador() {
                         .addGap(29, 29, 29)
                         .addComponent(InfoDeportes))
                     .addComponent(btnInfoDeportes, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(285, Short.MAX_VALUE))
+                .addContainerGap(387, Short.MAX_VALUE))
         );
         TendenciaDeportesLayout.setVerticalGroup(
             TendenciaDeportesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
