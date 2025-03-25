@@ -122,7 +122,7 @@ public class tweets extends javax.swing.JFrame {
         btnExprorar.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnExprorar.setForeground(new java.awt.Color(102, 0, 153));
         btnExprorar.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\lupa.png")); // NOI18N
-        btnExprorar.setText("Exprorar");
+        btnExprorar.setText("Explorar");
         btnExprorar.setBorder(null);
         btnExprorar.setContentAreaFilled(false);
         btnExprorar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -150,7 +150,7 @@ public class tweets extends javax.swing.JFrame {
         btnPerfil.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnPerfil.setForeground(new java.awt.Color(102, 0, 153));
         btnPerfil.setIcon(new javax.swing.ImageIcon("C:\\Users\\Jaime Paredes\\Documents\\NetBeansProjects\\Twitterproyect\\src\\main\\Resource\\ImgHome\\perfil.png")); // NOI18N
-        btnPerfil.setText("Pefil");
+        btnPerfil.setText("Perfil");
         btnPerfil.setBorder(null);
         btnPerfil.setContentAreaFilled(false);
         btnPerfil.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));

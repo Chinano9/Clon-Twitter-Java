@@ -176,7 +176,7 @@ public Buscador() {
         btnExprorar2.setBackground(new java.awt.Color(246, 234, 250));
         btnExprorar2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnExprorar2.setForeground(new java.awt.Color(102, 0, 153));
-        btnExprorar2.setText("Exprorar");
+        btnExprorar2.setText("Explorar");
         btnExprorar2.setBorder(null);
         btnExprorar2.setContentAreaFilled(false);
         btnExprorar2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -202,7 +202,7 @@ public Buscador() {
         btnPerfil2.setBackground(new java.awt.Color(246, 234, 250));
         btnPerfil2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnPerfil2.setForeground(new java.awt.Color(102, 0, 153));
-        btnPerfil2.setText("Pefil");
+        btnPerfil2.setText("Perfil");
         btnPerfil2.setBorder(null);
         btnPerfil2.setContentAreaFilled(false);
         btnPerfil2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
