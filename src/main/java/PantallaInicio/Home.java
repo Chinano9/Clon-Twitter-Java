@@ -35,7 +35,17 @@ import javax.swing.JScrollPane;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.Border;
+import java.sql.Blob;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import javax.swing.text.StyledDocument;
+import javax.swing.text.BadLocationException;
 
+import java.util.Base64;
+import java.io.InputStream;
+import java.io.IOException;
 
 
 
@@ -50,9 +60,6 @@ public class Home extends javax.swing.JFrame {
 /*Jaime*/
 private javax.swing.JTextArea txtTweet;
 private File archivoImagen; 
-private JScrollPane scrollPane;
-
-
 
 
     // Este método carga la imagen automáticamente
@@ -78,30 +85,53 @@ private void cargarFotoPerfil() {
 
 
 
-
 private void cargarTweets() {
+    if (jTextPaneTweets == null) {
+        System.err.println("jTextPaneTweets es null. No se pueden cargar tweets.");
+        return;
+    }
+
     try (Connection conexion = BasededatosTwitter.getConnection()) {
-        String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion " +
+        String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion, t.multimedia " +
                      "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios " +
                      "ORDER BY t.fecha_creacion DESC";
 
         PreparedStatement ps = conexion.prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
 
-        // Limpiar el área de tweets antes de actualizar
-        jTextAreaTweets.setText("");
+        // Obtener el documento del JTextPane
+        StyledDocument doc = jTextPaneTweets.getStyledDocument();
+        jTextPaneTweets.setText(""); // Limpiar contenido previo
 
         while (rs.next()) {
             String nombre = rs.getString("nombre_usuario");
             String alias = rs.getString("alias");
             String contenido = rs.getString("contenido");
             String fecha = rs.getString("fecha_creacion");
+            Blob multimedia = rs.getBlob("multimedia");
 
-            String tweetFormateado = alias + " (" + nombre + ") " + "📅 " + fecha + "\n" + contenido + "\n\n";
-            
-            jTextAreaTweets.append(tweetFormateado);
+            // Formato del tweet
+            String tweetTexto = alias + " (" + nombre + ") 📅 " + fecha + "\n" + contenido + "\n\n";
+            doc.insertString(doc.getLength(), tweetTexto, null);
+
+            // Si hay imagen, la convertimos y la mostramos
+            if (multimedia != null) {
+                byte[] imageBytes = multimedia.getBytes(1, (int) multimedia.length());
+                ImageIcon imageIcon = new ImageIcon(imageBytes);
+
+                // Redimensionar la imagen para que se vea bien
+                Image image = imageIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+                imageIcon = new ImageIcon(image);
+
+                // Insertar imagen en JTextPane
+                jTextPaneTweets.setCaretPosition(doc.getLength());
+                jTextPaneTweets.insertIcon(imageIcon);
+            }
+
+            doc.insertString(doc.getLength(), "\n---------------------------------\n", null);
         }
-    } catch (SQLException e) {
+
+    } catch (SQLException | BadLocationException e) {
         e.printStackTrace();
         JOptionPane.showMessageDialog(this, "Error al cargar los tweets.");
     }
@@ -109,6 +139,11 @@ private void cargarTweets() {
 
 
 
+
+
+private String encodeToBase64(byte[] data) {
+    return Base64.getEncoder().encodeToString(data);
+}
 
 
 private void actualizarNombreYAlias() {
@@ -151,13 +186,17 @@ public Home() {
     initComponents();  // Método generado por NetBeans GUI Builder
           cargarFotoPerfil(); // Llamamos al método para cargar la imagen de perfil
 
-
         // 🔹 Cargar los tweets al iniciar
         cargarTweets();
+        
+    
 
         setVisible(true);
 
 }
+
+
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -191,9 +230,9 @@ public Home() {
         lblImagenPrevia = new javax.swing.JLabel();
         btnSubirImagen = new javax.swing.JButton();
         ScrollHome = new javax.swing.JScrollPane();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextAreaTweets = new javax.swing.JTextArea();
+        jTextPaneTweets = new javax.swing.JTextPane();
         lblAliasNombre = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -279,7 +318,7 @@ public Home() {
                 .addComponent(btnExprorar2)
                 .addGap(43, 43, 43)
                 .addComponent(btnNotificaciones2)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(390, Short.MAX_VALUE))
         );
 
         PanelBuscador.setBackground(new java.awt.Color(255, 255, 255));
@@ -424,20 +463,16 @@ public Home() {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTextAreaTweets.setColumns(20);
-        jTextAreaTweets.setRows(5);
-        jTextAreaTweets.addAncestorListener(new javax.swing.event.AncestorListener() {
+        jTextPaneTweets.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                jTextAreaTweetsAncestorAdded(evt);
+                jTextPaneTweetsAncestorAdded(evt);
             }
             public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
             }
             public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
             }
         });
-        jScrollPane1.setViewportView(jTextAreaTweets);
-
-        ScrollHome.setViewportView(jScrollPane1);
+        ScrollHome.setViewportView(jTextPaneTweets);
 
         lblAliasNombre.setText("jLabel1");
         lblAliasNombre.addAncestorListener(new javax.swing.event.AncestorListener() {
@@ -461,12 +496,16 @@ public Home() {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(ScrollHome, javax.swing.GroupLayout.PREFERRED_SIZE, 797, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(PanelTraseroLayout.createSequentialGroup()
+                                .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(ScrollHome, javax.swing.GroupLayout.PREFERRED_SIZE, 797, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(PanelTraseroLayout.createSequentialGroup()
                         .addGap(591, 591, 591)
                         .addComponent(lblAliasNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(193, Short.MAX_VALUE))
+                .addGap(74, 74, 74))
         );
         PanelTraseroLayout.setVerticalGroup(
             PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -476,10 +515,12 @@ public Home() {
                 .addGap(12, 12, 12)
                 .addComponent(lblAliasNombre)
                 .addGap(18, 18, 18)
-                .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(ScrollHome, javax.swing.GroupLayout.DEFAULT_SIZE, 435, Short.MAX_VALUE)
-                .addContainerGap())
+                .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
+                .addComponent(ScrollHome, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addComponent(Menu2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
@@ -497,15 +538,73 @@ public Home() {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void lblAliasNombreAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblAliasNombreAncestorAdded
+        actualizarNombreYAlias(); // Llamar al método al cargar la interfaz
+    }//GEN-LAST:event_lblAliasNombreAncestorAdded
+
+    private void btnSubirImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubirImagenActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Imágenes y GIFs", "jpg", "png", "gif"));
+
+        int seleccion = fileChooser.showOpenDialog(this);
+        if (seleccion == JFileChooser.APPROVE_OPTION) {
+            archivoImagen = fileChooser.getSelectedFile();
+
+            // Mostrar vista previa de la imagen
+            ImageIcon imagen = new ImageIcon(archivoImagen.getAbsolutePath());
+            lblImagenPrevia.setIcon(new ImageIcon(imagen.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH)));
+        }
+
+    }//GEN-LAST:event_btnSubirImagenActionPerformed
+
+    private void b_enviarTweetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_enviarTweetActionPerformed
+        String contenido = jTextArea1.getText().trim();
+        int usuarioId = UsuarioSesion.getUsuarioId();
+
+        if (contenido.isEmpty() && archivoImagen == null) {
+            JOptionPane.showMessageDialog(this, "No puedes publicar un tweet vacío.");
+            return;
+        }
+
+        try (Connection conexion = BasededatosTwitter.getConnection()) {
+            String sql = "INSERT INTO tweets (usuario_id, contenido, fecha_creacion, multimedia) VALUES (?, ?, NOW(), ?)";
+            PreparedStatement ps = conexion.prepareStatement(sql);
+            ps.setInt(1, usuarioId);
+            ps.setString(2, contenido);
+
+            if (archivoImagen != null) {
+                FileInputStream fis = new FileInputStream(archivoImagen);
+                ps.setBinaryStream(3, fis, (int) archivoImagen.length());
+            } else {
+                ps.setNull(3, java.sql.Types.BLOB); // Si no hay imagen, se pone NULL
+            }
+
+            ps.executeUpdate();
+            JOptionPane.showMessageDialog(this, "¡Tweet publicado con éxito!");
+
+            // Limpiar los campos después de publicar
+            jTextArea1.setText("");
+            lblImagenPrevia.setIcon(null);
+            archivoImagen = null;
+
+        } catch (SQLException | FileNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "Error al publicar el tweet: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_b_enviarTweetActionPerformed
+
+    private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
+        lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
+        lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
+    }//GEN-LAST:event_lblFotoPerfilAncestorAdded
+
     private void BuscadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscadorActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_BuscadorActionPerformed
 
-    private void btnInicio2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInicio2ActionPerformed
-        Home h = new Home();
-        h.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_btnInicio2ActionPerformed
+    private void btnNotificaciones2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNotificaciones2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnNotificaciones2ActionPerformed
 
     private void btnExprorar2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExprorar2ActionPerformed
         Buscador b = new Buscador();
@@ -513,74 +612,21 @@ public Home() {
         this.dispose();
     }//GEN-LAST:event_btnExprorar2ActionPerformed
 
-    private void btnNotificaciones2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNotificaciones2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnNotificaciones2ActionPerformed
+    private void btnInicio2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInicio2ActionPerformed
+        Home h = new Home();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnInicio2ActionPerformed
+
+    private void jTextPaneTweetsAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_jTextPaneTweetsAncestorAdded
+jTextPaneTweets = new JTextPane();  // Crear una nueva instancia en caso de que sea null
+jTextPaneTweets.setContentType("text/html"); // Permite mostrar imágenes y texto con formato
+jTextPaneTweets.setEditable(false); // Evita que el usuario escriba en él
+jScrollPane1.setViewportView(jTextPaneTweets); // Asignar el JTextPane al JScrollPane
+
+
+    }//GEN-LAST:event_jTextPaneTweetsAncestorAdded
 byte[] fotoBytes = null; // Declaración
-
-    private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
-       lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
-lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
-
-    }//GEN-LAST:event_lblFotoPerfilAncestorAdded
-
-    private void lblAliasNombreAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblAliasNombreAncestorAdded
-    actualizarNombreYAlias(); // Llamar al método al cargar la interfaz
-    }//GEN-LAST:event_lblAliasNombreAncestorAdded
-
-    private void b_enviarTweetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_enviarTweetActionPerformed
-        String contenido = jTextArea1.getText().trim();
-int usuarioId = UsuarioSesion.getUsuarioId(); 
-
-    if (contenido.isEmpty() && archivoImagen == null) {
-        JOptionPane.showMessageDialog(this, "No puedes publicar un tweet vacío.");
-        return;
-    }
-
-    try (Connection conexion = BasededatosTwitter.getConnection()) {
-        String sql = "INSERT INTO tweets (usuario_id, contenido, fecha_creacion, multimedia) VALUES (?, ?, NOW(), ?)";
-        PreparedStatement ps = conexion.prepareStatement(sql);
-        ps.setInt(1, usuarioId);
-        ps.setString(2, contenido);
-
-        if (archivoImagen != null) {
-            FileInputStream fis = new FileInputStream(archivoImagen);
-            ps.setBinaryStream(3, fis, (int) archivoImagen.length());
-        } else {
-            ps.setNull(3, java.sql.Types.BLOB);
-        }
-
-        ps.executeUpdate();
-        JOptionPane.showMessageDialog(this, "¡Tweet publicado con éxito!");
-
-        // Limpiar los campos después de publicar
-        jTextArea1.setText("");
-        lblImagenPrevia.setIcon(null);
-        archivoImagen = null;
-
-    } catch (SQLException | FileNotFoundException e) {
-        JOptionPane.showMessageDialog(this, "Error al publicar el tweet: " + e.getMessage());
-        e.printStackTrace();
-    }
-    }//GEN-LAST:event_b_enviarTweetActionPerformed
-
-    private void btnSubirImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubirImagenActionPerformed
-          JFileChooser fileChooser = new JFileChooser();
-    fileChooser.setFileFilter(new FileNameExtensionFilter("Imágenes y GIFs", "jpg", "png", "gif"));
-    
-    int seleccion = fileChooser.showOpenDialog(this);
-    if (seleccion == JFileChooser.APPROVE_OPTION) {
-        archivoImagen = fileChooser.getSelectedFile();
-        
-        // Mostrar vista previa de la imagen
-        ImageIcon imagen = new ImageIcon(archivoImagen.getAbsolutePath());
-        lblImagenPrevia.setIcon(new ImageIcon(imagen.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH)));
-    }
-    }//GEN-LAST:event_btnSubirImagenActionPerformed
-
-    private void jTextAreaTweetsAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_jTextAreaTweetsAncestorAdded
-
-    }//GEN-LAST:event_jTextAreaTweetsAncestorAdded
 
     /**
      * @param args the command line arguments
@@ -611,6 +657,7 @@ int usuarioId = UsuarioSesion.getUsuarioId();
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
+        SwingUtilities.invokeLater(() -> new Home().setVisible(true));
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -643,7 +690,7 @@ int usuarioId = UsuarioSesion.getUsuarioId();
     private javax.swing.JButton btnSubirImagen;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextArea jTextAreaTweets;
+    private javax.swing.JTextPane jTextPaneTweets;
     private javax.swing.JLabel lblAliasNombre;
     private javax.swing.JLabel lblFotoPerfil;
     private javax.swing.JLabel lblImagenPrevia;
