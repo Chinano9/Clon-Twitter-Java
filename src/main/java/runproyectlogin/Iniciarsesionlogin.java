@@ -23,27 +23,32 @@ public class Iniciarsesionlogin extends javax.swing.JFrame {
     /**
      * Creates new form login1123213
      */
-    private int obtenerIdUsuario(String email, String password) {
-    int idUsuario = -1;  // Valor por defecto si no encuentra el usuario
+ private int obtenerIdUsuario(String email, String password) {
+    int idUsuario = -1;
 
-    String query = "SELECT id_usuarios FROM usuarios WHERE email = ? AND password = ?";
-    
-    try (Connection con = BasededatosTwitter.getConnection();
-         PreparedStatement ps = con.prepareStatement(query)) {
-
+    try (Connection conexion = BasededatosTwitter.getConnection()) {
+        String sql = "SELECT id_usuarios FROM usuarios WHERE email = ? AND password = ?";
+        PreparedStatement ps = conexion.prepareStatement(sql);
         ps.setString(1, email);
         ps.setString(2, password);
+
         ResultSet rs = ps.executeQuery();
 
         if (rs.next()) {
             idUsuario = rs.getInt("id_usuarios");
+            System.out.println("✅ ID obtenido: " + idUsuario);
+        } else {
+            System.out.println("❌ Usuario no encontrado con esos datos.");
         }
-    } catch (Exception e) {
+
+    } catch (SQLException e) {
         e.printStackTrace();
     }
 
     return idUsuario;
 }
+
+
     //Crear verificacion de si se encuentra la cuenta
    public static boolean verificarExistencianombreusuario(String nombreusuario) {
 Connection conexion = BasededatosTwitter.getConnection();

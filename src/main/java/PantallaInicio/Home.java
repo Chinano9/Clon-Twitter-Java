@@ -83,25 +83,66 @@ private void cargarFotoPerfil() {
 }
 
 
+private void abrirVentanaComentario(int idTweet) {
+    int usuarioId = UsuarioSesion.getUsuarioId();
+System.out.println("🧠 ID del usuario en sesión: " + usuarioId);
+    String comentario = JOptionPane.showInputDialog(this, "Escribe tu comentario:");
+
+
+    if (comentario != null && !comentario.trim().isEmpty()) {
+        try (Connection conexion = BasededatosTwitter.getConnection()) {
+            String sql = "INSERT INTO comentarios (tweet_id, usuario_id, contenido, fecha_creacion) VALUES (?, ?, ?, NOW())";
+            PreparedStatement ps = conexion.prepareStatement(sql);
+            ps.setInt(1, idTweet);
+            ps.setInt(2, UsuarioSesion.getUsuarioId());
+            ps.setString(3, comentario);
+            ps.executeUpdate();
+
+            JOptionPane.showMessageDialog(this, "Comentario publicado.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al comentar.");
+        }
+    }
+}
+
+private void quitarLike(int idTweet) {
+    try (Connection c = BasededatosTwitter.getConnection()) {
+        String sql = "DELETE FROM likes WHERE tweet_id = ? AND usuario_id = ?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, idTweet);
+        ps.setInt(2, UsuarioSesion.getUsuarioId());
+        ps.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
+private void quitarRetweet(int idTweet) {
+    try (Connection c = BasededatosTwitter.getConnection()) {
+        String sql = "DELETE FROM retweets WHERE tweet_id = ? AND usuario_id = ?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, idTweet);
+        ps.setInt(2, UsuarioSesion.getUsuarioId());
+        ps.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
 
 
 private void cargarTweets() {
-    if (jTextPaneTweets == null) {
-        System.err.println("jTextPaneTweets es null. No se pueden cargar tweets.");
-        return;
-    }
-
     try (Connection conexion = BasededatosTwitter.getConnection()) {
-        String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion, t.multimedia " +
+        String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion, t.multimedia, t.id_tweet " +
                      "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios " +
                      "ORDER BY t.fecha_creacion DESC";
 
         PreparedStatement ps = conexion.prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
 
-        // Obtener el documento del JTextPane
-        StyledDocument doc = jTextPaneTweets.getStyledDocument();
-        jTextPaneTweets.setText(""); // Limpiar contenido previo
+        panelContenedorTweets.removeAll(); // limpia tweets anteriores
+        panelContenedorTweets.setLayout(new BoxLayout(panelContenedorTweets, BoxLayout.Y_AXIS));
 
         while (rs.next()) {
             String nombre = rs.getString("nombre_usuario");
@@ -109,35 +150,205 @@ private void cargarTweets() {
             String contenido = rs.getString("contenido");
             String fecha = rs.getString("fecha_creacion");
             Blob multimedia = rs.getBlob("multimedia");
+            int idTweet = rs.getInt("id_tweet");
 
-            // Formato del tweet
-            String tweetTexto = alias + " (" + nombre + ") 📅 " + fecha + "\n" + contenido + "\n\n";
-            doc.insertString(doc.getLength(), tweetTexto, null);
+            // Panel individual
+            JPanel panelTweet = new JPanel();
+            panelTweet.setLayout(new BorderLayout());
+            panelTweet.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+            panelTweet.setBackground(Color.WHITE);
+            panelTweet.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
 
-            // Si hay imagen, la convertimos y la mostramos
+            // Texto principal
+            JTextArea textoTweet = new JTextArea(alias + " (" + nombre + ") 🕒 " + fecha + "\n" + contenido);
+            textoTweet.setEditable(false);
+            textoTweet.setLineWrap(true);
+            textoTweet.setWrapStyleWord(true);
+            textoTweet.setBackground(Color.WHITE);
+            panelTweet.add(textoTweet, BorderLayout.CENTER);
+
+            // Imagen si existe
             if (multimedia != null) {
                 byte[] imageBytes = multimedia.getBytes(1, (int) multimedia.length());
-                ImageIcon imageIcon = new ImageIcon(imageBytes);
-
-                // Redimensionar la imagen para que se vea bien
-                Image image = imageIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
-                imageIcon = new ImageIcon(image);
-
-                // Insertar imagen en JTextPane
-                jTextPaneTweets.setCaretPosition(doc.getLength());
-                jTextPaneTweets.insertIcon(imageIcon);
+                ImageIcon icon = new ImageIcon(imageBytes);
+                Image imagenEscalada = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+                JLabel imagenLabel = new JLabel(new ImageIcon(imagenEscalada));
+                panelTweet.add(imagenLabel, BorderLayout.WEST);
             }
 
-            doc.insertString(doc.getLength(), "\n---------------------------------\n", null);
+            // Panel de botones
+            JPanel panelInteracciones = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+            // ❤️ Me gusta
+          final JButton[] btnLike = new JButton[1];
+final boolean[] yaDioLike = { !usuarioPuedeDarLike(idTweet) };
+
+btnLike[0] = new JButton((yaDioLike[0] ? "💔 Quitar " : "❤️ ") + obtenerTotalLikes(idTweet));
+btnLike[0].addActionListener(e -> {
+    if (yaDioLike[0]) {
+        quitarLike(idTweet);
+        yaDioLike[0] = false;
+    } else {
+        darLike(idTweet);
+        yaDioLike[0] = true;
+    }
+    btnLike[0].setText((yaDioLike[0] ? "💔 Quitar " : "❤️ ") + obtenerTotalLikes(idTweet));
+});
+panelInteracciones.add(btnLike[0]);
+
+
+
+            // 🔁 Retweet
+          final JButton[] btnRT = new JButton[1];
+final boolean[] yaRT = { !usuarioPuedeRetweetear(idTweet) };
+
+btnRT[0] = new JButton((yaRT[0] ? "❌ Quitar RT " : "🔁 ") + obtenerTotalRetweets(idTweet));
+btnRT[0].addActionListener(e -> {
+    if (yaRT[0]) {
+        quitarRetweet(idTweet);
+        yaRT[0] = false;
+    } else {
+        retweetear(idTweet);
+        yaRT[0] = true;
+    }
+    btnRT[0].setText((yaRT[0] ? "❌ Quitar RT " : "🔁 ") + obtenerTotalRetweets(idTweet));
+});
+panelInteracciones.add(btnRT[0]);
+
+
+
+            // 💬 Ver comentarios
+            JButton btnVerComentarios = new JButton("💬 Ver comentarios");
+            btnVerComentarios.addActionListener(e -> {
+                mostrarComentarios(idTweet, panelContenedorTweets);
+            });
+            panelInteracciones.add(btnVerComentarios);
+
+            // 💬 Comentar
+            JButton btnComentar = new JButton("💬 Comentar");
+            btnComentar.addActionListener(e -> {
+                abrirVentanaComentario(idTweet);
+            });
+            panelInteracciones.add(btnComentar);
+
+            // Agregar botones al tweet
+            panelTweet.add(panelInteracciones, BorderLayout.SOUTH);
+
+            // Agregar tweet al contenedor principal
+            panelContenedorTweets.add(panelTweet);
+            panelContenedorTweets.add(Box.createVerticalStrut(10));
         }
 
-    } catch (SQLException | BadLocationException e) {
+        panelContenedorTweets.revalidate();
+        panelContenedorTweets.repaint();
+
+    } catch (SQLException e) {
         e.printStackTrace();
         JOptionPane.showMessageDialog(this, "Error al cargar los tweets.");
     }
 }
 
 
+
+private boolean usuarioPuedeDarLike(int idTweet) {
+    try (Connection c = BasededatosTwitter.getConnection()) {
+        String sql = "SELECT 1 FROM likes WHERE tweet_id = ? AND usuario_id = ?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, idTweet);
+        ps.setInt(2, UsuarioSesion.getUsuarioId());
+        return !ps.executeQuery().next();
+    } catch (SQLException e) { e.printStackTrace(); return false; }
+}
+
+private void darLike(int idTweet) {
+    try (Connection c = BasededatosTwitter.getConnection()) {
+        String sql = "INSERT INTO likes (tweet_id, usuario_id, fecha_like) VALUES (?, ?, NOW())";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, idTweet);
+        ps.setInt(2, UsuarioSesion.getUsuarioId());
+        ps.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
+
+private int obtenerTotalLikes(int idTweet) {
+    try (Connection c = BasededatosTwitter.getConnection()) {
+        String sql = "SELECT COUNT(*) FROM likes WHERE tweet_id = ?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, idTweet);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return rs.getInt(1);
+    } catch (SQLException e) { e.printStackTrace(); }
+    return 0;
+}
+
+// --- Lo mismo para retweets ---
+private boolean usuarioPuedeRetweetear(int idTweet) {
+    try (Connection c = BasededatosTwitter.getConnection()) {
+        String sql = "SELECT 1 FROM retweets WHERE tweet_id = ? AND usuario_id = ?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, idTweet);
+        ps.setInt(2, UsuarioSesion.getUsuarioId());
+        return !ps.executeQuery().next();
+    } catch (SQLException e) { e.printStackTrace(); return false; }
+}
+
+private void retweetear(int idTweet) {
+    try (Connection c = BasededatosTwitter.getConnection()) {
+        String sql = "INSERT INTO retweets (tweet_id, usuario_id, fecha_retweet) VALUES (?, ?, NOW())";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, idTweet);
+        ps.setInt(2, UsuarioSesion.getUsuarioId());
+        ps.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
+
+private int obtenerTotalRetweets(int idTweet) {
+    try (Connection c = BasededatosTwitter.getConnection()) {
+        String sql = "SELECT COUNT(*) FROM retweets WHERE tweet_id = ?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, idTweet);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return rs.getInt(1);
+    } catch (SQLException e) { e.printStackTrace(); }
+    return 0;
+}
+
+private void mostrarComentarios(int idTweet, JPanel contenedor) {
+    try (Connection conexion = BasededatosTwitter.getConnection()) {
+        String sql = "SELECT u.nombre_usuario, c.contenido, c.fecha_creacion FROM comentarios c " +
+                     "JOIN usuarios u ON c.usuario_id = u.id_usuarios WHERE c.tweet_id = ? ORDER BY c.fecha_creacion ASC";
+
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ps.setInt(1, idTweet);
+        ResultSet rs = ps.executeQuery();
+
+        JPanel panelComentarios = new JPanel();
+        panelComentarios.setLayout(new BoxLayout(panelComentarios, BoxLayout.Y_AXIS));
+        panelComentarios.setBackground(new Color(245, 245, 245));
+
+        while (rs.next()) {
+            String nombre = rs.getString("nombre_usuario");
+            String texto = rs.getString("contenido");
+            String fecha = rs.getString("fecha_creacion");
+
+            JTextArea comentario = new JTextArea(nombre + " 🕒 " + fecha + "\n" + texto);
+            comentario.setEditable(false);
+            comentario.setBackground(new Color(245, 245, 245));
+            panelComentarios.add(comentario);
+        }
+
+        JOptionPane.showMessageDialog(this, panelComentarios, "Comentarios del Tweet", JOptionPane.PLAIN_MESSAGE);
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
 
 
 
@@ -229,10 +440,10 @@ public Home() {
         btnCalendario = new javax.swing.JButton();
         lblImagenPrevia = new javax.swing.JLabel();
         btnSubirImagen = new javax.swing.JButton();
-        ScrollHome = new javax.swing.JScrollPane();
-        jTextPaneTweets = new javax.swing.JTextPane();
         lblAliasNombre = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        panelContenedorTweets = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -318,7 +529,7 @@ public Home() {
                 .addComponent(btnExprorar2)
                 .addGap(43, 43, 43)
                 .addComponent(btnNotificaciones2)
-                .addContainerGap(390, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         PanelBuscador.setBackground(new java.awt.Color(255, 255, 255));
@@ -461,17 +672,6 @@ public Home() {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTextPaneTweets.addAncestorListener(new javax.swing.event.AncestorListener() {
-            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                jTextPaneTweetsAncestorAdded(evt);
-            }
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
-            }
-        });
-        ScrollHome.setViewportView(jTextPaneTweets);
-
         lblAliasNombre.setText("jLabel1");
         lblAliasNombre.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
@@ -483,6 +683,21 @@ public Home() {
             }
         });
 
+        panelContenedorTweets.setBackground(new java.awt.Color(255, 255, 255));
+
+        javax.swing.GroupLayout panelContenedorTweetsLayout = new javax.swing.GroupLayout(panelContenedorTweets);
+        panelContenedorTweets.setLayout(panelContenedorTweetsLayout);
+        panelContenedorTweetsLayout.setHorizontalGroup(
+            panelContenedorTweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 656, Short.MAX_VALUE)
+        );
+        panelContenedorTweetsLayout.setVerticalGroup(
+            panelContenedorTweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 357, Short.MAX_VALUE)
+        );
+
+        jScrollPane2.setViewportView(panelContenedorTweets);
+
         javax.swing.GroupLayout PanelTraseroLayout = new javax.swing.GroupLayout(PanelTrasero);
         PanelTrasero.setLayout(PanelTraseroLayout);
         PanelTraseroLayout.setHorizontalGroup(
@@ -491,19 +706,23 @@ public Home() {
                 .addComponent(Menu2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelTraseroLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(PanelTraseroLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(ScrollHome, javax.swing.GroupLayout.PREFERRED_SIZE, 797, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(PanelTraseroLayout.createSequentialGroup()
+                                        .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addGroup(PanelTraseroLayout.createSequentialGroup()
+                                .addGap(591, 591, 591)
+                                .addComponent(lblAliasNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(74, 74, 74))
                     .addGroup(PanelTraseroLayout.createSequentialGroup()
-                        .addGap(591, 591, 591)
-                        .addComponent(lblAliasNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(74, 74, 74))
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 658, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         PanelTraseroLayout.setVerticalGroup(
             PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -516,9 +735,9 @@ public Home() {
                 .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(26, 26, 26)
-                .addComponent(ScrollHome, javax.swing.GroupLayout.PREFERRED_SIZE, 401, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 359, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(15, Short.MAX_VALUE))
             .addComponent(Menu2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
@@ -526,11 +745,17 @@ public Home() {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(PanelTrasero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(PanelTrasero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(PanelTrasero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(74, 74, 74)
+                .addComponent(PanelTrasero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -552,7 +777,6 @@ public Home() {
             ImageIcon imagen = new ImageIcon(archivoImagen.getAbsolutePath());
             lblImagenPrevia.setIcon(new ImageIcon(imagen.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH)));
         }
-
     }//GEN-LAST:event_btnSubirImagenActionPerformed
 
     private void b_enviarTweetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_enviarTweetActionPerformed
@@ -615,15 +839,6 @@ public Home() {
         h.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnInicio2ActionPerformed
-
-    private void jTextPaneTweetsAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_jTextPaneTweetsAncestorAdded
-jTextPaneTweets = new JTextPane();  // Crear una nueva instancia en caso de que sea null
-jTextPaneTweets.setContentType("text/html"); // Permite mostrar imágenes y texto con formato
-jTextPaneTweets.setEditable(false); // Evita que el usuario escriba en él
-jScrollPane1.setViewportView(jTextPaneTweets); // Asignar el JTextPane al JScrollPane
-
-
-    }//GEN-LAST:event_jTextPaneTweetsAncestorAdded
 byte[] fotoBytes = null; // Declaración
 
     /**
@@ -673,7 +888,6 @@ byte[] fotoBytes = null; // Declaración
     private javax.swing.JPanel PanelBuscador;
     private javax.swing.JPanel PanelTrasero;
     private javax.swing.JPanel PanelTweet;
-    private javax.swing.JScrollPane ScrollHome;
     private javax.swing.JScrollPane ScrollTweet;
     private javax.swing.JButton b_enviarTweet;
     private javax.swing.JButton btnBusqueda;
@@ -687,10 +901,11 @@ byte[] fotoBytes = null; // Declaración
     private javax.swing.JButton btnPerfil2;
     private javax.swing.JButton btnSubirImagen;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextPane jTextPaneTweets;
     private javax.swing.JLabel lblAliasNombre;
     private javax.swing.JLabel lblFotoPerfil;
     private javax.swing.JLabel lblImagenPrevia;
+    private javax.swing.JPanel panelContenedorTweets;
     // End of variables declaration//GEN-END:variables
 }
