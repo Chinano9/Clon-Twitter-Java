@@ -130,18 +130,56 @@ private void quitarRetweet(int idTweet) {
     }
 }
 
+private int obtenerTotalComentarios(int idTweet) {
+    try (Connection c = BasededatosTwitter.getConnection()) {
+        String sql = "SELECT COUNT(*) FROM comentarios WHERE tweet_id = ?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, idTweet);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return rs.getInt(1);
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+
+private void eliminarTweet(int idTweet) {
+    try (Connection c = BasededatosTwitter.getConnection()) {
+        String sql = "DELETE FROM tweets WHERE id_tweet = ? AND usuario_id = ?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, idTweet);
+        ps.setInt(2, UsuarioSesion.getUsuarioId()); // protección extra: solo el dueño puede borrar
+        ps.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al eliminar el tweet.");
+    }
+}
+private void editarTweet(int idTweet, String contenidoNuevo) {
+    try (Connection c = BasededatosTwitter.getConnection()) {
+        String sql = "UPDATE tweets SET contenido = ? WHERE id_tweet = ? AND usuario_id = ?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setString(1, contenidoNuevo);
+        ps.setInt(2, idTweet);
+        ps.setInt(3, UsuarioSesion.getUsuarioId()); // seguridad: solo el dueño puede editar
+        ps.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al editar el tweet.");
+    }
+}
 
 
 private void cargarTweets() {
     try (Connection conexion = BasededatosTwitter.getConnection()) {
-        String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion, t.multimedia, t.id_tweet " +
+        String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion, t.multimedia, t.id_tweet, t.usuario_id " +
                      "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios " +
                      "ORDER BY t.fecha_creacion DESC";
 
         PreparedStatement ps = conexion.prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
 
-        panelContenedorTweets.removeAll(); // limpia tweets anteriores
+        panelContenedorTweets.removeAll();
         panelContenedorTweets.setLayout(new BoxLayout(panelContenedorTweets, BoxLayout.Y_AXIS));
 
         while (rs.next()) {
@@ -151,15 +189,15 @@ private void cargarTweets() {
             String fecha = rs.getString("fecha_creacion");
             Blob multimedia = rs.getBlob("multimedia");
             int idTweet = rs.getInt("id_tweet");
+            int idAutor = rs.getInt("usuario_id"); // ⚠️ Lo nuevo
 
-            // Panel individual
-            JPanel panelTweet = new JPanel();
-            panelTweet.setLayout(new BorderLayout());
+            boolean esMio = (idAutor == UsuarioSesion.getUsuarioId());
+
+            JPanel panelTweet = new JPanel(new BorderLayout());
             panelTweet.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
             panelTweet.setBackground(Color.WHITE);
             panelTweet.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
 
-            // Texto principal
             JTextArea textoTweet = new JTextArea(alias + " (" + nombre + ") 🕒 " + fecha + "\n" + contenido);
             textoTweet.setEditable(false);
             textoTweet.setLineWrap(true);
@@ -167,7 +205,6 @@ private void cargarTweets() {
             textoTweet.setBackground(Color.WHITE);
             panelTweet.add(textoTweet, BorderLayout.CENTER);
 
-            // Imagen si existe
             if (multimedia != null) {
                 byte[] imageBytes = multimedia.getBytes(1, (int) multimedia.length());
                 ImageIcon icon = new ImageIcon(imageBytes);
@@ -176,65 +213,81 @@ private void cargarTweets() {
                 panelTweet.add(imagenLabel, BorderLayout.WEST);
             }
 
-            // Panel de botones
             JPanel panelInteracciones = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-            // ❤️ Me gusta
-          final JButton[] btnLike = new JButton[1];
-final boolean[] yaDioLike = { !usuarioPuedeDarLike(idTweet) };
-
-btnLike[0] = new JButton((yaDioLike[0] ? "💔 Quitar " : "❤️ ") + obtenerTotalLikes(idTweet));
-btnLike[0].addActionListener(e -> {
-    if (yaDioLike[0]) {
-        quitarLike(idTweet);
-        yaDioLike[0] = false;
-    } else {
-        darLike(idTweet);
-        yaDioLike[0] = true;
-    }
-    btnLike[0].setText((yaDioLike[0] ? "💔 Quitar " : "❤️ ") + obtenerTotalLikes(idTweet));
-});
-panelInteracciones.add(btnLike[0]);
-
-
+            // ❤️ Like
+            final JButton[] btnLike = new JButton[1];
+            final boolean[] yaDioLike = { !usuarioPuedeDarLike(idTweet) };
+            btnLike[0] = new JButton((yaDioLike[0] ? "💔 Quitar " : "❤️ ") + obtenerTotalLikes(idTweet));
+            btnLike[0].addActionListener(e -> {
+                if (yaDioLike[0]) {
+                    quitarLike(idTweet);
+                    yaDioLike[0] = false;
+                } else {
+                    darLike(idTweet);
+                    yaDioLike[0] = true;
+                }
+                btnLike[0].setText((yaDioLike[0] ? "💔 Quitar " : "❤️ ") + obtenerTotalLikes(idTweet));
+            });
+            panelInteracciones.add(btnLike[0]);
 
             // 🔁 Retweet
-          final JButton[] btnRT = new JButton[1];
-final boolean[] yaRT = { !usuarioPuedeRetweetear(idTweet) };
+            final JButton[] btnRT = new JButton[1];
+            final boolean[] yaRT = { !usuarioPuedeRetweetear(idTweet) };
+            btnRT[0] = new JButton((yaRT[0] ? "❌ Quitar RT " : "🔁 ") + obtenerTotalRetweets(idTweet));
+            btnRT[0].addActionListener(e -> {
+                if (yaRT[0]) {
+                    quitarRetweet(idTweet);
+                    yaRT[0] = false;
+                } else {
+                    retweetear(idTweet);
+                    yaRT[0] = true;
+                }
+                btnRT[0].setText((yaRT[0] ? "❌ Quitar RT " : "🔁 ") + obtenerTotalRetweets(idTweet));
+            });
+            panelInteracciones.add(btnRT[0]);
 
-btnRT[0] = new JButton((yaRT[0] ? "❌ Quitar RT " : "🔁 ") + obtenerTotalRetweets(idTweet));
-btnRT[0].addActionListener(e -> {
-    if (yaRT[0]) {
-        quitarRetweet(idTweet);
-        yaRT[0] = false;
-    } else {
-        retweetear(idTweet);
-        yaRT[0] = true;
-    }
-    btnRT[0].setText((yaRT[0] ? "❌ Quitar RT " : "🔁 ") + obtenerTotalRetweets(idTweet));
-});
-panelInteracciones.add(btnRT[0]);
-
-
-
-            // 💬 Ver comentarios
-            JButton btnVerComentarios = new JButton("💬 Ver comentarios");
+            // 💬 Comentarios
+            int totalComentarios = obtenerTotalComentarios(idTweet);
+            JButton btnVerComentarios = new JButton("💬 Ver comentarios (" + totalComentarios + ")");
             btnVerComentarios.addActionListener(e -> {
                 mostrarComentarios(idTweet, panelContenedorTweets);
             });
             panelInteracciones.add(btnVerComentarios);
 
-            // 💬 Comentar
             JButton btnComentar = new JButton("💬 Comentar");
             btnComentar.addActionListener(e -> {
                 abrirVentanaComentario(idTweet);
             });
             panelInteracciones.add(btnComentar);
 
-            // Agregar botones al tweet
+            // 🗑 Eliminar si es mío
+            if (esMio) {
+                // ✏️ Editar tweet
+JButton btnEditar = new JButton("✏️ Editar");
+btnEditar.addActionListener(e -> {
+    String nuevoContenido = JOptionPane.showInputDialog(this, "Editar tweet:", contenido);
+    if (nuevoContenido != null && !nuevoContenido.trim().isEmpty()) {
+        editarTweet(idTweet, nuevoContenido.trim());
+        cargarTweets(); // Recargar vista después de editar
+    }
+});
+panelInteracciones.add(btnEditar);
+
+             
+                JButton btnEliminar = new JButton("🗑 Eliminar");
+                btnEliminar.addActionListener(e -> {
+                    int confirm = JOptionPane.showConfirmDialog(this, "¿Eliminar este tweet?", "Confirmar", JOptionPane.YES_NO_OPTION);
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        eliminarTweet(idTweet);
+                        cargarTweets(); // recargar después de borrar
+                    }
+                });
+                panelInteracciones.add(btnEliminar);
+            }
+
             panelTweet.add(panelInteracciones, BorderLayout.SOUTH);
 
-            // Agregar tweet al contenedor principal
             panelContenedorTweets.add(panelTweet);
             panelContenedorTweets.add(Box.createVerticalStrut(10));
         }
@@ -247,7 +300,6 @@ panelInteracciones.add(btnRT[0]);
         JOptionPane.showMessageDialog(this, "Error al cargar los tweets.");
     }
 }
-
 
 
 private boolean usuarioPuedeDarLike(int idTweet) {
