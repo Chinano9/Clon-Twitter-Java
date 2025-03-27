@@ -62,7 +62,7 @@ import java.io.IOException;
  */
 public class Home extends javax.swing.JFrame {
 /*Jaime*/
-    Color colorNormalMenu = new Color(255, 255, 255);
+    Color colorNormalMenu = new Color(246,234,250);
     Color colorOscuroMenu = new Color(246, 246, 246);
     
 private javax.swing.JTextArea txtTweet;
@@ -1099,6 +1099,7 @@ public Home() {
         btnExprorar2 = new javax.swing.JButton();
         btnNotificaciones2 = new javax.swing.JButton();
         btnPerfil2 = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         PanelBuscador = new javax.swing.JPanel();
         txtBuscar = new javax.swing.JTextField();
@@ -1183,37 +1184,58 @@ public Home() {
         btnPerfil2.setContentAreaFilled(false);
         btnPerfil2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
+        jPanel1.setBackground(new java.awt.Color(246, 234, 250));
+        jPanel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jPanel1MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                jPanel1MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                jPanel1MouseExited(evt);
+            }
+        });
+
         jLabel1.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(102, 0, 153));
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/brujula.png"))); // NOI18N
         jLabel1.setText("Inicio");
         jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel1MouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jLabel1MouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                jLabel1MouseExited(evt);
-            }
-        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout Menu2Layout = new javax.swing.GroupLayout(Menu2);
         Menu2.setLayout(Menu2Layout);
         Menu2Layout.setHorizontalGroup(
             Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Menu2Layout.createSequentialGroup()
-                .addContainerGap(30, Short.MAX_VALUE)
+            .addGroup(Menu2Layout.createSequentialGroup()
+                .addContainerGap(31, Short.MAX_VALUE)
                 .addGroup(Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
                     .addComponent(btnNotificaciones2)
                     .addComponent(btnInicio2)
                     .addComponent(btnExprorar2)
                     .addComponent(btnPerfil2)
                     .addComponent(LogoTwitter2))
                 .addGap(9, 9, 9))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Menu2Layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         Menu2Layout.setVerticalGroup(
             Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1228,8 +1250,8 @@ public Home() {
                 .addComponent(btnExprorar2)
                 .addGap(43, 43, 43)
                 .addComponent(btnNotificaciones2)
-                .addGap(48, 48, 48)
-                .addComponent(jLabel1)
+                .addGap(96, 96, 96)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1310,7 +1332,7 @@ public Home() {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnBuscar))
                     .addComponent(ScrollTweet, javax.swing.GroupLayout.PREFERRED_SIZE, 651, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 69, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 68, Short.MAX_VALUE)
                 .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblAliasNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelBuscadorLayout.createSequentialGroup()
@@ -1525,19 +1547,19 @@ public Home() {
         this.dispose();
     }//GEN-LAST:event_LogoTwitter2MouseClicked
 
-    private void jLabel1MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseEntered
-        jLabel1.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_jLabel1MouseEntered
+    private void jPanel1MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseEntered
+        jPanel1.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_jPanel1MouseEntered
 
-    private void jLabel1MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseExited
-        jLabel1.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_jLabel1MouseExited
+    private void jPanel1MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseExited
+        jPanel1.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_jPanel1MouseExited
 
-    private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
+    private void jPanel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseClicked
         Home h = new Home();
         h.setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_jLabel1MouseClicked
+    }//GEN-LAST:event_jPanel1MouseClicked
 byte[] fotoBytes = null; // Declaración
 
     /**
@@ -1596,6 +1618,7 @@ byte[] fotoBytes = null; // Declaración
     private javax.swing.JButton btnPerfil2;
     private javax.swing.JButton btnSubirImagen;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel lblAliasNombre;
