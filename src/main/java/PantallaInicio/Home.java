@@ -44,9 +44,13 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.BadLocationException;
 
 import java.util.Base64;
-import java.io.InputStream;
-import java.io.IOException;
 
+import java.io.FileInputStream;
+import java.io.ByteArrayOutputStream;
+
+import java.nio.file.Files;
+import java.io.File;
+import java.io.IOException;
 
 
 
@@ -85,26 +89,88 @@ private void cargarFotoPerfil() {
 
 private void abrirVentanaComentario(int idTweet) {
     int usuarioId = UsuarioSesion.getUsuarioId();
-System.out.println("🧠 ID del usuario en sesión: " + usuarioId);
-    String comentario = JOptionPane.showInputDialog(this, "Escribe tu comentario:");
+    System.out.println("🧠 ID del usuario en sesión: " + usuarioId);
 
+    // Crear la ventana de comentarios
+    JPanel panelComentario = new JPanel();
+    panelComentario.setLayout(new BoxLayout(panelComentario, BoxLayout.Y_AXIS));
 
-    if (comentario != null && !comentario.trim().isEmpty()) {
-        try (Connection conexion = BasededatosTwitter.getConnection()) {
-            String sql = "INSERT INTO comentarios (tweet_id, usuario_id, contenido, fecha_creacion) VALUES (?, ?, ?, NOW())";
-            PreparedStatement ps = conexion.prepareStatement(sql);
-            ps.setInt(1, idTweet);
-            ps.setInt(2, UsuarioSesion.getUsuarioId());
-            ps.setString(3, comentario);
-            ps.executeUpdate();
+    // Campo de texto para el comentario
+    JTextArea textoComentario = new JTextArea(5, 30);
+    textoComentario.setWrapStyleWord(true);
+    textoComentario.setLineWrap(true);
+    panelComentario.add(new JScrollPane(textoComentario));
 
-            JOptionPane.showMessageDialog(this, "Comentario publicado.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error al comentar.");
+    // Botón para seleccionar un archivo multimedia
+    JButton btnSeleccionarMultimedia = new JButton("Seleccionar Multimedia");
+    panelComentario.add(btnSeleccionarMultimedia);
+
+    // Usar un contenedor mutable para almacenar el archivo multimedia
+    final File[] archivoMultimedia = new File[1];  // Usamos un array para hacerlo "final"
+
+    // Acción del botón para seleccionar el archivo
+    btnSeleccionarMultimedia.addActionListener(e -> {
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            archivoMultimedia[0] = fileChooser.getSelectedFile();
         }
+    });
+
+    // Botón para comentar
+    JButton btnComentar = new JButton("💬 Comentar");
+    btnComentar.addActionListener(e -> {
+        String comentarioTexto = textoComentario.getText().trim();
+        if (!comentarioTexto.isEmpty()) {
+            byte[] multimediaBytes = null;
+            if (archivoMultimedia[0] != null) {
+                multimediaBytes = cargarArchivoMultimedia(archivoMultimedia[0]); // Convertir archivo en bytes
+            }
+            agregarComentario(comentarioTexto, idTweet, multimediaBytes); // Guardar comentario y multimedia
+        } else {
+            JOptionPane.showMessageDialog(this, "El comentario no puede estar vacío.");
+        }
+    });
+
+    panelComentario.add(btnComentar);
+
+    // Mostrar el diálogo
+    JDialog ventanaComentario = new JDialog();
+    ventanaComentario.setTitle("Comentar Tweet");
+    ventanaComentario.setSize(400, 300);
+    ventanaComentario.setLocationRelativeTo(null);
+    ventanaComentario.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+    ventanaComentario.add(panelComentario);
+    ventanaComentario.setVisible(true);
+}
+
+
+
+
+
+private void agregarComentario(String contenido, int idTweet, byte[] multimedia) {
+    try (Connection conexion = BasededatosTwitter.getConnection()) {
+        String sql = "INSERT INTO comentarios (tweet_id, usuario_id, contenido, multimedia, fecha_creacion) " +
+                     "VALUES (?, ?, ?, ?, NOW())";
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ps.setInt(1, idTweet);
+        ps.setInt(2, UsuarioSesion.getUsuarioId()); // Usuario actual
+        ps.setString(3, contenido);
+        
+        if (multimedia != null) {
+            ps.setBytes(4, multimedia); // Subir el archivo multimedia como BLOB
+        } else {
+            ps.setNull(4, java.sql.Types.BLOB); // Si no hay multimedia, insertar NULL
+        }
+
+        ps.executeUpdate();
+        JOptionPane.showMessageDialog(this, "Comentario publicado.");
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al comentar.");
     }
 }
+
 
 private void quitarLike(int idTweet) {
     try (Connection c = BasededatosTwitter.getConnection()) {
@@ -508,31 +574,19 @@ private int obtenerTotalRetweets(int idTweet) {
     } catch (SQLException e) { e.printStackTrace(); }
     return 0;
 }
-public void editarComentario(int idComentario, String nuevoContenido) {
-    try (Connection conexion = BasededatosTwitter.getConnection()) {
-        String sql = "UPDATE comentarios SET contenido = ?, fecha_creacion = NOW() WHERE id_comentario = ?";
-        PreparedStatement ps = conexion.prepareStatement(sql);
-        ps.setString(1, nuevoContenido);
-        ps.setInt(2, idComentario);
-        ps.executeUpdate();
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al editar el comentario.");
-    }
-}
 
-// Método para mostrar los comentarios de un tweet
-public void mostrarComentarios(int idTweet, JPanel panelContenedorTweets) {
+
+private void mostrarComentarios(int idTweet, JPanel panelContenedorTweets) {
     try (Connection conexion = BasededatosTwitter.getConnection()) {
-        String sql = "SELECT c.id_comentario, c.contenido, c.fecha_creacion, u.nombre_usuario, u.alias, c.usuario_id " +
-                     "FROM comentarios c JOIN usuarios u ON c.usuario_id = u.id_usuarios WHERE c.tweet_id = ? " +
-                     "ORDER BY c.fecha_creacion DESC";
+        String sql = "SELECT c.id_comentario, c.contenido, c.fecha_creacion, " +
+                    "u.nombre_usuario, u.alias, c.usuario_id, c.multimedia " +
+                    "FROM comentarios c JOIN usuarios u ON c.usuario_id = u.id_usuarios " +
+                    "WHERE c.tweet_id = ? ORDER BY c.fecha_creacion DESC";
 
         PreparedStatement ps = conexion.prepareStatement(sql);
         ps.setInt(1, idTweet);
         ResultSet rs = ps.executeQuery();
 
-        // Crear un panel para los comentarios
         JPanel panelComentarios = new JPanel();
         panelComentarios.setLayout(new BoxLayout(panelComentarios, BoxLayout.Y_AXIS));
 
@@ -542,70 +596,416 @@ public void mostrarComentarios(int idTweet, JPanel panelContenedorTweets) {
             String alias = rs.getString("alias");
             String contenido = rs.getString("contenido");
             String fecha = rs.getString("fecha_creacion");
+            byte[] multimedia = rs.getBytes("multimedia");
             int usuarioId = rs.getInt("usuario_id");
 
-            boolean esMio = (usuarioId == UsuarioSesion.getUsuarioId()); // Verificar si el comentario es del usuario actual
+            boolean esMio = (usuarioId == UsuarioSesion.getUsuarioId());
 
-            // Panel para cada comentario
-            JPanel panelComentario = new JPanel(new BorderLayout());
-            panelComentario.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+            // Panel principal del comentario
+            JPanel panelComentario = new JPanel();
+            panelComentario.setLayout(new BoxLayout(panelComentario, BoxLayout.Y_AXIS));
+            panelComentario.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(230, 230, 230)),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)));
             panelComentario.setBackground(Color.WHITE);
+            panelComentario.setMaximumSize(new Dimension(500, Integer.MAX_VALUE));
 
-            JTextArea textoComentario = new JTextArea(alias + " (" + nombre + ") 🕒 " + fecha + "\n" + contenido);
+            // Encabezado del comentario (usuario y fecha)
+            JPanel panelHeader = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JLabel lblUsuario = new JLabel("<html><b>" + alias + "</b> (" + nombre + ")</html>");
+            JLabel lblFecha = new JLabel("🕒 " + fecha);
+            lblFecha.setForeground(Color.GRAY);
+            panelHeader.add(lblUsuario);
+            panelHeader.add(Box.createHorizontalStrut(10));
+            panelHeader.add(lblFecha);
+            panelHeader.setBackground(Color.WHITE);
+            panelComentario.add(panelHeader);
+
+            // Contenido del comentario
+            JTextArea textoComentario = new JTextArea(contenido);
             textoComentario.setEditable(false);
             textoComentario.setLineWrap(true);
             textoComentario.setWrapStyleWord(true);
             textoComentario.setBackground(Color.WHITE);
-            panelComentario.add(textoComentario, BorderLayout.CENTER);
+            textoComentario.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            panelComentario.add(textoComentario);
 
-            JPanel panelInteraccionesComentario = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
-            // Si el comentario es del usuario, mostrar los botones de editar y eliminar
-            if (esMio) {
-                // ✏️ Editar comentario
-                JButton btnEditarComentario = new JButton("✏️ Editar comentario");
-                btnEditarComentario.addActionListener(e -> {
-                    String nuevoContenido = JOptionPane.showInputDialog(this, "Editar comentario:", contenido);
-                    if (nuevoContenido != null && !nuevoContenido.trim().isEmpty()) {
-                        editarComentario(idComentario, nuevoContenido.trim());
-                        cargarTweets(); // Recargar tweets después de editar el comentario
+            // Multimedia (si existe)
+            if (multimedia != null && multimedia.length > 0) {
+                try {
+                    ImageIcon icon = new ImageIcon(multimedia);
+                    if (icon.getIconWidth() > 0) { // Verificar que es una imagen válida
+                        // Escalar manteniendo proporción (máx 300px de ancho)
+                        int ancho = Math.min(icon.getIconWidth(), 300);
+                        int alto = (int)((double)icon.getIconHeight() / icon.getIconWidth() * ancho);
+                        
+                        Image imagenEscalada = icon.getImage().getScaledInstance(
+                            ancho, alto, Image.SCALE_SMOOTH);
+                        JLabel imagenLabel = new JLabel(new ImageIcon(imagenEscalada));
+                        imagenLabel.setBorder(BorderFactory.createLineBorder(
+                            new Color(240, 240, 240), 1));
+                        
+                        JPanel panelImagen = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                        panelImagen.add(imagenLabel);
+                        panelComentario.add(panelImagen);
                     }
-                });
-                panelInteraccionesComentario.add(btnEditarComentario);
-
-                // 🗑 Eliminar comentario
-                JButton btnEliminarComentario = new JButton("🗑 Eliminar comentario");
-                btnEliminarComentario.addActionListener(e -> {
-                    int confirm = JOptionPane.showConfirmDialog(this, "¿Eliminar este comentario?", "Confirmar", JOptionPane.YES_NO_OPTION);
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        eliminarComentario(idComentario);
-                        cargarTweets(); // Recargar tweets después de eliminar el comentario
-                    }
-                });
-                panelInteraccionesComentario.add(btnEliminarComentario);
+                } catch (Exception e) {
+                    System.err.println("Error al cargar imagen del comentario ID " + 
+                                     idComentario + ": " + e.getMessage());
+                }
             }
 
-            panelComentario.add(panelInteraccionesComentario, BorderLayout.SOUTH);
+            // Botones de interacción (solo si es comentario del usuario)
+            if (esMio) {
+                JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+                panelBotones.setBackground(Color.WHITE);
+
+                // Botón Editar
+                JButton btnEditar = new JButton("✏️ Editar");
+                btnEditar.addActionListener(e -> editarComentario(idComentario, contenido));
+                panelBotones.add(btnEditar);
+
+                // Botón Eliminar
+                JButton btnEliminar = new JButton("🗑 Eliminar");
+                btnEliminar.addActionListener(e -> {
+                    int confirm = JOptionPane.showConfirmDialog(
+                        panelComentario, 
+                        "¿Eliminar este comentario?", 
+                        "Confirmar", 
+                        JOptionPane.YES_NO_OPTION);
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        eliminarComentario(idComentario);
+                        mostrarComentarios(idTweet, panelContenedorTweets); // Refrescar
+                    }
+                });
+                panelBotones.add(btnEliminar);
+
+                panelComentario.add(panelBotones);
+            }
+
             panelComentarios.add(panelComentario);
-            panelComentarios.add(Box.createVerticalStrut(10));
+            panelComentarios.add(Box.createVerticalStrut(15));
         }
 
-        // Crear el JDialog para mostrar los comentarios
+        // Crear diálogo para mostrar comentarios
         JDialog dialogComentarios = new JDialog();
         dialogComentarios.setTitle("Comentarios del Tweet");
-        dialogComentarios.setSize(600, 400);
-        dialogComentarios.setLocationRelativeTo(null); // Centrar el diálogo en la pantalla
-        dialogComentarios.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); // Cerrar el diálogo al hacer clic en la cruz
-
-        // Añadir el panel de comentarios al JDialog
-        dialogComentarios.add(new JScrollPane(panelComentarios));
-
-        // Hacer visible el JDialog
+        dialogComentarios.setSize(600, 500);
+        dialogComentarios.setLocationRelativeTo(null);
+        dialogComentarios.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        
+        JScrollPane scrollPane = new JScrollPane(panelComentarios);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        dialogComentarios.add(scrollPane);
+        
         dialogComentarios.setVisible(true);
 
     } catch (SQLException e) {
+        JOptionPane.showMessageDialog(panelContenedorTweets, 
+            "Error al cargar los comentarios", 
+            "Error", 
+            JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al cargar los comentarios.");
+    }
+}
+
+
+
+// Modifica tu método para agregar comentarios:
+private void agregarComentario(String comentarioTexto, int idTweet, File archivoMultimedia) {
+   try (Connection conexion = BasededatosTwitter.getConnection()) {
+    String sql = "INSERT INTO comentarios (tweet_id, usuario_id, contenido, multimedia, fecha_creacion) " +
+                "VALUES (?, ?, ?, ?, NOW())";
+    
+    PreparedStatement ps = conexion.prepareStatement(sql);
+    ps.setInt(1, idTweet);
+    ps.setInt(2, UsuarioSesion.getUsuarioId());
+    ps.setString(3, comentarioTexto);
+    
+    if (archivoMultimedia != null) {
+        try (FileInputStream fis = new FileInputStream(archivoMultimedia)) {
+            ps.setBinaryStream(4, fis, (int) archivoMultimedia.length());
+        }
+    } else {
+        ps.setNull(4, java.sql.Types.BLOB);
+    }
+    
+    ps.executeUpdate();
+    JOptionPane.showMessageDialog(null, "Comentario publicado");
+    
+} catch (SQLException e) {
+    JOptionPane.showMessageDialog(null, "Error SQL al publicar el comentario: " + e.getMessage());
+    e.printStackTrace();
+} catch (IOException e) {
+    JOptionPane.showMessageDialog(null, "Error al leer el archivo multimedia: " + e.getMessage());
+    e.printStackTrace();
+}
+}
+
+/**
+ * Abre una ventana para editar un comentario existente
+ * @param idComentario ID del comentario a editar
+ * @param contenidoActual Texto actual del comentario
+ */
+private void editarComentario(int idComentario, String contenidoActual) {
+    // Crear la ventana de edición
+    JDialog dialogEditar = new JDialog();
+    dialogEditar.setTitle("Editar Comentario");
+    dialogEditar.setLayout(new BorderLayout());
+    dialogEditar.setSize(450, 400);
+    dialogEditar.setLocationRelativeTo(null);
+    
+    // Panel principal
+    JPanel panelPrincipal = new JPanel();
+    panelPrincipal.setLayout(new BoxLayout(panelPrincipal, BoxLayout.Y_AXIS));
+    panelPrincipal.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    
+    // Área de texto para el comentario
+    JTextArea textoComentario = new JTextArea(contenidoActual);
+    textoComentario.setLineWrap(true);
+    textoComentario.setWrapStyleWord(true);
+    JScrollPane scrollTexto = new JScrollPane(textoComentario);
+    
+    // Panel para la imagen actual (si existe)
+    JPanel panelImagenActual = new JPanel();
+    panelImagenActual.setLayout(new BoxLayout(panelImagenActual, BoxLayout.Y_AXIS));
+    panelImagenActual.setBorder(BorderFactory.createTitledBorder("Imagen actual"));
+    
+    // Obtener la imagen actual del comentario
+    byte[] imagenActual = obtenerMultimediaComentario(idComentario);
+    JLabel lblImagenActual = new JLabel();
+    
+    if (imagenActual != null && imagenActual.length > 0) {
+        try {
+            ImageIcon icon = new ImageIcon(imagenActual);
+            Image imagenEscalada = icon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+            lblImagenActual.setIcon(new ImageIcon(imagenEscalada));
+        } catch (Exception e) {
+            lblImagenActual.setText("(Error al cargar imagen)");
+        }
+    } else {
+        lblImagenActual.setText("(No hay imagen)");
+    }
+    
+    panelImagenActual.add(lblImagenActual);
+    
+    // Botón para cambiar imagen
+    JButton btnCambiarImagen = new JButton("Cambiar Imagen");
+    JLabel lblNuevaImagen = new JLabel("(No se ha seleccionado nueva imagen)");
+    final File[] archivoMultimedia = {null};
+    
+    btnCambiarImagen.addActionListener(e -> {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Seleccionar nueva imagen");
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter(
+            "Imágenes (JPG, PNG, GIF)", "jpg", "jpeg", "png", "gif"));
+        
+        int result = fileChooser.showOpenDialog(dialogEditar);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            archivoMultimedia[0] = fileChooser.getSelectedFile();
+            lblNuevaImagen.setText(archivoMultimedia[0].getName());
+            
+            // Mostrar vista previa
+            try {
+                ImageIcon icon = new ImageIcon(archivoMultimedia[0].getAbsolutePath());
+                Image imagenEscalada = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+                lblImagenActual.setIcon(new ImageIcon(imagenEscalada));
+            } catch (Exception ex) {
+                lblImagenActual.setText("(Vista previa no disponible)");
+            }
+        }
+    });
+    
+    // Panel para botones
+    JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+    
+    // Botón Guardar
+    JButton btnGuardar = new JButton("💾 Guardar Cambios");
+    btnGuardar.addActionListener(e -> {
+        String nuevoContenido = textoComentario.getText().trim();
+        if (nuevoContenido.isEmpty()) {
+            JOptionPane.showMessageDialog(dialogEditar, 
+                "El comentario no puede estar vacío", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        try {
+            // Actualizar el comentario
+            if (archivoMultimedia[0] != null) {
+                // Si hay nueva imagen, convertir a bytes y actualizar
+                byte[] nuevaImagenBytes = Files.readAllBytes(archivoMultimedia[0].toPath());
+                actualizarComentarioConImagen(idComentario, nuevoContenido, nuevaImagenBytes);
+            } else {
+                // Si no hay nueva imagen, mantener la existente o eliminar si se desea
+                actualizarComentario(idComentario, nuevoContenido);
+            }
+            
+            JOptionPane.showMessageDialog(dialogEditar, 
+                "Comentario actualizado correctamente", 
+                "Éxito", 
+                JOptionPane.INFORMATION_MESSAGE);
+            dialogEditar.dispose();
+            
+            // Refrescar la vista de comentarios
+            // (Necesitarás tener acceso al idTweet desde algún lado)
+            // mostrarComentarios(idTweet, panelContenedorTweets);
+            
+        } catch (IOException | SQLException ex) {
+            JOptionPane.showMessageDialog(dialogEditar, 
+                "Error al actualizar el comentario: " + ex.getMessage(), 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    });
+    
+    // Botón Eliminar Imagen
+    JButton btnEliminarImagen = new JButton("❌ Eliminar Imagen");
+    btnEliminarImagen.addActionListener(e -> {
+        archivoMultimedia[0] = null;
+        lblImagenActual.setIcon(null);
+        lblImagenActual.setText("(Imagen eliminada - se guardará sin imagen)");
+        lblNuevaImagen.setText("(No se ha seleccionado nueva imagen)");
+    });
+    
+    // Botón Cancelar
+    JButton btnCancelar = new JButton("Cancelar");
+    btnCancelar.addActionListener(e -> dialogEditar.dispose());
+    
+    // Agregar componentes al panel
+    panelPrincipal.add(new JLabel("Editar comentario:"));
+    panelPrincipal.add(Box.createVerticalStrut(5));
+    panelPrincipal.add(scrollTexto);
+    panelPrincipal.add(Box.createVerticalStrut(10));
+    panelPrincipal.add(panelImagenActual);
+    panelPrincipal.add(Box.createVerticalStrut(5));
+    panelPrincipal.add(btnCambiarImagen);
+    panelPrincipal.add(lblNuevaImagen);
+    panelPrincipal.add(Box.createVerticalStrut(10));
+    
+    panelBotones.add(btnEliminarImagen);
+    panelBotones.add(btnCancelar);
+    panelBotones.add(btnGuardar);
+    
+    dialogEditar.add(panelPrincipal, BorderLayout.CENTER);
+    dialogEditar.add(panelBotones, BorderLayout.SOUTH);
+    dialogEditar.setVisible(true);
+}
+
+/**
+ * Actualiza un comentario modificando solo su texto
+ */
+private void actualizarComentario(int idComentario, String nuevoContenido) throws SQLException {
+    try (Connection conn = BasededatosTwitter.getConnection()) {
+        String sql = "UPDATE comentarios SET contenido = ?, fecha_creacion = NOW() " +
+                    "WHERE id_comentario = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, nuevoContenido);
+        ps.setInt(2, idComentario);
+        ps.executeUpdate();
+    }
+}
+
+/**
+ * Actualiza un comentario modificando tanto el texto como la imagen
+ */
+private void actualizarComentarioConImagen(int idComentario, String nuevoContenido, byte[] imagenBytes) 
+    throws SQLException {
+    try (Connection conn = BasededatosTwitter.getConnection()) {
+        String sql = "UPDATE comentarios SET contenido = ?, multimedia = ?, fecha_creacion = NOW() " +
+                    "WHERE id_comentario = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, nuevoContenido);
+        ps.setBytes(2, imagenBytes);
+        ps.setInt(3, idComentario);
+        ps.executeUpdate();
+    }
+}
+
+/**
+ * Obtiene la imagen asociada a un comentario
+ */
+private byte[] obtenerMultimediaComentario(int idComentario) {
+    try (Connection conn = BasededatosTwitter.getConnection()) {
+        String sql = "SELECT multimedia FROM comentarios WHERE id_comentario = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, idComentario);
+        ResultSet rs = ps.executeQuery();
+        
+        if (rs.next()) {
+            return rs.getBytes("multimedia");
+        }
+        return null;
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return null;
+    }
+}
+private void cargarMultimediaComentario(String rutaArchivo, int idComentario) {
+    try (Connection conexion = BasededatosTwitter.getConnection()) {
+        // Leer el archivo seleccionado y convertirlo en un array de bytes
+        File archivo = new File(rutaArchivo);
+        FileInputStream fis = new FileInputStream(archivo);
+        byte[] multimediaBytes = new byte[(int) archivo.length()];
+        fis.read(multimediaBytes);
+
+        // Crear la consulta SQL para actualizar el comentario con el archivo multimedia
+        String sql = "UPDATE comentarios SET multimedia = ? WHERE id_comentario = ?";
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ps.setBytes(1, multimediaBytes); // Establecer el contenido multimedia como un Blob
+        ps.setInt(2, idComentario); // Identificar el comentario
+
+        // Ejecutar la actualización en la base de datos
+        ps.executeUpdate();
+        fis.close();
+
+        JOptionPane.showMessageDialog(this, "Multimedia cargada correctamente");
+
+    } catch (IOException | SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al cargar multimedia.");
+    }
+}
+
+private byte[] cargarArchivoMultimedia(File archivo) {
+    try (FileInputStream fis = new FileInputStream(archivo);
+         ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+
+        byte[] buffer = new byte[1024];
+        int len;
+        while ((len = fis.read(buffer)) != -1) {
+            bos.write(buffer, 0, len);
+        }
+
+        return bos.toByteArray();  // Retorna los bytes del archivo
+    } catch (IOException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al leer el archivo multimedia.");
+        return null;
+    }
+}
+
+
+public void guardarMultimediaComentario(byte[] multimedia, int idTweet) {
+    try (Connection conexion = BasededatosTwitter.getConnection()) {
+        String sql = "UPDATE comentarios SET multimedia = ? WHERE tweet_id = ?";
+
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ps.setBytes(1, multimedia);  // Cargar el archivo como LONGBLOB
+        ps.setInt(2, idTweet);  // Asociarlo al tweet correspondiente
+
+        int filasAfectadas = ps.executeUpdate();
+        if (filasAfectadas > 0) {
+            JOptionPane.showMessageDialog(this, "Multimedia subida con éxito.");
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al subir multimedia.");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al subir multimedia.");
     }
 }
 
@@ -964,6 +1364,15 @@ public Home() {
         });
 
         panelContenedorTweets.setBackground(new java.awt.Color(255, 255, 255));
+        panelContenedorTweets.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                panelContenedorTweetsAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
 
         javax.swing.GroupLayout panelContenedorTweetsLayout = new javax.swing.GroupLayout(panelContenedorTweets);
         panelContenedorTweets.setLayout(panelContenedorTweetsLayout);
@@ -1116,8 +1525,12 @@ public Home() {
     }//GEN-LAST:event_btnInicio2ActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-btnBuscar.addActionListener(e -> buscarTweets(txtBuscar.getText()));
+        btnBuscar.addActionListener(e -> buscarTweets(txtBuscar.getText()));
     }//GEN-LAST:event_btnBuscarActionPerformed
+
+    private void panelContenedorTweetsAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_panelContenedorTweetsAncestorAdded
+
+    }//GEN-LAST:event_panelContenedorTweetsAncestorAdded
 byte[] fotoBytes = null; // Declaración
 
     /**
