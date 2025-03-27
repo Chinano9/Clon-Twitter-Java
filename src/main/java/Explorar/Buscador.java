@@ -25,6 +25,10 @@ public class Buscador extends javax.swing.JFrame {
 
     Color colorNormal = new Color(255, 255, 255);
     Color colorOscuro = new Color(246, 246, 246);
+    
+    /*Colores de los Hastags*/
+    Color colorNomalHastags = new Color(255, 255, 255);
+    Color colorOscuroHastags = new Color(246, 246, 246);
     // Este método carga la imagen automáticamente
     // Este método carga la imagen automáticamente
 private void cargarFotoPerfil() {
@@ -137,6 +141,26 @@ public Buscador() {
         jLabel1 = new javax.swing.JLabel();
         lblFotoPerfil1 = new javax.swing.JLabel();
         lblAliasNombre = new javax.swing.JLabel();
+        hashtags = new javax.swing.JPanel();
+        ScrollHashtags = new javax.swing.JScrollPane();
+        PanelPrincipalHashtags = new javax.swing.JPanel();
+        TituloQEP = new javax.swing.JLabel();
+        Pr1Hashtags = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        Pr2Hashtags = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        Pr3Hashtags = new javax.swing.JPanel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        Pr4Hashtags = new javax.swing.JPanel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
 
         lblFotoPerfil.setText("Foto de Perfil");
         lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
@@ -163,6 +187,7 @@ public Buscador() {
         btnInicio2.setBackground(new java.awt.Color(246, 234, 250));
         btnInicio2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnInicio2.setForeground(new java.awt.Color(102, 0, 153));
+        btnInicio2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/brujula.png"))); // NOI18N
         btnInicio2.setText("Inicio");
         btnInicio2.setBorder(null);
         btnInicio2.setContentAreaFilled(false);
@@ -176,6 +201,7 @@ public Buscador() {
         btnExprorar2.setBackground(new java.awt.Color(246, 234, 250));
         btnExprorar2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnExprorar2.setForeground(new java.awt.Color(102, 0, 153));
+        btnExprorar2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/lupa.png"))); // NOI18N
         btnExprorar2.setText("Explorar");
         btnExprorar2.setBorder(null);
         btnExprorar2.setContentAreaFilled(false);
@@ -189,6 +215,7 @@ public Buscador() {
         btnNotificaciones2.setBackground(new java.awt.Color(246, 234, 250));
         btnNotificaciones2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnNotificaciones2.setForeground(new java.awt.Color(102, 0, 153));
+        btnNotificaciones2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/Notificaciones.png"))); // NOI18N
         btnNotificaciones2.setText("Notificaciones");
         btnNotificaciones2.setBorder(null);
         btnNotificaciones2.setContentAreaFilled(false);
@@ -202,6 +229,7 @@ public Buscador() {
         btnPerfil2.setBackground(new java.awt.Color(246, 234, 250));
         btnPerfil2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
         btnPerfil2.setForeground(new java.awt.Color(102, 0, 153));
+        btnPerfil2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/perfil.png"))); // NOI18N
         btnPerfil2.setText("Perfil");
         btnPerfil2.setBorder(null);
         btnPerfil2.setContentAreaFilled(false);
@@ -212,7 +240,7 @@ public Buscador() {
         Menu2Layout.setHorizontalGroup(
             Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Menu2Layout.createSequentialGroup()
-                .addContainerGap(37, Short.MAX_VALUE)
+                .addContainerGap(28, Short.MAX_VALUE)
                 .addGroup(Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnNotificaciones2)
                     .addComponent(btnInicio2)
@@ -234,7 +262,7 @@ public Buscador() {
                 .addComponent(btnExprorar2)
                 .addGap(43, 43, 43)
                 .addComponent(btnNotificaciones2)
-                .addContainerGap(798, Short.MAX_VALUE))
+                .addContainerGap(774, Short.MAX_VALUE))
         );
 
         PanelBuscador.setBackground(new java.awt.Color(255, 255, 255));
@@ -587,6 +615,237 @@ public Buscador() {
             }
         });
 
+        hashtags.setBackground(new java.awt.Color(255, 255, 255));
+        hashtags.setForeground(new java.awt.Color(255, 255, 255));
+
+        ScrollHashtags.setBackground(new java.awt.Color(255, 255, 255));
+        ScrollHashtags.setForeground(new java.awt.Color(255, 255, 255));
+
+        PanelPrincipalHashtags.setBackground(new java.awt.Color(255, 255, 255));
+        PanelPrincipalHashtags.setForeground(new java.awt.Color(255, 255, 255));
+
+        TituloQEP.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
+        TituloQEP.setForeground(new java.awt.Color(0, 153, 255));
+        TituloQEP.setText("Qué está pasando");
+
+        Pr1Hashtags.setBackground(new java.awt.Color(255, 255, 255));
+        Pr1Hashtags.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Pr1Hashtags.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                Pr1HashtagsMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                Pr1HashtagsMouseExited(evt);
+            }
+        });
+
+        jLabel2.setText("Gaming");
+
+        jLabel3.setFont(new java.awt.Font("Arial Black", 0, 14)); // NOI18N
+        jLabel3.setText("League of Legends");
+
+        jLabel4.setText("Contador");
+
+        javax.swing.GroupLayout Pr1HashtagsLayout = new javax.swing.GroupLayout(Pr1Hashtags);
+        Pr1Hashtags.setLayout(Pr1HashtagsLayout);
+        Pr1HashtagsLayout.setHorizontalGroup(
+            Pr1HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Pr1HashtagsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(Pr1HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel4))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        Pr1HashtagsLayout.setVerticalGroup(
+            Pr1HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Pr1HashtagsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel4)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        Pr2Hashtags.setBackground(new java.awt.Color(255, 255, 255));
+        Pr2Hashtags.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Pr2Hashtags.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                Pr2HashtagsMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                Pr2HashtagsMouseExited(evt);
+            }
+        });
+
+        jLabel5.setText("Deportes");
+
+        jLabel6.setText("Contador");
+
+        jLabel7.setFont(new java.awt.Font("Arial Black", 0, 14)); // NOI18N
+        jLabel7.setText("Chivas vs America");
+
+        javax.swing.GroupLayout Pr2HashtagsLayout = new javax.swing.GroupLayout(Pr2Hashtags);
+        Pr2Hashtags.setLayout(Pr2HashtagsLayout);
+        Pr2HashtagsLayout.setHorizontalGroup(
+            Pr2HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Pr2HashtagsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(Pr2HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel7))
+                .addContainerGap(79, Short.MAX_VALUE))
+        );
+        Pr2HashtagsLayout.setVerticalGroup(
+            Pr2HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Pr2HashtagsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel6)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        Pr3Hashtags.setBackground(new java.awt.Color(255, 255, 255));
+        Pr3Hashtags.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Pr3Hashtags.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                Pr3HashtagsMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                Pr3HashtagsMouseExited(evt);
+            }
+        });
+
+        jLabel8.setText("Comedia");
+
+        jLabel9.setText("Contador");
+
+        jLabel10.setFont(new java.awt.Font("Arial Black", 0, 14)); // NOI18N
+        jLabel10.setText("La Cotorrisa");
+
+        javax.swing.GroupLayout Pr3HashtagsLayout = new javax.swing.GroupLayout(Pr3Hashtags);
+        Pr3Hashtags.setLayout(Pr3HashtagsLayout);
+        Pr3HashtagsLayout.setHorizontalGroup(
+            Pr3HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Pr3HashtagsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(Pr3HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel8)
+                    .addComponent(jLabel9)
+                    .addComponent(jLabel10))
+                .addContainerGap(135, Short.MAX_VALUE))
+        );
+        Pr3HashtagsLayout.setVerticalGroup(
+            Pr3HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Pr3HashtagsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel8)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel10)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel9)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        Pr4Hashtags.setBackground(new java.awt.Color(255, 255, 255));
+        Pr4Hashtags.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Pr4Hashtags.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                Pr4HashtagsMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                Pr4HashtagsMouseExited(evt);
+            }
+        });
+
+        jLabel11.setText("Comida");
+
+        jLabel12.setText("Contador");
+
+        jLabel13.setFont(new java.awt.Font("Arial Black", 0, 14)); // NOI18N
+        jLabel13.setText("Comida Toxica");
+
+        javax.swing.GroupLayout Pr4HashtagsLayout = new javax.swing.GroupLayout(Pr4Hashtags);
+        Pr4Hashtags.setLayout(Pr4HashtagsLayout);
+        Pr4HashtagsLayout.setHorizontalGroup(
+            Pr4HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Pr4HashtagsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(Pr4HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel11)
+                    .addComponent(jLabel12)
+                    .addComponent(jLabel13))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        Pr4HashtagsLayout.setVerticalGroup(
+            Pr4HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Pr4HashtagsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel11)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel13)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel12)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout PanelPrincipalHashtagsLayout = new javax.swing.GroupLayout(PanelPrincipalHashtags);
+        PanelPrincipalHashtags.setLayout(PanelPrincipalHashtagsLayout);
+        PanelPrincipalHashtagsLayout.setHorizontalGroup(
+            PanelPrincipalHashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelPrincipalHashtagsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(PanelPrincipalHashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(Pr4Hashtags, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(PanelPrincipalHashtagsLayout.createSequentialGroup()
+                        .addGroup(PanelPrincipalHashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(PanelPrincipalHashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(TituloQEP)
+                                .addComponent(Pr1Hashtags, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(Pr2Hashtags, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(Pr3Hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 8, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        PanelPrincipalHashtagsLayout.setVerticalGroup(
+            PanelPrincipalHashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(PanelPrincipalHashtagsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(TituloQEP)
+                .addGap(18, 18, 18)
+                .addComponent(Pr1Hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(Pr2Hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(Pr3Hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(Pr4Hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(128, Short.MAX_VALUE))
+        );
+
+        ScrollHashtags.setViewportView(PanelPrincipalHashtags);
+
+        javax.swing.GroupLayout hashtagsLayout = new javax.swing.GroupLayout(hashtags);
+        hashtags.setLayout(hashtagsLayout);
+        hashtagsLayout.setHorizontalGroup(
+            hashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(hashtagsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(ScrollHashtags, javax.swing.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        hashtagsLayout.setVerticalGroup(
+            hashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(ScrollHashtags, javax.swing.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout PanelPrincipalLayout = new javax.swing.GroupLayout(PanelPrincipal);
         PanelPrincipal.setLayout(PanelPrincipalLayout);
         PanelPrincipalLayout.setHorizontalGroup(
@@ -604,8 +863,11 @@ public Buscador() {
                             .addGroup(PanelPrincipalLayout.createSequentialGroup()
                                 .addGap(10, 10, 10)
                                 .addComponent(lblAliasNombre))))
-                    .addComponent(ScrollBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 638, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 25, Short.MAX_VALUE))
+                    .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                        .addComponent(ScrollBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 638, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
         PanelPrincipalLayout.setVerticalGroup(
             PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -619,7 +881,11 @@ public Buscador() {
                         .addGap(18, 18, 18)
                         .addComponent(lblAliasNombre)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ScrollBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(ScrollBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                        .addComponent(hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -711,6 +977,38 @@ lblFotoPerfil1.setHorizontalAlignment(SwingConstants.CENTER);
 
     }//GEN-LAST:event_lblAliasNombreAncestorAdded
 
+    private void Pr1HashtagsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr1HashtagsMouseEntered
+        Pr1Hashtags.setBackground(colorOscuroHastags);
+    }//GEN-LAST:event_Pr1HashtagsMouseEntered
+
+    private void Pr1HashtagsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr1HashtagsMouseExited
+        Pr1Hashtags.setBackground(colorNomalHastags);
+    }//GEN-LAST:event_Pr1HashtagsMouseExited
+
+    private void Pr2HashtagsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr2HashtagsMouseEntered
+        Pr2Hashtags.setBackground(colorOscuroHastags);
+    }//GEN-LAST:event_Pr2HashtagsMouseEntered
+
+    private void Pr3HashtagsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr3HashtagsMouseEntered
+        Pr3Hashtags.setBackground(colorOscuroHastags);
+    }//GEN-LAST:event_Pr3HashtagsMouseEntered
+
+    private void Pr4HashtagsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr4HashtagsMouseEntered
+        Pr4Hashtags.setBackground(colorOscuroHastags);
+    }//GEN-LAST:event_Pr4HashtagsMouseEntered
+
+    private void Pr2HashtagsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr2HashtagsMouseExited
+        Pr2Hashtags.setBackground(colorNomalHastags);
+    }//GEN-LAST:event_Pr2HashtagsMouseExited
+
+    private void Pr3HashtagsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr3HashtagsMouseExited
+        Pr3Hashtags.setBackground(colorNomalHastags);
+    }//GEN-LAST:event_Pr3HashtagsMouseExited
+
+    private void Pr4HashtagsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr4HashtagsMouseExited
+        Pr4Hashtags.setBackground(colorNomalHastags);
+    }//GEN-LAST:event_Pr4HashtagsMouseExited
+
     /**
      * @param args the command line arguments
      */
@@ -755,12 +1053,19 @@ lblFotoPerfil1.setHorizontalAlignment(SwingConstants.CENTER);
     private javax.swing.JPanel PanelBuscador;
     private javax.swing.JPanel PanelPeliculas;
     private javax.swing.JPanel PanelPrincipal;
+    private javax.swing.JPanel PanelPrincipalHashtags;
     private javax.swing.JPanel PanelPrincipalScroll;
     private javax.swing.JPanel PanelSeries;
+    private javax.swing.JPanel Pr1Hashtags;
+    private javax.swing.JPanel Pr2Hashtags;
+    private javax.swing.JPanel Pr3Hashtags;
+    private javax.swing.JPanel Pr4Hashtags;
     private javax.swing.JScrollPane ScrollBusqueda;
+    private javax.swing.JScrollPane ScrollHashtags;
     private javax.swing.JPanel Tendencia;
     private javax.swing.JPanel TendenciaDeportes;
     private javax.swing.JLabel TituloNoticias;
+    private javax.swing.JLabel TituloQEP;
     private javax.swing.JButton btnBusqueda;
     private javax.swing.JButton btnEntretenimiento;
     private javax.swing.JButton btnExprorar2;
@@ -774,7 +1079,20 @@ lblFotoPerfil1.setHorizontalAlignment(SwingConstants.CENTER);
     private javax.swing.JButton btnPerfil2;
     private javax.swing.JButton btnSports;
     private javax.swing.JButton btnTrending;
+    private javax.swing.JPanel hashtags;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lblAliasNombre;
     private javax.swing.JLabel lblFotoPerfil;
