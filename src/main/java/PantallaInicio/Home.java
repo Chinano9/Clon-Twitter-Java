@@ -117,6 +117,144 @@ private void quitarLike(int idTweet) {
         e.printStackTrace();
     }
 }
+public void buscarTweets(String textoBusqueda) {
+    try (Connection conexion = BasededatosTwitter.getConnection()) {
+        // Usamos LIKE para buscar contenido que contenga la palabra clave o hashtag
+     String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion, t.id_tweet, t.usuario_id, t.multimedia " +
+             "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios " +
+             "WHERE t.contenido LIKE ? " +
+             "ORDER BY t.fecha_creacion DESC";
+
+
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ps.setString(1, "%" + textoBusqueda + "%");  // Agregar % para búsqueda parcial
+        ResultSet rs = ps.executeQuery();
+
+        panelContenedorTweets.removeAll();
+        panelContenedorTweets.setLayout(new BoxLayout(panelContenedorTweets, BoxLayout.Y_AXIS));
+
+        while (rs.next()) {
+            String nombre = rs.getString("nombre_usuario");
+            String alias = rs.getString("alias");
+            String contenido = rs.getString("contenido");
+            String fecha = rs.getString("fecha_creacion");
+            int idTweet = rs.getInt("id_tweet");
+            int idAutor = rs.getInt("usuario_id");
+
+            boolean esMio = (idAutor == UsuarioSesion.getUsuarioId());
+
+            JPanel panelTweet = new JPanel(new BorderLayout());
+            panelTweet.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+            panelTweet.setBackground(Color.WHITE);
+            panelTweet.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
+
+            JTextArea textoTweet = new JTextArea(alias + " (" + nombre + ") 🕒 " + fecha + "\n" + contenido);
+            textoTweet.setEditable(false);
+            textoTweet.setLineWrap(true);
+            textoTweet.setWrapStyleWord(true);
+            textoTweet.setBackground(Color.WHITE);
+            panelTweet.add(textoTweet, BorderLayout.CENTER);
+
+            // Añadir multimedia si está presente (imagen, video, etc.)
+            Blob multimedia = rs.getBlob("multimedia");
+            if (multimedia != null) {
+                byte[] imageBytes = multimedia.getBytes(1, (int) multimedia.length());
+                ImageIcon icon = new ImageIcon(imageBytes);
+                Image imagenEscalada = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+                JLabel imagenLabel = new JLabel(new ImageIcon(imagenEscalada));
+                panelTweet.add(imagenLabel, BorderLayout.WEST);
+            }
+
+            // Panel de interacciones
+            JPanel panelInteracciones = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+            // ❤️ Like
+            final JButton[] btnLike = new JButton[1];
+            final boolean[] yaDioLike = { !usuarioPuedeDarLike(idTweet) };
+            btnLike[0] = new JButton((yaDioLike[0] ? "💔 Quitar " : "❤️ ") + obtenerTotalLikes(idTweet));
+            btnLike[0].addActionListener(e -> {
+                if (yaDioLike[0]) {
+                    quitarLike(idTweet);
+                    yaDioLike[0] = false;
+                } else {
+                    darLike(idTweet);
+                    yaDioLike[0] = true;
+                }
+                btnLike[0].setText((yaDioLike[0] ? "💔 Quitar " : "❤️ ") + obtenerTotalLikes(idTweet));
+            });
+            panelInteracciones.add(btnLike[0]);
+
+            // 🔁 Retweet
+            final JButton[] btnRT = new JButton[1];
+            final boolean[] yaRT = { !usuarioPuedeRetweetear(idTweet) };
+            btnRT[0] = new JButton((yaRT[0] ? "❌ Quitar RT " : "🔁 ") + obtenerTotalRetweets(idTweet));
+            btnRT[0].addActionListener(e -> {
+                if (yaRT[0]) {
+                    quitarRetweet(idTweet);
+                    yaRT[0] = false;
+                } else {
+                    retweetear(idTweet);
+                    yaRT[0] = true;
+                }
+                btnRT[0].setText((yaRT[0] ? "❌ Quitar RT " : "🔁 ") + obtenerTotalRetweets(idTweet));
+            });
+            panelInteracciones.add(btnRT[0]);
+
+            // 💬 Ver comentarios
+            int totalComentarios = obtenerTotalComentarios(idTweet);
+            JButton btnVerComentarios = new JButton("💬 Ver comentarios (" + totalComentarios + ")");
+            btnVerComentarios.addActionListener(e -> {
+                mostrarComentarios(idTweet, panelContenedorTweets);
+            });
+            panelInteracciones.add(btnVerComentarios);
+
+            // 💬 Comentar
+            JButton btnComentar = new JButton("💬 Comentar");
+            btnComentar.addActionListener(e -> {
+                abrirVentanaComentario(idTweet);
+            });
+            panelInteracciones.add(btnComentar);
+
+            // 🗑 Eliminar si es mío
+            if (esMio) {
+                // ✏️ Editar tweet
+                JButton btnEditar = new JButton("✏️ Editar");
+                btnEditar.addActionListener(e -> {
+                    String nuevoContenido = JOptionPane.showInputDialog(this, "Editar tweet:", contenido);
+                    if (nuevoContenido != null && !nuevoContenido.trim().isEmpty()) {
+                        editarTweet(idTweet, nuevoContenido.trim());
+                        cargarTweets(); // Recargar vista después de editar
+                    }
+                });
+                panelInteracciones.add(btnEditar);
+
+                // 🗑 Eliminar tweet
+                JButton btnEliminar = new JButton("🗑 Eliminar");
+                btnEliminar.addActionListener(e -> {
+                    int confirm = JOptionPane.showConfirmDialog(this, "¿Eliminar este tweet?", "Confirmar", JOptionPane.YES_NO_OPTION);
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        eliminarTweet(idTweet);
+                        cargarTweets(); // Recargar después de borrar
+                    }
+                });
+                panelInteracciones.add(btnEliminar);
+            }
+
+            panelTweet.add(panelInteracciones, BorderLayout.SOUTH);
+
+            panelContenedorTweets.add(panelTweet);
+            panelContenedorTweets.add(Box.createVerticalStrut(10));
+        }
+
+        panelContenedorTweets.revalidate();
+        panelContenedorTweets.repaint();
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al buscar tweets.");
+    }
+}
+
 
 private void quitarRetweet(int idTweet) {
     try (Connection c = BasededatosTwitter.getConnection()) {
@@ -370,37 +508,119 @@ private int obtenerTotalRetweets(int idTweet) {
     } catch (SQLException e) { e.printStackTrace(); }
     return 0;
 }
-
-private void mostrarComentarios(int idTweet, JPanel contenedor) {
+public void editarComentario(int idComentario, String nuevoContenido) {
     try (Connection conexion = BasededatosTwitter.getConnection()) {
-        String sql = "SELECT u.nombre_usuario, c.contenido, c.fecha_creacion FROM comentarios c " +
-                     "JOIN usuarios u ON c.usuario_id = u.id_usuarios WHERE c.tweet_id = ? ORDER BY c.fecha_creacion ASC";
+        String sql = "UPDATE comentarios SET contenido = ?, fecha_creacion = NOW() WHERE id_comentario = ?";
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ps.setString(1, nuevoContenido);
+        ps.setInt(2, idComentario);
+        ps.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al editar el comentario.");
+    }
+}
+
+// Método para mostrar los comentarios de un tweet
+public void mostrarComentarios(int idTweet, JPanel panelContenedorTweets) {
+    try (Connection conexion = BasededatosTwitter.getConnection()) {
+        String sql = "SELECT c.id_comentario, c.contenido, c.fecha_creacion, u.nombre_usuario, u.alias, c.usuario_id " +
+                     "FROM comentarios c JOIN usuarios u ON c.usuario_id = u.id_usuarios WHERE c.tweet_id = ? " +
+                     "ORDER BY c.fecha_creacion DESC";
 
         PreparedStatement ps = conexion.prepareStatement(sql);
         ps.setInt(1, idTweet);
         ResultSet rs = ps.executeQuery();
 
+        // Crear un panel para los comentarios
         JPanel panelComentarios = new JPanel();
         panelComentarios.setLayout(new BoxLayout(panelComentarios, BoxLayout.Y_AXIS));
-        panelComentarios.setBackground(new Color(245, 245, 245));
 
         while (rs.next()) {
+            int idComentario = rs.getInt("id_comentario");
             String nombre = rs.getString("nombre_usuario");
-            String texto = rs.getString("contenido");
+            String alias = rs.getString("alias");
+            String contenido = rs.getString("contenido");
             String fecha = rs.getString("fecha_creacion");
+            int usuarioId = rs.getInt("usuario_id");
 
-            JTextArea comentario = new JTextArea(nombre + " 🕒 " + fecha + "\n" + texto);
-            comentario.setEditable(false);
-            comentario.setBackground(new Color(245, 245, 245));
-            panelComentarios.add(comentario);
+            boolean esMio = (usuarioId == UsuarioSesion.getUsuarioId()); // Verificar si el comentario es del usuario actual
+
+            // Panel para cada comentario
+            JPanel panelComentario = new JPanel(new BorderLayout());
+            panelComentario.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+            panelComentario.setBackground(Color.WHITE);
+
+            JTextArea textoComentario = new JTextArea(alias + " (" + nombre + ") 🕒 " + fecha + "\n" + contenido);
+            textoComentario.setEditable(false);
+            textoComentario.setLineWrap(true);
+            textoComentario.setWrapStyleWord(true);
+            textoComentario.setBackground(Color.WHITE);
+            panelComentario.add(textoComentario, BorderLayout.CENTER);
+
+            JPanel panelInteraccionesComentario = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+            // Si el comentario es del usuario, mostrar los botones de editar y eliminar
+            if (esMio) {
+                // ✏️ Editar comentario
+                JButton btnEditarComentario = new JButton("✏️ Editar comentario");
+                btnEditarComentario.addActionListener(e -> {
+                    String nuevoContenido = JOptionPane.showInputDialog(this, "Editar comentario:", contenido);
+                    if (nuevoContenido != null && !nuevoContenido.trim().isEmpty()) {
+                        editarComentario(idComentario, nuevoContenido.trim());
+                        cargarTweets(); // Recargar tweets después de editar el comentario
+                    }
+                });
+                panelInteraccionesComentario.add(btnEditarComentario);
+
+                // 🗑 Eliminar comentario
+                JButton btnEliminarComentario = new JButton("🗑 Eliminar comentario");
+                btnEliminarComentario.addActionListener(e -> {
+                    int confirm = JOptionPane.showConfirmDialog(this, "¿Eliminar este comentario?", "Confirmar", JOptionPane.YES_NO_OPTION);
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        eliminarComentario(idComentario);
+                        cargarTweets(); // Recargar tweets después de eliminar el comentario
+                    }
+                });
+                panelInteraccionesComentario.add(btnEliminarComentario);
+            }
+
+            panelComentario.add(panelInteraccionesComentario, BorderLayout.SOUTH);
+            panelComentarios.add(panelComentario);
+            panelComentarios.add(Box.createVerticalStrut(10));
         }
 
-        JOptionPane.showMessageDialog(this, panelComentarios, "Comentarios del Tweet", JOptionPane.PLAIN_MESSAGE);
+        // Crear el JDialog para mostrar los comentarios
+        JDialog dialogComentarios = new JDialog();
+        dialogComentarios.setTitle("Comentarios del Tweet");
+        dialogComentarios.setSize(600, 400);
+        dialogComentarios.setLocationRelativeTo(null); // Centrar el diálogo en la pantalla
+        dialogComentarios.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); // Cerrar el diálogo al hacer clic en la cruz
+
+        // Añadir el panel de comentarios al JDialog
+        dialogComentarios.add(new JScrollPane(panelComentarios));
+
+        // Hacer visible el JDialog
+        dialogComentarios.setVisible(true);
 
     } catch (SQLException e) {
         e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al cargar los comentarios.");
     }
 }
+
+public void eliminarComentario(int idComentario) {
+    try (Connection conexion = BasededatosTwitter.getConnection()) {
+        String sql = "DELETE FROM comentarios WHERE id_comentario = ?";
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ps.setInt(1, idComentario);
+        ps.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al eliminar el comentario.");
+    }
+}
+
 
 
 
@@ -460,7 +680,6 @@ public Home() {
 
 
 
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -478,9 +697,10 @@ public Home() {
         btnNotificaciones2 = new javax.swing.JButton();
         btnPerfil2 = new javax.swing.JButton();
         PanelBuscador = new javax.swing.JPanel();
-        Buscador = new javax.swing.JTextField();
+        txtBuscar = new javax.swing.JTextField();
         btnBusqueda = new javax.swing.JButton();
         lblFotoPerfil = new javax.swing.JLabel();
+        btnBuscar = new javax.swing.JButton();
         PanelTweet = new javax.swing.JPanel();
         ScrollTweet = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
@@ -493,7 +713,6 @@ public Home() {
         lblImagenPrevia = new javax.swing.JLabel();
         btnSubirImagen = new javax.swing.JButton();
         lblAliasNombre = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         panelContenedorTweets = new javax.swing.JPanel();
 
@@ -586,17 +805,17 @@ public Home() {
 
         PanelBuscador.setBackground(new java.awt.Color(255, 255, 255));
 
-        Buscador.setBackground(new java.awt.Color(246, 234, 250));
-        Buscador.setText("Buscar");
-        Buscador.addActionListener(new java.awt.event.ActionListener() {
+        txtBuscar.setBackground(new java.awt.Color(246, 234, 250));
+        txtBuscar.setText("Buscar");
+        txtBuscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BuscadorActionPerformed(evt);
+                txtBuscarActionPerformed(evt);
             }
         });
 
         btnBusqueda.setBackground(new java.awt.Color(246, 234, 250));
 
-        lblFotoPerfil.setText("jLabel1");
+        lblFotoPerfil.setText("Foto de perrfil");
         lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
         lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
@@ -608,30 +827,39 @@ public Home() {
             }
         });
 
+        btnBuscar.setText("Buscar");
+        btnBuscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout PanelBuscadorLayout = new javax.swing.GroupLayout(PanelBuscador);
         PanelBuscador.setLayout(PanelBuscadorLayout);
         PanelBuscadorLayout.setHorizontalGroup(
             PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelBuscadorLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(Buscador, javax.swing.GroupLayout.PREFERRED_SIZE, 603, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 603, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 1, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 1, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnBuscar))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
                 .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         PanelBuscadorLayout.setVerticalGroup(
             PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelBuscadorLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(Buscador, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnBusqueda))
+                .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnBusqueda)
+                        .addComponent(btnBuscar))
+                    .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(PanelBuscadorLayout.createSequentialGroup()
-                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         PanelTweet.setBackground(new java.awt.Color(255, 255, 255));
@@ -724,7 +952,7 @@ public Home() {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        lblAliasNombre.setText("jLabel1");
+        lblAliasNombre.setText("Usuarios");
         lblAliasNombre.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
                 lblAliasNombreAncestorAdded(evt);
@@ -763,33 +991,28 @@ public Home() {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(PanelTraseroLayout.createSequentialGroup()
-                                        .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(PanelTraseroLayout.createSequentialGroup()
-                                .addGap(591, 591, 591)
-                                .addComponent(lblAliasNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(74, 74, 74))
-                    .addGroup(PanelTraseroLayout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 658, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                .addGap(18, 18, 18)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 658, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 128, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelTraseroLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(lblAliasNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
         PanelTraseroLayout.setVerticalGroup(
             PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelTraseroLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblAliasNombre)
-                .addGap(18, 18, 18)
-                .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(24, 24, 24)
+                .addComponent(PanelTweet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 359, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addComponent(Menu2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
@@ -872,9 +1095,9 @@ public Home() {
         lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
     }//GEN-LAST:event_lblFotoPerfilAncestorAdded
 
-    private void BuscadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscadorActionPerformed
+    private void txtBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_BuscadorActionPerformed
+    }//GEN-LAST:event_txtBuscarActionPerformed
 
     private void btnNotificaciones2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNotificaciones2ActionPerformed
         // TODO add your handling code here:
@@ -891,6 +1114,10 @@ public Home() {
         h.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnInicio2ActionPerformed
+
+    private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+btnBuscar.addActionListener(e -> buscarTweets(txtBuscar.getText()));
+    }//GEN-LAST:event_btnBuscarActionPerformed
 byte[] fotoBytes = null; // Declaración
 
     /**
@@ -933,7 +1160,6 @@ byte[] fotoBytes = null; // Declaración
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField Buscador;
     private javax.swing.JLabel LabelPerfil;
     private javax.swing.JLabel LogoTwitter2;
     private javax.swing.JPanel Menu2;
@@ -942,6 +1168,7 @@ byte[] fotoBytes = null; // Declaración
     private javax.swing.JPanel PanelTweet;
     private javax.swing.JScrollPane ScrollTweet;
     private javax.swing.JButton b_enviarTweet;
+    private javax.swing.JButton btnBuscar;
     private javax.swing.JButton btnBusqueda;
     private javax.swing.JButton btnCalendario;
     private javax.swing.JButton btnEmojis;
@@ -952,12 +1179,12 @@ byte[] fotoBytes = null; // Declaración
     private javax.swing.JButton btnNotificaciones2;
     private javax.swing.JButton btnPerfil2;
     private javax.swing.JButton btnSubirImagen;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel lblAliasNombre;
     private javax.swing.JLabel lblFotoPerfil;
     private javax.swing.JLabel lblImagenPrevia;
     private javax.swing.JPanel panelContenedorTweets;
+    private javax.swing.JTextField txtBuscar;
     // End of variables declaration//GEN-END:variables
 }
