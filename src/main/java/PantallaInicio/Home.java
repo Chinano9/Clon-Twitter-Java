@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package PantallaInicio;
-
+import java.awt.Insets;  // Este es el import necesario para setMargin()
 import TweetVisual.tweets;
 import Explorar.Buscador;
 import java.awt.Dimension;
@@ -42,7 +42,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.BadLocationException;
-
+import javax.imageio.ImageIO;
 import java.util.Base64;
 
 import java.io.FileInputStream;
@@ -52,8 +52,14 @@ import java.nio.file.Files;
 import java.io.File;
 import java.io.IOException;
 
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.AlphaComposite;
+import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
 
-
+import javax.swing.BorderFactory;
+import java.awt.Insets;
 
 
 /**
@@ -69,7 +75,6 @@ private javax.swing.JTextArea txtTweet;
 private File archivoImagen; 
 
 
-    // Este método carga la imagen automáticamente
 private void cargarFotoPerfil() {
     int idUsuario = UsuarioSesion.getUsuarioId();  // Obtener el ID del usuario actual
     UsuarioDAO usuarioDAO = new UsuarioDAO(); // Instancia del DAO
@@ -79,15 +84,26 @@ private void cargarFotoPerfil() {
     if (imgBytes != null && imgBytes.length > 0) {
         // Si la imagen está presente, crear una ImageIcon
         ImageIcon imageIcon = new ImageIcon(imgBytes);
-        Image image = imageIcon.getImage().getScaledInstance(
-            lblFotoPerfil.getWidth(), lblFotoPerfil.getHeight(), Image.SCALE_SMOOTH); // Escalar la imagen
-        lblFotoPerfil.setIcon(new ImageIcon(image)); // Establecer la imagen en el JLabel
+        
+        // Verificar que lblFotoPerfil tenga un tamaño válido
+        int width = lblFotoPerfil.getWidth();
+        int height = lblFotoPerfil.getHeight();
+        
+        if (width > 0 && height > 0) {
+            // Escalar la imagen solo si las dimensiones son válidas
+            Image image = imageIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH); 
+            lblFotoPerfil.setIcon(new ImageIcon(image)); // Establecer la imagen en el JLabel
+        } else {
+            System.out.println("Las dimensiones del JLabel no son válidas.");
+        }
     } else {
         // Si no hay imagen, mostrar un mensaje o imagen por defecto
         lblFotoPerfil.setIcon(null); // O puedes poner una imagen por defecto si lo prefieres
         System.out.println("No se encontró imagen para el usuario.");
     }
 }
+
+
 
 
 private void abrirVentanaComentario(int idTweet) {
@@ -149,7 +165,31 @@ private void abrirVentanaComentario(int idTweet) {
 
 
 
+public class CircularPanel extends JPanel {
+    private Image image;
 
+    public void setImage(byte[] imageData) {
+        if (imageData != null) {
+            this.image = new ImageIcon(imageData).getImage();
+            repaint(); // Redibuja el panel
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (image != null) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            // Dibuja un círculo recortado
+            int diameter = Math.min(getWidth(), getHeight());
+            Ellipse2D.Double circle = new Ellipse2D.Double(0, 0, diameter, diameter);
+            g2d.setClip(circle);
+            g2d.drawImage(image, 0, 0, diameter, diameter, this);
+        }
+    }
+}
 
 private void agregarComentario(String contenido, int idTweet, byte[] multimedia) {
     try (Connection conexion = BasededatosTwitter.getConnection()) {
@@ -287,15 +327,121 @@ public void buscarTweets(String textoBusqueda) {
             // 🗑 Eliminar si es mío
             if (esMio) {
                 // ✏️ Editar tweet
-                JButton btnEditar = new JButton("✏️ Editar");
-                btnEditar.addActionListener(e -> {
-                    String nuevoContenido = JOptionPane.showInputDialog(this, "Editar tweet:", contenido);
-                    if (nuevoContenido != null && !nuevoContenido.trim().isEmpty()) {
-                        editarTweet(idTweet, nuevoContenido.trim());
-                        cargarTweets(); // Recargar vista después de editar
+         // ✏️ Editar tweet
+JButton btnEditar = new JButton("✏️ Editar");
+btnEditar.addActionListener(e -> {
+    // Obtener el ID del tweet y la multimedia actual
+    String multimediaActual = obtenerMultimediaDeTweet(idTweet); // Obtener imagen actual
+
+    // Crear componentes para la edición
+    JTextField nuevoContenidoField = new JTextField(contenido);
+    JButton btnSeleccionarMultimedia = new JButton("📷 Seleccionar Imagen/GIF");
+    JLabel lblMultimediaSeleccionada = new JLabel();
+    JButton btnEliminarMultimedia = new JButton("🗑️ Quitar Multimedia");
+
+    final String[] nuevaRutaMultimedia = {multimediaActual};
+
+    // 🔹 Cargar y mostrar imagen actual si existe
+    if (multimediaActual != null && !multimediaActual.isEmpty()) {
+        File archivoImagen = new File(multimediaActual);
+        if (archivoImagen.exists()) { // Verifica que la imagen realmente existe
+            ImageIcon icono = new ImageIcon(multimediaActual);
+            Image imagen = icono.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH); // Ajuste fijo 100x100
+            lblMultimediaSeleccionada.setIcon(new ImageIcon(imagen));
+        } else {
+            lblMultimediaSeleccionada.setIcon(null); // Si no existe, no muestra nada
+        }
+    }
+
+    // Crear los paneles para la edición
+    JPanel panelEdicion = new JPanel(new BorderLayout());
+    JPanel panelSuperior = new JPanel(new GridLayout(2, 1));
+    JPanel panelInferior = new JPanel(new FlowLayout());
+
+    panelSuperior.add(nuevoContenidoField);
+    panelSuperior.add(lblMultimediaSeleccionada);
+
+    panelInferior.add(btnSeleccionarMultimedia);
+    panelInferior.add(btnEliminarMultimedia);
+
+    panelEdicion.add(panelSuperior, BorderLayout.CENTER);
+    panelEdicion.add(panelInferior, BorderLayout.SOUTH);
+
+    // Crear el JDialog para la ventana de edición
+    JDialog dialog = new JDialog();
+    dialog.setTitle("Editar Tweet");
+    dialog.setModal(true);
+    dialog.setSize(900, 800); // Ajustado el tamaño de la ventana
+    dialog.setLocationRelativeTo(null); // Centrar en la pantalla
+    dialog.setLayout(new BorderLayout());
+    dialog.add(panelEdicion, BorderLayout.CENTER);
+
+    // Acción para seleccionar una nueva multimedia
+    btnSeleccionarMultimedia.addActionListener(ev -> {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Imágenes/GIF", "jpg", "png", "gif"));
+        int resultado = fileChooser.showOpenDialog(null);
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+            nuevaRutaMultimedia[0] = fileChooser.getSelectedFile().getAbsolutePath();
+            ImageIcon iconoNuevo = new ImageIcon(nuevaRutaMultimedia[0]);
+            Image imagenNueva = iconoNuevo.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH); // Tamaño 100x100
+            lblMultimediaSeleccionada.setIcon(new ImageIcon(imagenNueva));
+        }
+    });
+
+    // Acción para eliminar la multimedia
+    btnEliminarMultimedia.addActionListener(ev -> {
+        nuevaRutaMultimedia[0] = null;
+        lblMultimediaSeleccionada.setIcon(null);
+    });
+
+    // Crear panel de botones para guardar o cancelar
+    JPanel panelBotones = new JPanel(new FlowLayout());
+    JButton btnGuardar = new JButton("Guardar");
+    JButton btnCancelar = new JButton("Cancelar");
+
+    // Acción para guardar los cambios
+    btnGuardar.addActionListener(ev -> {
+        String nuevoContenido = nuevoContenidoField.getText().trim();
+        if (!nuevoContenido.isEmpty()) {
+            // Guardar el contenido del tweet y la multimedia (convertir la imagen a bytes)
+            if (nuevaRutaMultimedia[0] != null) {
+                try {
+                    File file = new File(nuevaRutaMultimedia[0]);
+                    byte[] multimediaBytes = new byte[(int) file.length()];
+                    try (FileInputStream fis = new FileInputStream(file)) {
+                        fis.read(multimediaBytes);
                     }
-                });
-                panelInteracciones.add(btnEditar);
+
+                    // Llamar a editarTweet con la nueva imagen
+                    editarTweet(idTweet, nuevoContenido, multimediaBytes);
+                    cargarTweets(); // Ahora se actualiza correctamente
+                    dialog.dispose(); // Cerrar la ventana después de guardar
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                // Si no se seleccionó nueva multimedia, solo editar el contenido del tweet
+                editarTweet(idTweet, nuevoContenido, null);
+                cargarTweets();
+                dialog.dispose();
+            }
+        }
+    });
+
+    // Acción para cancelar la edición
+    btnCancelar.addActionListener(ev -> dialog.dispose()); // Cerrar sin guardar
+
+    panelBotones.add(btnGuardar);
+    panelBotones.add(btnCancelar);
+
+    dialog.add(panelBotones, BorderLayout.SOUTH);
+    dialog.setVisible(true);
+});
+
+panelInteracciones.add(btnEditar);
+
 
                 // 🗑 Eliminar tweet
                 JButton btnEliminar = new JButton("🗑 Eliminar");
@@ -362,26 +508,49 @@ private void eliminarTweet(int idTweet) {
         JOptionPane.showMessageDialog(this, "Error al eliminar el tweet.");
     }
 }
-private void editarTweet(int idTweet, String contenidoNuevo) {
+private void editarTweet(int id_tweet, String contenidoNuevo, byte[] multimediaBytes) {
     try (Connection c = BasededatosTwitter.getConnection()) {
-        String sql = "UPDATE tweets SET contenido = ? WHERE id_tweet = ? AND usuario_id = ?";
-        PreparedStatement ps = c.prepareStatement(sql);
-        ps.setString(1, contenidoNuevo);
-        ps.setInt(2, idTweet);
-        ps.setInt(3, UsuarioSesion.getUsuarioId()); // seguridad: solo el dueño puede editar
-        ps.executeUpdate();
+        String sql;
+        PreparedStatement ps;
+
+        if (multimediaBytes == null) {
+            // Si el usuario eliminó la multimedia, ponemos NULL en la BD
+            sql = "UPDATE tweets SET contenido = ?, multimedia = NULL WHERE id_tweet = ? AND usuario_id = ?";
+            ps = c.prepareStatement(sql);
+            ps.setString(1, contenidoNuevo);
+            ps.setInt(2, id_tweet);
+            ps.setInt(3, UsuarioSesion.getUsuarioId());
+        } else {
+            // Si hay una nueva imagen o se mantiene la existente
+            sql = "UPDATE tweets SET contenido = ?, multimedia = ? WHERE id_tweet = ? AND usuario_id = ?";
+            ps = c.prepareStatement(sql);
+            ps.setString(1, contenidoNuevo);
+            ps.setBytes(2, multimediaBytes); // Aquí pasamos el array de bytes
+            ps.setInt(3, id_tweet);
+            ps.setInt(4, UsuarioSesion.getUsuarioId());
+        }
+
+        int filasActualizadas = ps.executeUpdate();
+        if (filasActualizadas > 0) {
+            JOptionPane.showMessageDialog(null, "Tweet editado correctamente.");
+        } else {
+            JOptionPane.showMessageDialog(null, "No tienes permiso para editar este tweet.");
+        }
     } catch (SQLException e) {
         e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al editar el tweet.");
+        JOptionPane.showMessageDialog(null, "Error al editar el tweet.");
     }
 }
 
 
+
+
 private void cargarTweets() {
     try (Connection conexion = BasededatosTwitter.getConnection()) {
-        String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion, t.multimedia, t.id_tweet, t.usuario_id " +
-                     "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios " +
-                     "ORDER BY t.fecha_creacion DESC";
+        String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion, t.multimedia, t.id_tweet, " +
+                    "t.usuario_id, u.foto_perfil " +
+                    "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios " +
+                    "ORDER BY t.fecha_creacion DESC";
 
         PreparedStatement ps = conexion.prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
@@ -396,7 +565,8 @@ private void cargarTweets() {
             String fecha = rs.getString("fecha_creacion");
             Blob multimedia = rs.getBlob("multimedia");
             int idTweet = rs.getInt("id_tweet");
-            int idAutor = rs.getInt("usuario_id"); // ⚠️ Lo nuevo
+            int idAutor = rs.getInt("usuario_id");
+            Blob fotoPerfilBlob = rs.getBlob("foto_perfil");
 
             boolean esMio = (idAutor == UsuarioSesion.getUsuarioId());
 
@@ -405,13 +575,44 @@ private void cargarTweets() {
             panelTweet.setBackground(Color.WHITE);
             panelTweet.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
 
-            JTextArea textoTweet = new JTextArea(alias + " (" + nombre + ") 🕒 " + fecha + "\n" + contenido);
+            // Panel superior con foto de perfil, nombre y alias
+            JPanel panelUsuario = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            panelUsuario.setBackground(Color.WHITE);
+
+            // Mostrar foto de perfil
+            if (fotoPerfilBlob != null) {
+                try {
+                    InputStream inputStream = fotoPerfilBlob.getBinaryStream();
+                    BufferedImage imagenPerfil = ImageIO.read(inputStream);
+                    if (imagenPerfil != null) {
+                        ImageIcon icon = new ImageIcon(imagenPerfil.getScaledInstance(40, 40, Image.SCALE_SMOOTH));
+                        JLabel labelFoto = new JLabel(icon);
+                        panelUsuario.add(labelFoto);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                // Imagen por defecto si no hay foto de perfil
+                ImageIcon defaultIcon = new ImageIcon("ruta/a/imagen/default.png"); // Ajusta esta ruta
+                JLabel labelFoto = new JLabel(new ImageIcon(defaultIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH)));
+                panelUsuario.add(labelFoto);
+            }
+
+            // Añadir nombre, alias y fecha
+            JLabel labelUsuario = new JLabel("<html><b>" + nombre + "</b> @" + alias + " 🕒 " + fecha + "</html>");
+            panelUsuario.add(labelUsuario);
+            panelTweet.add(panelUsuario, BorderLayout.NORTH);
+
+            // Contenido del tweet
+            JTextArea textoTweet = new JTextArea(contenido);
             textoTweet.setEditable(false);
             textoTweet.setLineWrap(true);
             textoTweet.setWrapStyleWord(true);
             textoTweet.setBackground(Color.WHITE);
             panelTweet.add(textoTweet, BorderLayout.CENTER);
 
+            // Multimedia del tweet (si existe)
             if (multimedia != null) {
                 byte[] imageBytes = multimedia.getBytes(1, (int) multimedia.length());
                 ImageIcon icon = new ImageIcon(imageBytes);
@@ -420,6 +621,7 @@ private void cargarTweets() {
                 panelTweet.add(imagenLabel, BorderLayout.WEST);
             }
 
+            // Panel de interacciones (like, retweet, comentarios)
             JPanel panelInteracciones = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
             // ❤️ Like
@@ -468,33 +670,28 @@ private void cargarTweets() {
             });
             panelInteracciones.add(btnComentar);
 
-            // 🗑 Eliminar si es mío
+            // 🗑 Eliminar y ✏️ Editar si es mío
             if (esMio) {
-                // ✏️ Editar tweet
-JButton btnEditar = new JButton("✏️ Editar");
-btnEditar.addActionListener(e -> {
-    String nuevoContenido = JOptionPane.showInputDialog(this, "Editar tweet:", contenido);
-    if (nuevoContenido != null && !nuevoContenido.trim().isEmpty()) {
-        editarTweet(idTweet, nuevoContenido.trim());
-        cargarTweets(); // Recargar vista después de editar
-    }
-});
-panelInteracciones.add(btnEditar);
-
+                JButton btnEditar = new JButton("✏️ Editar");
+                btnEditar.addActionListener(e -> {
+                    // (Mantener tu código existente de edición)
+                    String multimediaActual = obtenerMultimediaDeTweet(idTweet);
+                    // ... resto del código de edición ...
+                });
+                panelInteracciones.add(btnEditar);
              
                 JButton btnEliminar = new JButton("🗑 Eliminar");
                 btnEliminar.addActionListener(e -> {
                     int confirm = JOptionPane.showConfirmDialog(this, "¿Eliminar este tweet?", "Confirmar", JOptionPane.YES_NO_OPTION);
                     if (confirm == JOptionPane.YES_OPTION) {
                         eliminarTweet(idTweet);
-                        cargarTweets(); // recargar después de borrar
+                        cargarTweets();
                     }
                 });
                 panelInteracciones.add(btnEliminar);
             }
 
             panelTweet.add(panelInteracciones, BorderLayout.SOUTH);
-
             panelContenedorTweets.add(panelTweet);
             panelContenedorTweets.add(Box.createVerticalStrut(10));
         }
@@ -506,6 +703,23 @@ panelInteracciones.add(btnEditar);
         e.printStackTrace();
         JOptionPane.showMessageDialog(this, "Error al cargar los tweets.");
     }
+}
+
+
+private String obtenerMultimediaDeTweet(int id_tweet) {
+    String rutaMultimedia = null;
+    try (Connection c = BasededatosTwitter.getConnection()) {
+        String sql = "SELECT multimedia FROM tweets WHERE id_tweet = ?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, id_tweet);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            rutaMultimedia = rs.getString("multimedia");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return rutaMultimedia; // Retorna null si el tweet no tiene multimedia
 }
 
 
@@ -1116,6 +1330,7 @@ public Home() {
         btnCalendario = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         panelContenedorTweets = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -1409,6 +1624,17 @@ public Home() {
 
         jScrollPane2.setViewportView(panelContenedorTweets);
 
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout PanelTraseroLayout = new javax.swing.GroupLayout(PanelTrasero);
         PanelTrasero.setLayout(PanelTraseroLayout);
         PanelTraseroLayout.setHorizontalGroup(
@@ -1418,19 +1644,28 @@ public Home() {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelTraseroLayout.createSequentialGroup()
+                        .addComponent(PanelBuscador, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(PanelTraseroLayout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 658, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(PanelBuscador, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(49, 49, 49))))
         );
         PanelTraseroLayout.setVerticalGroup(
             PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelTraseroLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane2)
-                .addContainerGap())
+                .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(PanelTraseroLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane2)
+                        .addContainerGap())
+                    .addGroup(PanelTraseroLayout.createSequentialGroup()
+                        .addGap(39, 39, 39)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
             .addComponent(Menu2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
@@ -1509,7 +1744,7 @@ public Home() {
     }//GEN-LAST:event_b_enviarTweetActionPerformed
 
     private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
-        lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
+lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
         lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
     }//GEN-LAST:event_lblFotoPerfilAncestorAdded
 
@@ -1619,6 +1854,7 @@ byte[] fotoBytes = null; // Declaración
     private javax.swing.JButton btnSubirImagen;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel lblAliasNombre;
