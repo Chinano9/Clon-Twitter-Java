@@ -42,6 +42,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.BadLocationException;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import java.util.Base64;
 
@@ -59,9 +63,13 @@ import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
-import java.awt.Insets;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.Cursor; // Para el cursor de mano
 /**
  *
  * @author Jaime Paredes
@@ -70,7 +78,7 @@ public class Home extends javax.swing.JFrame {
 /*Jaime*/
     Color colorNormalMenu = new Color(246,234,250);
     Color colorOscuroMenu = new Color(246, 246, 246);
-    
+
 private javax.swing.JTextArea txtTweet;
 private File archivoImagen; 
 
@@ -494,6 +502,10 @@ panelInteracciones.add(btnEditar);
         JOptionPane.showMessageDialog(this, "Error al buscar tweets.");
     }
 }
+
+
+
+
 
 
 private void quitarRetweet(int idTweet) {
@@ -1338,24 +1350,114 @@ private void actualizarNombreYAlias() {
         lblAliasNombre.setText("No hay usuario en sesión");
     }
 }
+private void cargarTrendingTopics() {
+    try (Connection conexion = BasededatosTwitter.getConnection()) {
+        // Consulta para obtener hashtags populares
+        String sql = "SELECT " +
+                    "SUBSTRING_INDEX(SUBSTRING_INDEX(t.contenido, '#', -1), ' ', 1) AS hashtag, " +
+                    "COUNT(*) AS cantidad " +
+                    "FROM tweets t " +
+                    "WHERE t.contenido LIKE '%#%' " +
+                    "GROUP BY hashtag " +
+                    "ORDER BY cantidad DESC " +
+                    "LIMIT 5";
 
+       PreparedStatement ps = conexion.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
 
+        // Limpiar y configurar el panel principal
+        panelTrendingTopics.removeAll();
+        panelTrendingTopics.setLayout(new BoxLayout(panelTrendingTopics, BoxLayout.Y_AXIS));
+        
+        // Panel contenedor para centrar los elementos
+        JPanel panelCentrado = new JPanel();
+        panelCentrado.setLayout(new BoxLayout(panelCentrado, BoxLayout.Y_AXIS));
+        panelCentrado.setBackground(new Color(245, 245, 245)); // Mismo color de fondo
+        
+        // Título de la sección (centrado)
+        JLabel tituloSeccion = new JLabel("TRENDING TOPICS");
+        tituloSeccion.setFont(new Font("Arial", Font.BOLD, 18));
+        tituloSeccion.setAlignmentX(Component.CENTER_ALIGNMENT); // Centrado horizontal
+        panelCentrado.add(tituloSeccion);
+        panelCentrado.add(Box.createVerticalStrut(15));
+
+        while (rs.next()) {
+            String hashtag = rs.getString("hashtag");
+            int cantidad = rs.getInt("cantidad");
+
+            // Panel para cada hashtag (con alineación centrada)
+            JPanel panelHashtag = new JPanel();
+            panelHashtag.setLayout(new BoxLayout(panelHashtag, BoxLayout.Y_AXIS));
+            panelHashtag.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+            panelHashtag.setBackground(new Color(230, 230, 230));
+            panelHashtag.setAlignmentX(Component.CENTER_ALIGNMENT); // Centrado horizontal
+
+            // Label para el hashtag (centrado)
+            JLabel lblHashtag = new JLabel("#" + hashtag);
+            lblHashtag.setFont(new Font("Arial", Font.BOLD, 16));
+            lblHashtag.setForeground(new Color(29, 161, 242));
+            lblHashtag.setAlignmentX(Component.CENTER_ALIGNMENT); // Centrado
+            
+            // Label para la cantidad (centrado)
+            JLabel lblCantidad = new JLabel(cantidad + " menciones");
+            lblCantidad.setFont(new Font("Arial", Font.PLAIN, 12));
+            lblCantidad.setForeground(Color.GRAY);
+            lblCantidad.setAlignmentX(Component.CENTER_ALIGNMENT); // Centrado
+
+            panelHashtag.add(lblHashtag);
+            panelHashtag.add(lblCantidad);
+            
+            // Hacer clickable el panel
+            panelHashtag.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            panelHashtag.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    buscarTweets("#" + hashtag);
+                }
+            });
+
+            panelCentrado.add(panelHashtag);
+            panelCentrado.add(Box.createVerticalStrut(10));
+        }
+
+        // Añadir el panel centrado al panel principal
+        panelTrendingTopics.add(Box.createVerticalGlue()); // Espacio arriba
+        panelTrendingTopics.add(panelCentrado);
+        panelTrendingTopics.add(Box.createVerticalGlue()); // Espacio abajo
+
+        panelTrendingTopics.revalidate();
+        panelTrendingTopics.repaint();
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al cargar trending topics");
+    }
+}
     /**
      * Creates new form perfilVisual
      */
 public Home() {
     initComponents();  // Método generado por NetBeans GUI Builder
           cargarFotoPerfil(); // Llamamos al método para cargar la imagen de perfil
-   
+   cargarTrendingTopics(); 
+
         // 🔹 Cargar los tweets al iniciar
         cargarTweets();
-        
-    
+        setLayout(new BorderLayout());
+        panelTrendingTopics = new JPanel();
+        panelTrendingTopics.setLayout(new BoxLayout(panelTrendingTopics, BoxLayout.Y_AXIS));
+        JScrollPane scrollPane = new JScrollPane(panelTrendingTopics);
+        add(scrollPane, BorderLayout.CENTER);
+// Si tu contenedor es un JFrame
+JFrame frame = new JFrame();
+frame.setLayout(new BorderLayout());
+frame.add(scrollPane, BorderLayout.CENTER);
+frame.setSize(600, 400); // Ajusta las dimensiones según sea necesario
+frame.setVisible(true);
 
         setVisible(true);
 
 }
-
 
 
     /**
@@ -1391,7 +1493,7 @@ public Home() {
         btnCalendario = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         panelContenedorTweets = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
+        panelTrendingTopics = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -1693,15 +1795,34 @@ public Home() {
 
         jScrollPane2.setViewportView(panelContenedorTweets);
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
+        panelTrendingTopics.setBackground(new java.awt.Color(255, 255, 255));
+        panelTrendingTopics.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        panelTrendingTopics.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                panelTrendingTopicsAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+        panelTrendingTopics.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+                panelTrendingTopicsCaretPositionChanged(evt);
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+            }
+        });
+
+        javax.swing.GroupLayout panelTrendingTopicsLayout = new javax.swing.GroupLayout(panelTrendingTopics);
+        panelTrendingTopics.setLayout(panelTrendingTopicsLayout);
+        panelTrendingTopicsLayout.setHorizontalGroup(
+            panelTrendingTopicsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 188, Short.MAX_VALUE)
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
+        panelTrendingTopicsLayout.setVerticalGroup(
+            panelTrendingTopicsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout PanelTraseroLayout = new javax.swing.GroupLayout(PanelTrasero);
@@ -1718,23 +1839,19 @@ public Home() {
                     .addGroup(PanelTraseroLayout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 658, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(49, 49, 49))))
+                        .addComponent(panelTrendingTopics, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(22, 22, 22))))
         );
         PanelTraseroLayout.setVerticalGroup(
             PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelTraseroLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(PanelTraseroLayout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane2)
-                        .addContainerGap())
-                    .addGroup(PanelTraseroLayout.createSequentialGroup()
-                        .addGap(39, 39, 39)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addComponent(jScrollPane2)
+                    .addComponent(panelTrendingTopics, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
             .addComponent(Menu2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
@@ -1895,6 +2012,30 @@ lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesi
         txtBuscar.setText("Buscar");
     }
     }//GEN-LAST:event_txtBuscarFocusLost
+
+    private void panelTrendingTopicsCaretPositionChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_panelTrendingTopicsCaretPositionChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_panelTrendingTopicsCaretPositionChanged
+
+    private void panelTrendingTopicsAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_panelTrendingTopicsAncestorAdded
+    if (panelTrendingTopics == null) {
+        System.out.println("El panelContenedordehashtags es null. Inicializándolo...");
+        
+        // Inicializa el JPanel y establece un layout adecuado
+        panelTrendingTopics = new JPanel();
+        panelTrendingTopics.setLayout(new BoxLayout(panelTrendingTopics, BoxLayout.Y_AXIS));
+        
+        // Crear un JScrollPane para manejar el desplazamiento
+        JScrollPane scrollPane = new JScrollPane(panelTrendingTopics);
+        scrollPane.setBounds(10, 10, 500, 300);  // Ajusta las dimensiones según sea necesario
+        add(scrollPane); // Agregar el JScrollPane al contenedor principal
+        
+        // Asegúrate de que la ventana se actualice (esto puede ser necesario si agregas componentes dinámicamente)
+        revalidate();
+        repaint();
+    }
+setVisible(true);
+    }//GEN-LAST:event_panelTrendingTopicsAncestorAdded
 byte[] fotoBytes = null; // Declaración
 
     /**
@@ -1954,13 +2095,13 @@ byte[] fotoBytes = null; // Declaración
     private javax.swing.JButton btnSubirImagen;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel lblAliasNombre;
     private javax.swing.JLabel lblFotoPerfil;
     private javax.swing.JLabel lblImagenPrevia;
     private javax.swing.JPanel panelContenedorTweets;
+    private javax.swing.JPanel panelTrendingTopics;
     private javax.swing.JTextField txtBuscar;
     // End of variables declaration//GEN-END:variables
 }
