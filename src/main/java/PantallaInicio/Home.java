@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package PantallaInicio;
+import Explorar.Buscador;
 import java.awt.Insets;  // Este es el import necesario para setMargin()
 import TweetVisual.tweets;
 import java.awt.Dimension;
@@ -77,7 +78,7 @@ import java.awt.Cursor; // Para el cursor de mano
 public class Home extends javax.swing.JFrame {
 /*Jaime*/
     Color colorNormalMenu = new Color(246,234,250);
-    Color colorOscuroMenu = new Color(246, 246, 246);
+    Color colorOscuroMenu = new Color(242, 226, 248);
 
 private javax.swing.JTextArea txtTweet;
 private File archivoImagen; 
@@ -1472,12 +1473,14 @@ frame.setVisible(true);
         PanelTrasero = new javax.swing.JPanel();
         Menu2 = new javax.swing.JPanel();
         LogoTwitter2 = new javax.swing.JLabel();
-        btnInicio2 = new javax.swing.JButton();
-        btnExprorar2 = new javax.swing.JButton();
-        btnNotificaciones2 = new javax.swing.JButton();
-        btnPerfil2 = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        pInicio = new javax.swing.JPanel();
+        Inicio = new javax.swing.JLabel();
+        pPerfil = new javax.swing.JPanel();
+        Perfil = new javax.swing.JLabel();
+        pNotificaciones = new javax.swing.JPanel();
+        Notificaciones = new javax.swing.JLabel();
+        pExplorar = new javax.swing.JPanel();
+        Explorar = new javax.swing.JLabel();
         PanelBuscador = new javax.swing.JPanel();
         txtBuscar = new javax.swing.JTextField();
         lblFotoPerfil = new javax.swing.JLabel();
@@ -1511,90 +1514,151 @@ frame.setVisible(true);
             }
         });
 
-        btnInicio2.setBackground(new java.awt.Color(246, 234, 250));
-        btnInicio2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
-        btnInicio2.setForeground(new java.awt.Color(102, 0, 153));
-        btnInicio2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/brujula.png"))); // NOI18N
-        btnInicio2.setText("Inicio");
-        btnInicio2.setBorder(null);
-        btnInicio2.setContentAreaFilled(false);
-        btnInicio2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnInicio2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnInicio2ActionPerformed(evt);
-            }
-        });
-
-        btnExprorar2.setBackground(new java.awt.Color(246, 234, 250));
-        btnExprorar2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
-        btnExprorar2.setForeground(new java.awt.Color(102, 0, 153));
-        btnExprorar2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/lupa.png"))); // NOI18N
-        btnExprorar2.setText("Explorar");
-        btnExprorar2.setBorder(null);
-        btnExprorar2.setContentAreaFilled(false);
-        btnExprorar2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnExprorar2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnExprorar2ActionPerformed(evt);
-            }
-        });
-
-        btnNotificaciones2.setBackground(new java.awt.Color(246, 234, 250));
-        btnNotificaciones2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
-        btnNotificaciones2.setForeground(new java.awt.Color(102, 0, 153));
-        btnNotificaciones2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/Notificaciones.png"))); // NOI18N
-        btnNotificaciones2.setText("Notificaciones");
-        btnNotificaciones2.setBorder(null);
-        btnNotificaciones2.setContentAreaFilled(false);
-        btnNotificaciones2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnNotificaciones2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnNotificaciones2ActionPerformed(evt);
-            }
-        });
-
-        btnPerfil2.setBackground(new java.awt.Color(246, 234, 250));
-        btnPerfil2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
-        btnPerfil2.setForeground(new java.awt.Color(102, 0, 153));
-        btnPerfil2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/perfil.png"))); // NOI18N
-        btnPerfil2.setText("Perfil");
-        btnPerfil2.setBorder(null);
-        btnPerfil2.setContentAreaFilled(false);
-        btnPerfil2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        jPanel1.setBackground(new java.awt.Color(246, 234, 250));
-        jPanel1.addMouseListener(new java.awt.event.MouseAdapter() {
+        pInicio.setBackground(new java.awt.Color(246, 234, 250));
+        pInicio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        pInicio.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jPanel1MouseClicked(evt);
+                pInicioMouseClicked(evt);
             }
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                jPanel1MouseEntered(evt);
+                pInicioMouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                jPanel1MouseExited(evt);
+                pInicioMouseExited(evt);
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(102, 0, 153));
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/brujula.png"))); // NOI18N
-        jLabel1.setText("Inicio");
-        jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Inicio.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
+        Inicio.setForeground(new java.awt.Color(102, 0, 153));
+        Inicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/brujula.png"))); // NOI18N
+        Inicio.setText("Inicio");
+        Inicio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout pInicioLayout = new javax.swing.GroupLayout(pInicio);
+        pInicio.setLayout(pInicioLayout);
+        pInicioLayout.setHorizontalGroup(
+            pInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pInicioLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
+                .addComponent(Inicio)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        pInicioLayout.setVerticalGroup(
+            pInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pInicioLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
+                .addComponent(Inicio)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pPerfil.setBackground(new java.awt.Color(246, 234, 250));
+        pPerfil.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        pPerfil.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                pPerfilMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                pPerfilMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                pPerfilMouseExited(evt);
+            }
+        });
+
+        Perfil.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
+        Perfil.setForeground(new java.awt.Color(102, 0, 153));
+        Perfil.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/perfil.png"))); // NOI18N
+        Perfil.setText("Perfil");
+        Perfil.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        javax.swing.GroupLayout pPerfilLayout = new javax.swing.GroupLayout(pPerfil);
+        pPerfil.setLayout(pPerfilLayout);
+        pPerfilLayout.setHorizontalGroup(
+            pPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pPerfilLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Perfil)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        pPerfilLayout.setVerticalGroup(
+            pPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pPerfilLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Perfil)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pNotificaciones.setBackground(new java.awt.Color(246, 234, 250));
+        pNotificaciones.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        pNotificaciones.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                pNotificacionesMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                pNotificacionesMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                pNotificacionesMouseExited(evt);
+            }
+        });
+
+        Notificaciones.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
+        Notificaciones.setForeground(new java.awt.Color(102, 0, 153));
+        Notificaciones.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/Notificaciones.png"))); // NOI18N
+        Notificaciones.setText("Notificaciones");
+        Notificaciones.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        javax.swing.GroupLayout pNotificacionesLayout = new javax.swing.GroupLayout(pNotificaciones);
+        pNotificaciones.setLayout(pNotificacionesLayout);
+        pNotificacionesLayout.setHorizontalGroup(
+            pNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pNotificacionesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Notificaciones)
+                .addContainerGap(24, Short.MAX_VALUE))
+        );
+        pNotificacionesLayout.setVerticalGroup(
+            pNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pNotificacionesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Notificaciones)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pExplorar.setBackground(new java.awt.Color(246, 234, 250));
+        pExplorar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        pExplorar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                pExplorarMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                pExplorarMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                pExplorarMouseExited(evt);
+            }
+        });
+
+        Explorar.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
+        Explorar.setForeground(new java.awt.Color(102, 0, 153));
+        Explorar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/lupa.png"))); // NOI18N
+        Explorar.setText("Explorar");
+        Explorar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        javax.swing.GroupLayout pExplorarLayout = new javax.swing.GroupLayout(pExplorar);
+        pExplorar.setLayout(pExplorarLayout);
+        pExplorarLayout.setHorizontalGroup(
+            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pExplorarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Explorar)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        pExplorarLayout.setVerticalGroup(
+            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pExplorarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Explorar)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1603,33 +1667,27 @@ frame.setVisible(true);
         Menu2Layout.setHorizontalGroup(
             Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(Menu2Layout.createSequentialGroup()
-                .addContainerGap(31, Short.MAX_VALUE)
-                .addGroup(Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnNotificaciones2)
-                    .addComponent(btnInicio2)
-                    .addComponent(btnExprorar2)
-                    .addComponent(btnPerfil2)
-                    .addComponent(LogoTwitter2))
-                .addGap(9, 9, 9))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Menu2Layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(LogoTwitter2)
+                .addGap(43, 43, 43))
+            .addComponent(pInicio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(pPerfil, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(pNotificaciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(pExplorar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         Menu2Layout.setVerticalGroup(
             Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(Menu2Layout.createSequentialGroup()
                 .addGap(29, 29, 29)
                 .addComponent(LogoTwitter2)
-                .addGap(35, 35, 35)
-                .addComponent(btnInicio2)
-                .addGap(34, 34, 34)
-                .addComponent(btnPerfil2)
-                .addGap(41, 41, 41)
-                .addComponent(btnExprorar2)
-                .addGap(43, 43, 43)
-                .addComponent(btnNotificaciones2)
-                .addGap(96, 96, 96)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(45, 45, 45)
+                .addComponent(pInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(pPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(pExplorar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(pNotificaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1718,7 +1776,7 @@ frame.setVisible(true);
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnBuscar))
                     .addComponent(ScrollTweet, javax.swing.GroupLayout.PREFERRED_SIZE, 651, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 68, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblAliasNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelBuscadorLayout.createSequentialGroup()
@@ -1790,7 +1848,7 @@ frame.setVisible(true);
         );
         panelContenedorTweetsLayout.setVerticalGroup(
             panelContenedorTweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 471, Short.MAX_VALUE)
+            .addGap(0, 483, Short.MAX_VALUE)
         );
 
         jScrollPane2.setViewportView(panelContenedorTweets);
@@ -1838,7 +1896,7 @@ frame.setVisible(true);
                         .addContainerGap())
                     .addGroup(PanelTraseroLayout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 658, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
                         .addComponent(panelTrendingTopics, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(22, 22, 22))))
         );
@@ -1859,17 +1917,11 @@ frame.setVisible(true);
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(PanelTrasero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(PanelTrasero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(PanelTrasero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(PanelTrasero, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -1905,22 +1957,6 @@ lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesi
     });
     }//GEN-LAST:event_txtBuscarActionPerformed
 
-    private void btnNotificaciones2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNotificaciones2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnNotificaciones2ActionPerformed
-
-    private void btnExprorar2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExprorar2ActionPerformed
-        BusquedaTwitter busquedaTwitter = new BusquedaTwitter();
-    busquedaTwitter.setVisible(true);
-    this.dispose();
-    }//GEN-LAST:event_btnExprorar2ActionPerformed
-
-    private void btnInicio2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInicio2ActionPerformed
-        Home h = new Home();
-        h.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_btnInicio2ActionPerformed
-
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
         btnBuscar.addActionListener(e -> buscarTweets(txtBuscar.getText()));
     }//GEN-LAST:event_btnBuscarActionPerformed
@@ -1935,19 +1971,19 @@ lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesi
         this.dispose();
     }//GEN-LAST:event_LogoTwitter2MouseClicked
 
-    private void jPanel1MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseEntered
-        jPanel1.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_jPanel1MouseEntered
+    private void pInicioMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseEntered
+        pInicio.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pInicioMouseEntered
 
-    private void jPanel1MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseExited
-        jPanel1.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_jPanel1MouseExited
+    private void pInicioMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseExited
+        pInicio.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pInicioMouseExited
 
-    private void jPanel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseClicked
+    private void pInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseClicked
         Home h = new Home();
         h.setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_jPanel1MouseClicked
+    }//GEN-LAST:event_pInicioMouseClicked
 
     private void txtBuscarFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtBuscarFocusGained
          // Si el texto es "Buscar", lo borra cuando el campo recibe el foco
@@ -2034,6 +2070,44 @@ setVisible(true);
             lblImagenPrevia.setIcon(new ImageIcon(imagen.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH)));
         }
     }//GEN-LAST:event_btnSubirImagenActionPerformed
+
+    private void pPerfilMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pPerfilMouseClicked
+
+    private void pPerfilMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseEntered
+        pPerfil.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pPerfilMouseEntered
+
+    private void pPerfilMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseExited
+        pPerfil.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pPerfilMouseExited
+
+    private void pNotificacionesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pNotificacionesMouseClicked
+
+    private void pNotificacionesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseEntered
+        pNotificaciones.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pNotificacionesMouseEntered
+
+    private void pNotificacionesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseExited
+        pNotificaciones.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pNotificacionesMouseExited
+
+    private void pExplorarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseClicked
+        Buscador b = new Buscador();
+        b.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_pExplorarMouseClicked
+
+    private void pExplorarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseEntered
+        pExplorar.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pExplorarMouseEntered
+
+    private void pExplorarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseExited
+        pExplorar.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pExplorarMouseExited
 byte[] fotoBytes = null; // Declaración
 
     /**
@@ -2076,28 +2150,30 @@ byte[] fotoBytes = null; // Declaración
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel Explorar;
+    private javax.swing.JLabel Inicio;
     private javax.swing.JLabel LogoTwitter2;
     private javax.swing.JPanel Menu2;
+    private javax.swing.JLabel Notificaciones;
     private javax.swing.JPanel PanelBuscador;
     private javax.swing.JPanel PanelTrasero;
+    private javax.swing.JLabel Perfil;
     private javax.swing.JScrollPane ScrollTweet;
     private javax.swing.JButton b_enviarTweet;
     private javax.swing.JButton btnBuscar;
     private javax.swing.JButton btnCalendario;
     private javax.swing.JButton btnEmoji;
-    private javax.swing.JButton btnExprorar2;
     private javax.swing.JButton btnGif;
-    private javax.swing.JButton btnInicio2;
-    private javax.swing.JButton btnNotificaciones2;
-    private javax.swing.JButton btnPerfil2;
     private javax.swing.JButton btnSubirImagen;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel lblAliasNombre;
     private javax.swing.JLabel lblFotoPerfil;
     private javax.swing.JLabel lblImagenPrevia;
+    private javax.swing.JPanel pExplorar;
+    private javax.swing.JPanel pInicio;
+    private javax.swing.JPanel pNotificaciones;
+    private javax.swing.JPanel pPerfil;
     private javax.swing.JPanel panelContenedorTweets;
     private javax.swing.JPanel panelTrendingTopics;
     private javax.swing.JTextField txtBuscar;
