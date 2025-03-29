@@ -4,7 +4,7 @@
  */
 package Perfil;
 
-import Explorar.Buscador;
+import Explorar.BusquedaTwitter;
 import PantallaInicio.Home;
 import java.awt.Color;
 import javax.swing.SwingConstants;
@@ -436,7 +436,7 @@ public class EdiPerfil extends javax.swing.JFrame {
     }//GEN-LAST:event_pExplorarMouseEntered
 
     private void pExplorarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseClicked
-        Buscador b = new Buscador();
+        BusquedaTwitter b = new BusquedaTwitter();
         b.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_pExplorarMouseClicked

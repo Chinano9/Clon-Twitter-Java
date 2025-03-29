@@ -3,10 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package PantallaInicio;
-import Explorar.Buscador;
 import java.awt.Insets;  // Este es el import necesario para setMargin()
-import TweetVisual.tweets;
+import Explorar.BusquedaTwitter;
 import java.awt.Dimension;
+import Explorar.BusquedaTwitter;
 import javax.swing.SwingConstants;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -174,31 +174,7 @@ private void abrirVentanaComentario(int idTweet) {
 
 
 
-public class CircularPanel extends JPanel {
-    private Image image;
 
-    public void setImage(byte[] imageData) {
-        if (imageData != null) {
-            this.image = new ImageIcon(imageData).getImage();
-            repaint(); // Redibuja el panel
-        }
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (image != null) {
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            
-            // Dibuja un círculo recortado
-            int diameter = Math.min(getWidth(), getHeight());
-            Ellipse2D.Double circle = new Ellipse2D.Double(0, 0, diameter, diameter);
-            g2d.setClip(circle);
-            g2d.drawImage(image, 0, 0, diameter, diameter, this);
-        }
-    }
-}
 
 private void agregarComentario(String contenido, int idTweet, byte[] multimedia) {
     try (Connection conexion = BasededatosTwitter.getConnection()) {
@@ -2096,9 +2072,9 @@ setVisible(true);
     }//GEN-LAST:event_pNotificacionesMouseExited
 
     private void pExplorarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseClicked
-        Buscador b = new Buscador();
-        b.setVisible(true);
-        this.dispose();
+       BusquedaTwitter busquedaTwitter = new BusquedaTwitter();
+    busquedaTwitter.setVisible(true);
+    this.dispose();
     }//GEN-LAST:event_pExplorarMouseClicked
 
     private void pExplorarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseEntered
