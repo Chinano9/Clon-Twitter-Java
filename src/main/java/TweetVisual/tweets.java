@@ -3,13 +3,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package TweetVisual;
-import Explorar.Buscador;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import PantallaInicio.Home;
+import Explorar.BusquedaTwitter;
 
 
 /**
@@ -323,9 +323,9 @@ public class tweets extends javax.swing.JFrame {
     }//GEN-LAST:event_btnInicioActionPerformed
 
     private void btnExprorarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExprorarActionPerformed
-        Buscador b = new Buscador();
-        b.setVisible(true);
-        this.dispose();
+       BusquedaTwitter busquedaTwitter = new BusquedaTwitter();
+    busquedaTwitter.setVisible(true);
+    this.dispose();
     }//GEN-LAST:event_btnExprorarActionPerformed
 
     private void btnNotificacionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNotificacionesActionPerformed

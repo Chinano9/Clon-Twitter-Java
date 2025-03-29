@@ -2,7 +2,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package PantallaInicio;
+package Explorar;
+import PantallaInicio.*;
 import java.awt.Insets;  // Este es el import necesario para setMargin()
 import TweetVisual.tweets;
 import java.awt.Dimension;
@@ -45,7 +46,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import Explorar.BusquedaTwitter;
 
 import java.util.Base64;
 
@@ -74,7 +74,7 @@ import java.awt.Cursor; // Para el cursor de mano
  *
  * @author Jaime Paredes
  */
-public class Home extends javax.swing.JFrame {
+public class BusquedaTwitter extends javax.swing.JFrame {
 /*Jaime*/
     Color colorNormalMenu = new Color(246,234,250);
     Color colorOscuroMenu = new Color(246, 246, 246);
@@ -1436,7 +1436,7 @@ private void cargarTrendingTopics() {
     /**
      * Creates new form perfilVisual
      */
-public Home() {
+public BusquedaTwitter() {
     initComponents();  // Método generado por NetBeans GUI Builder
           cargarFotoPerfil(); // Llamamos al método para cargar la imagen de perfil
    cargarTrendingTopics(); 
@@ -1469,6 +1469,23 @@ frame.setVisible(true);
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        LabelImagenSerie = new javax.swing.JLabel();
+        LabelImagenPeliculas = new javax.swing.JLabel();
+        LabelInfoPosts = new javax.swing.JLabel();
+        btnInfoPeliculas = new javax.swing.JButton();
+        LabelInfoPosts1 = new javax.swing.JLabel();
+        btnInfoSerie = new javax.swing.JButton();
+        TituloNoticias = new javax.swing.JLabel();
+        btnInfoDeportes = new javax.swing.JButton();
+        InfoDeportes = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        LabelImagenSerie2 = new javax.swing.JLabel();
+        LabelInfoPosts3 = new javax.swing.JLabel();
+        btnInfoSerie2 = new javax.swing.JButton();
+        TituloNoticias2 = new javax.swing.JLabel();
+        btnInfoPeliculas1 = new javax.swing.JButton();
+        LabelInfoPosts4 = new javax.swing.JLabel();
+        LabelImagenPeliculas1 = new javax.swing.JLabel();
         PanelTrasero = new javax.swing.JPanel();
         Menu2 = new javax.swing.JPanel();
         LogoTwitter2 = new javax.swing.JLabel();
@@ -1477,23 +1494,90 @@ frame.setVisible(true);
         btnNotificaciones2 = new javax.swing.JButton();
         btnPerfil2 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
         PanelBuscador = new javax.swing.JPanel();
         txtBuscar = new javax.swing.JTextField();
         lblFotoPerfil = new javax.swing.JLabel();
         btnBuscar = new javax.swing.JButton();
         lblAliasNombre = new javax.swing.JLabel();
-        ScrollTweet = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
-        b_enviarTweet = new javax.swing.JButton();
-        btnSubirImagen = new javax.swing.JButton();
         lblImagenPrevia = new javax.swing.JLabel();
-        btnGif = new javax.swing.JButton();
-        btnEmoji = new javax.swing.JButton();
-        btnCalendario = new javax.swing.JButton();
+        btnForYou = new javax.swing.JButton();
+        btnTrending = new javax.swing.JButton();
+        btnNews = new javax.swing.JButton();
+        btnSports = new javax.swing.JButton();
+        btnEntretenimiento = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         panelContenedorTweets = new javax.swing.JPanel();
+        LabelImagenSerie1 = new javax.swing.JLabel();
+        LabelInfoPosts2 = new javax.swing.JLabel();
+        btnInfoSerie1 = new javax.swing.JButton();
+        TituloNoticias1 = new javax.swing.JLabel();
+        LabelImagenPeliculas2 = new javax.swing.JLabel();
+        LabelInfoPosts5 = new javax.swing.JLabel();
+        btnInfoPeliculas2 = new javax.swing.JButton();
         panelTrendingTopics = new javax.swing.JPanel();
+
+        LabelImagenSerie.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/ImgSerie.jpg"))); // NOI18N
+
+        LabelImagenPeliculas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/ImgNetflix.png"))); // NOI18N
+
+        LabelInfoPosts.setText("Hace 18 horas - Nuevos - 8K posts");
+
+        btnInfoPeliculas.setText("Las Mejores Peliculas De Netflix 2025");
+        btnInfoPeliculas.setBorder(null);
+        btnInfoPeliculas.setContentAreaFilled(false);
+        btnInfoPeliculas.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        LabelInfoPosts1.setText("Hace 15 horas - Nuevos - 16K posts");
+
+        btnInfoSerie.setText("Las Series Mas Populares Del Momento");
+        btnInfoSerie.setBorder(null);
+        btnInfoSerie.setContentAreaFilled(false);
+        btnInfoSerie.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        TituloNoticias.setText("Noticias del Dia");
+
+        btnInfoDeportes.setText("Deportes - Chihuahua");
+        btnInfoDeportes.setBorder(null);
+        btnInfoDeportes.setContentAreaFilled(false);
+        btnInfoDeportes.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnInfoDeportes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnInfoDeportesActionPerformed(evt);
+            }
+        });
+
+        InfoDeportes.setText("Hace 11 horas - Nuevos - 1K posts");
+
+        jLabel1.setText("Noticias - Mexico");
+        jLabel1.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                jLabel1AncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+
+        LabelImagenSerie2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/ImgSerie.jpg"))); // NOI18N
+
+        LabelInfoPosts3.setText("Hace 15 horas - Nuevos - 16K posts");
+
+        btnInfoSerie2.setText("Las Series Mas Populares Del Momento");
+        btnInfoSerie2.setBorder(null);
+        btnInfoSerie2.setContentAreaFilled(false);
+        btnInfoSerie2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        TituloNoticias2.setText("Noticias del Dia");
+
+        btnInfoPeliculas1.setText("Las Mejores Peliculas De Netflix 2025");
+        btnInfoPeliculas1.setBorder(null);
+        btnInfoPeliculas1.setContentAreaFilled(false);
+        btnInfoPeliculas1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        LabelInfoPosts4.setText("Hace 18 horas - Nuevos - 8K posts");
+
+        LabelImagenPeliculas1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/ImgNetflix.png"))); // NOI18N
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -1575,27 +1659,15 @@ frame.setVisible(true);
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(102, 0, 153));
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/brujula.png"))); // NOI18N
-        jLabel1.setText("Inicio");
-        jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 202, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 42, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout Menu2Layout = new javax.swing.GroupLayout(Menu2);
@@ -1681,30 +1753,35 @@ frame.setVisible(true);
             }
         });
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        ScrollTweet.setViewportView(jTextArea1);
-
-        b_enviarTweet.setBackground(new java.awt.Color(246, 234, 250));
-        b_enviarTweet.setText("Tweet");
-        b_enviarTweet.addActionListener(new java.awt.event.ActionListener() {
+        btnForYou.setText("Para ti");
+        btnForYou.setBorder(null);
+        btnForYou.setContentAreaFilled(false);
+        btnForYou.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnForYou.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                b_enviarTweetActionPerformed(evt);
+                btnForYouActionPerformed(evt);
             }
         });
 
-        btnSubirImagen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/multimedia.png"))); // NOI18N
-        btnSubirImagen.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSubirImagenActionPerformed(evt);
-            }
-        });
+        btnTrending.setText("Trending");
+        btnTrending.setBorder(null);
+        btnTrending.setContentAreaFilled(false);
+        btnTrending.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        btnGif.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/gif.png"))); // NOI18N
+        btnNews.setText("News");
+        btnNews.setBorder(null);
+        btnNews.setContentAreaFilled(false);
+        btnNews.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        btnEmoji.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/emoji.png"))); // NOI18N
+        btnSports.setText("Sports");
+        btnSports.setBorder(null);
+        btnSports.setContentAreaFilled(false);
+        btnSports.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        btnCalendario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/calendario.png"))); // NOI18N
+        btnEntretenimiento.setText("Entretenimiento");
+        btnEntretenimiento.setBorder(null);
+        btnEntretenimiento.setContentAreaFilled(false);
+        btnEntretenimiento.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         javax.swing.GroupLayout PanelBuscadorLayout = new javax.swing.GroupLayout(PanelBuscador);
         PanelBuscador.setLayout(PanelBuscadorLayout);
@@ -1717,58 +1794,52 @@ frame.setVisible(true);
                         .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 603, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnBuscar))
-                    .addComponent(ScrollTweet, javax.swing.GroupLayout.PREFERRED_SIZE, 651, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 68, Short.MAX_VALUE)
+                    .addGroup(PanelBuscadorLayout.createSequentialGroup()
+                        .addComponent(btnForYou)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnTrending)
+                        .addGap(28, 28, 28)
+                        .addComponent(btnNews)
+                        .addGap(34, 34, 34)
+                        .addComponent(btnSports)
+                        .addGap(37, 37, 37)
+                        .addComponent(btnEntretenimiento)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblAliasNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelBuscadorLayout.createSequentialGroup()
                         .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(47, 47, 47)))
                 .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelBuscadorLayout.createSequentialGroup()
+            .addGroup(PanelBuscadorLayout.createSequentialGroup()
                 .addGap(21, 21, 21)
                 .addComponent(lblImagenPrevia, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnSubirImagen)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnGif)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnEmoji)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnCalendario)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(b_enviarTweet)
-                .addGap(198, 198, 198))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         PanelBuscadorLayout.setVerticalGroup(
             PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelBuscadorLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(PanelBuscadorLayout.createSequentialGroup()
+                        .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblAliasNombre)
+                        .addGap(16, 16, 16))
                     .addGroup(PanelBuscadorLayout.createSequentialGroup()
                         .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnBuscar))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ScrollTweet, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(PanelBuscadorLayout.createSequentialGroup()
-                        .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblAliasNombre)))
-                .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelBuscadorLayout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(b_enviarTweet)
-                        .addGap(37, 37, 37))
-                    .addGroup(PanelBuscadorLayout.createSequentialGroup()
-                        .addGap(16, 16, 16)
-                        .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnSubirImagen)
-                            .addComponent(lblImagenPrevia)
-                            .addComponent(btnGif)
-                            .addComponent(btnEmoji)
-                            .addComponent(btnCalendario))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnForYou)
+                            .addComponent(btnTrending)
+                            .addComponent(btnNews)
+                            .addComponent(btnSports)
+                            .addComponent(btnEntretenimiento))
+                        .addGap(28, 28, 28)))
+                .addComponent(lblImagenPrevia)
+                .addContainerGap(72, Short.MAX_VALUE))
         );
 
         panelContenedorTweets.setBackground(new java.awt.Color(255, 255, 255));
@@ -1782,15 +1853,74 @@ frame.setVisible(true);
             }
         });
 
+        LabelImagenSerie1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/ImgSerie.jpg"))); // NOI18N
+
+        LabelInfoPosts2.setText("Hace 15 horas - Nuevos - 16K posts");
+
+        btnInfoSerie1.setText("Las Series Mas Populares Del Momento");
+        btnInfoSerie1.setBorder(null);
+        btnInfoSerie1.setContentAreaFilled(false);
+        btnInfoSerie1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        TituloNoticias1.setText("Noticias del Dia");
+
+        LabelImagenPeliculas2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/ImgNetflix.png"))); // NOI18N
+
+        LabelInfoPosts5.setText("Hace 18 horas - Nuevos - 8K posts");
+
+        btnInfoPeliculas2.setText("Las Mejores Peliculas De Netflix 2025");
+        btnInfoPeliculas2.setBorder(null);
+        btnInfoPeliculas2.setContentAreaFilled(false);
+        btnInfoPeliculas2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
         javax.swing.GroupLayout panelContenedorTweetsLayout = new javax.swing.GroupLayout(panelContenedorTweets);
         panelContenedorTweets.setLayout(panelContenedorTweetsLayout);
         panelContenedorTweetsLayout.setHorizontalGroup(
             panelContenedorTweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 656, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelContenedorTweetsLayout.createSequentialGroup()
+                .addGroup(panelContenedorTweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(panelContenedorTweetsLayout.createSequentialGroup()
+                        .addGroup(panelContenedorTweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(LabelInfoPosts5)
+                            .addComponent(btnInfoPeliculas2, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(LabelImagenPeliculas2))
+                    .addGroup(panelContenedorTweetsLayout.createSequentialGroup()
+                        .addGroup(panelContenedorTweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelContenedorTweetsLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(panelContenedorTweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(TituloNoticias1)
+                                    .addGroup(panelContenedorTweetsLayout.createSequentialGroup()
+                                        .addGap(6, 6, 6)
+                                        .addComponent(LabelInfoPosts2))))
+                            .addComponent(btnInfoSerie1, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 201, Short.MAX_VALUE)
+                        .addComponent(LabelImagenSerie1)))
+                .addGap(107, 107, 107))
         );
         panelContenedorTweetsLayout.setVerticalGroup(
             panelContenedorTweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 471, Short.MAX_VALUE)
+            .addGroup(panelContenedorTweetsLayout.createSequentialGroup()
+                .addGroup(panelContenedorTweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(panelContenedorTweetsLayout.createSequentialGroup()
+                        .addGap(48, 48, 48)
+                        .addComponent(LabelImagenSerie1))
+                    .addGroup(panelContenedorTweetsLayout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addComponent(TituloNoticias1, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(LabelInfoPosts2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnInfoSerie1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addGroup(panelContenedorTweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelContenedorTweetsLayout.createSequentialGroup()
+                        .addComponent(btnInfoPeliculas2, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(LabelInfoPosts5))
+                    .addComponent(LabelImagenPeliculas2))
+                .addContainerGap(180, Short.MAX_VALUE))
         );
 
         jScrollPane2.setViewportView(panelContenedorTweets);
@@ -1838,7 +1968,7 @@ frame.setVisible(true);
                         .addContainerGap())
                     .addGroup(PanelTraseroLayout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 658, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
                         .addComponent(panelTrendingTopics, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(22, 22, 22))))
         );
@@ -1849,7 +1979,7 @@ frame.setVisible(true);
                 .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(PanelTraseroLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 451, Short.MAX_VALUE)
                     .addComponent(panelTrendingTopics, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
             .addComponent(Menu2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1910,13 +2040,13 @@ lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesi
     }//GEN-LAST:event_btnNotificaciones2ActionPerformed
 
     private void btnExprorar2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExprorar2ActionPerformed
-        BusquedaTwitter busquedaTwitter = new BusquedaTwitter();
-    busquedaTwitter.setVisible(true);
-    this.dispose();
+        BusquedaTwitter b = new BusquedaTwitter();
+        b.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnExprorar2ActionPerformed
 
     private void btnInicio2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInicio2ActionPerformed
-        Home h = new Home();
+        BusquedaTwitter h = new BusquedaTwitter();
         h.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnInicio2ActionPerformed
@@ -1930,7 +2060,7 @@ lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesi
     }//GEN-LAST:event_panelContenedorTweetsAncestorAdded
 
     private void LogoTwitter2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoTwitter2MouseClicked
-        Home h = new Home();
+        BusquedaTwitter h = new BusquedaTwitter();
         h.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_LogoTwitter2MouseClicked
@@ -1944,7 +2074,7 @@ lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesi
     }//GEN-LAST:event_jPanel1MouseExited
 
     private void jPanel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel1MouseClicked
-        Home h = new Home();
+        BusquedaTwitter h = new BusquedaTwitter();
         h.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jPanel1MouseClicked
@@ -1985,55 +2115,17 @@ lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesi
 setVisible(true);
     }//GEN-LAST:event_panelTrendingTopicsAncestorAdded
 
-    private void b_enviarTweetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_enviarTweetActionPerformed
-        String contenido = jTextArea1.getText().trim();
-        int usuarioId = UsuarioSesion.getUsuarioId();
+    private void btnForYouActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnForYouActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnForYouActionPerformed
 
-        if (contenido.isEmpty() && archivoImagen == null) {
-            JOptionPane.showMessageDialog(this, "No puedes publicar un tweet vacío.");
-            return;
-        }
+    private void btnInfoDeportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInfoDeportesActionPerformed
 
-        try (Connection conexion = BasededatosTwitter.getConnection()) {
-            String sql = "INSERT INTO tweets (usuario_id, contenido, fecha_creacion, multimedia) VALUES (?, ?, NOW(), ?)";
-            PreparedStatement ps = conexion.prepareStatement(sql);
-            ps.setInt(1, usuarioId);
-            ps.setString(2, contenido);
+    }//GEN-LAST:event_btnInfoDeportesActionPerformed
 
-            if (archivoImagen != null) {
-                FileInputStream fis = new FileInputStream(archivoImagen);
-                ps.setBinaryStream(3, fis, (int) archivoImagen.length());
-            } else {
-                ps.setNull(3, java.sql.Types.BLOB); // Si no hay imagen, se pone NULL
-            }
+    private void jLabel1AncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_jLabel1AncestorAdded
 
-            ps.executeUpdate();
-            JOptionPane.showMessageDialog(this, "¡Tweet publicado con éxito!");
-
-            // Limpiar los campos después de publicar
-            jTextArea1.setText("");
-            lblImagenPrevia.setIcon(null);
-            archivoImagen = null;
-
-        } catch (SQLException | FileNotFoundException e) {
-            JOptionPane.showMessageDialog(this, "Error al publicar el tweet: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }//GEN-LAST:event_b_enviarTweetActionPerformed
-
-    private void btnSubirImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubirImagenActionPerformed
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new FileNameExtensionFilter("Imágenes y GIFs", "jpg", "png", "gif"));
-
-        int seleccion = fileChooser.showOpenDialog(this);
-        if (seleccion == JFileChooser.APPROVE_OPTION) {
-            archivoImagen = fileChooser.getSelectedFile();
-
-            // Mostrar vista previa de la imagen
-            ImageIcon imagen = new ImageIcon(archivoImagen.getAbsolutePath());
-            lblImagenPrevia.setIcon(new ImageIcon(imagen.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH)));
-        }
-    }//GEN-LAST:event_btnSubirImagenActionPerformed
+    }//GEN-LAST:event_jLabel1AncestorAdded
 byte[] fotoBytes = null; // Declaración
 
     /**
@@ -2053,48 +2145,69 @@ byte[] fotoBytes = null; // Declaración
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BusquedaTwitter.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BusquedaTwitter.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BusquedaTwitter.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BusquedaTwitter.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
-        SwingUtilities.invokeLater(() -> new Home().setVisible(true));
+        SwingUtilities.invokeLater(() -> new BusquedaTwitter().setVisible(true));
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Home().setVisible(true);
+                new BusquedaTwitter().setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel InfoDeportes;
+    private javax.swing.JLabel LabelImagenPeliculas;
+    private javax.swing.JLabel LabelImagenPeliculas1;
+    private javax.swing.JLabel LabelImagenPeliculas2;
+    private javax.swing.JLabel LabelImagenSerie;
+    private javax.swing.JLabel LabelImagenSerie1;
+    private javax.swing.JLabel LabelImagenSerie2;
+    private javax.swing.JLabel LabelInfoPosts;
+    private javax.swing.JLabel LabelInfoPosts1;
+    private javax.swing.JLabel LabelInfoPosts2;
+    private javax.swing.JLabel LabelInfoPosts3;
+    private javax.swing.JLabel LabelInfoPosts4;
+    private javax.swing.JLabel LabelInfoPosts5;
     private javax.swing.JLabel LogoTwitter2;
     private javax.swing.JPanel Menu2;
     private javax.swing.JPanel PanelBuscador;
     private javax.swing.JPanel PanelTrasero;
-    private javax.swing.JScrollPane ScrollTweet;
-    private javax.swing.JButton b_enviarTweet;
+    private javax.swing.JLabel TituloNoticias;
+    private javax.swing.JLabel TituloNoticias1;
+    private javax.swing.JLabel TituloNoticias2;
     private javax.swing.JButton btnBuscar;
-    private javax.swing.JButton btnCalendario;
-    private javax.swing.JButton btnEmoji;
+    private javax.swing.JButton btnEntretenimiento;
     private javax.swing.JButton btnExprorar2;
-    private javax.swing.JButton btnGif;
+    private javax.swing.JButton btnForYou;
+    private javax.swing.JButton btnInfoDeportes;
+    private javax.swing.JButton btnInfoPeliculas;
+    private javax.swing.JButton btnInfoPeliculas1;
+    private javax.swing.JButton btnInfoPeliculas2;
+    private javax.swing.JButton btnInfoSerie;
+    private javax.swing.JButton btnInfoSerie1;
+    private javax.swing.JButton btnInfoSerie2;
     private javax.swing.JButton btnInicio2;
+    private javax.swing.JButton btnNews;
     private javax.swing.JButton btnNotificaciones2;
     private javax.swing.JButton btnPerfil2;
-    private javax.swing.JButton btnSubirImagen;
+    private javax.swing.JButton btnSports;
+    private javax.swing.JButton btnTrending;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel lblAliasNombre;
     private javax.swing.JLabel lblFotoPerfil;
     private javax.swing.JLabel lblImagenPrevia;
