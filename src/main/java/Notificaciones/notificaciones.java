@@ -7,18 +7,356 @@ package Notificaciones;
 import Explorar.BusquedaTwitter;
 import PantallaInicio.Home;
 import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import Perfilusuario.perfilusuario;
+import PantallaInicio.Home;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
+import PantallaInicio.UsuarioSesion;
+import java.awt.Insets;  // Este es el import necesario para setMargin()
+import Explorar.BusquedaTwitter;
+import java.awt.Dimension;
+import javax.swing.SwingConstants;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.ImageIcon;
+import java.awt.Image;
+import javax.swing.JLabel;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.JScrollPane;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.sql.Blob;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import javax.swing.text.StyledDocument;
+import javax.swing.text.BadLocationException;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import Explorar.BusquedaTwitter;
+import java.awt.Dimension;
 
+
+import java.util.Base64;
+
+import java.io.FileInputStream;
+import java.io.ByteArrayOutputStream;
+
+import java.nio.file.Files;
+import java.io.File;
+import java.io.IOException;
+
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.AlphaComposite;
+import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
+
+import javax.swing.BorderFactory;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.swing.BoxLayout;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.Cursor; 
 /**
  *
  * @author Jaime Paredes
  */
 public class notificaciones extends javax.swing.JFrame {
-    
+
     Color colorNormalMenu = new Color(246,234,250);
     Color colorOscuroMenu = new Color(242, 226, 248);
-    
-    public notificaciones() {
+
+ public notificaciones() {
+        System.out.println("Antes de initComponents(): ScrollPanel = " + ScrollPanel);
         initComponents();
+        System.out.println("Después de initComponents(): ScrollPanel = " + ScrollPanel);
+        panelContenedorNotificaciones = new JPanel();
+        panelContenedorNotificaciones.setLayout(new BoxLayout(panelContenedorNotificaciones, BoxLayout.Y_AXIS));
+        System.out.println("Antes de setViewportView(): ScrollPanel = " + ScrollPanel);
+        ScrollPanel.setViewportView(panelContenedorNotificaciones);
+        mostrarTodasNotificaciones();
+    }
+ 
+private void mostrarTodasNotificaciones() {
+    panelContenedorNotificaciones.removeAll();
+    cargarNotificaciones("todas");
+    ScrollPanel.revalidate();
+    ScrollPanel.repaint();
+}
+
+private void mostrarMenciones() {
+    panelContenedorNotificaciones.removeAll();
+    cargarNotificaciones("menciones");
+    ScrollPanel.revalidate();
+    ScrollPanel.repaint();
+}
+
+ private void cargarNotificaciones(String tipoNotificacion) {
+    try (Connection conexion = BasededatosTwitter.getConnection()) {
+        panelContenedorNotificaciones.removeAll();
+        panelContenedorNotificaciones.setLayout(new BoxLayout(panelContenedorNotificaciones, BoxLayout.Y_AXIS));
+
+        String sql = "";
+        PreparedStatement ps = null;
+
+        if (tipoNotificacion.equals("todas")) {
+            sql = "SELECT CONCAT(u.alias, ' te ha dado like en un tweet') as contenido, u.alias, u.nombre_usuario, l.fecha_like as fecha_creacion FROM likes l JOIN usuarios u ON l.usuario_id = u.id_usuarios JOIN tweets t ON l.tweet_id = t.id_tweet WHERE t.usuario_id = ? " +
+                  "UNION " +
+                  "SELECT CONCAT(u.alias, ' ha retuiteado uno de tus tweets'), u.alias, u.nombre_usuario, r.fecha_retweet FROM retweets r JOIN usuarios u ON r.usuario_id = u.id_usuarios JOIN tweets t ON r.tweet_id = t.id_tweet WHERE t.usuario_id = ? " +
+                  "UNION " +
+                  "SELECT CONCAT(u.alias, ' ha comenzado a seguirte'), u.alias, u.nombre_usuario, f.fecha_reaccion FROM follows f JOIN usuarios u ON f.id_seguidor = u.id_usuarios WHERE f.id_seguido = ?";
+            ps = conexion.prepareStatement(sql);
+            ps.setInt(1, UsuarioSesion.getUsuarioId());
+            ps.setInt(2, UsuarioSesion.getUsuarioId());
+            ps.setInt(3, UsuarioSesion.getUsuarioId());
+        } else if (tipoNotificacion.equals("menciones")) {
+            sql = "SELECT t.contenido, u.alias, u.nombre_usuario, t.fecha_creacion " +
+                  "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios " +
+                  "WHERE t.contenido LIKE CONCAT('%@', (SELECT alias FROM usuarios WHERE id_usuarios = ?), '%') " +
+                  "UNION " +
+                  "SELECT c.contenido, u.alias, u.nombre_usuario, c.fecha_creacion " +
+                  "FROM comentarios c JOIN usuarios u ON c.usuario_id = u.id_usuarios " +
+                  "WHERE c.tweet_id IN (SELECT id_tweet FROM tweets WHERE usuario_id = ?)";
+            ps = conexion.prepareStatement(sql);
+            ps.setInt(1, UsuarioSesion.getUsuarioId());
+            ps.setInt(2, UsuarioSesion.getUsuarioId());
+        }
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            String contenido = rs.getString(1); // Usar el índice 1 para el mensaje construido
+            String alias = rs.getString("alias");
+            String nombreUsuario = rs.getString("nombre_usuario");
+            String fechaCreacion = rs.getString("fecha_creacion");
+
+            // *** Opción 2: Usando JPanels (más estructurado) ***
+            JPanel panelNotificacion = new JPanel();
+            panelNotificacion.setLayout(new BoxLayout(panelNotificacion, BoxLayout.Y_AXIS));
+            panelNotificacion.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+                    BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+
+            JLabel lblUsuario = new JLabel("<html><b>" + alias + " (" + nombreUsuario + ")</b> - " + fechaCreacion + "</html>");
+            JTextArea txtContenido = new JTextArea(contenido);
+            txtContenido.setEditable(false);
+            txtContenido.setLineWrap(true);
+            txtContenido.setWrapStyleWord(true);
+            txtContenido.setBackground(panelNotificacion.getBackground());
+
+            panelNotificacion.add(lblUsuario);
+            panelNotificacion.add(txtContenido);
+
+            panelContenedorNotificaciones.add(panelNotificacion);
+            panelContenedorNotificaciones.add(Box.createVerticalStrut(10));
+        }
+
+        ScrollPanel.revalidate();
+        ScrollPanel.repaint();
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al cargar notificaciones", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+  private String obtenerNombreUsuario() {
+        try (Connection conexion = BasededatosTwitter.getConnection()) {
+            String sql = "SELECT nombre_usuario FROM usuarios WHERE id_usuarios = ?";
+            PreparedStatement ps = conexion.prepareStatement(sql);
+            ps.setInt(1, UsuarioSesion.getUsuarioId());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("nombre_usuario");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+  
+      private void cargarMenciones() {
+        try (Connection conexion = BasededatosTwitter.getConnection()) {
+            String sql = "SELECT c.contenido, u.nombre_usuario, t.contenido AS tweet_contenido " +
+                         "FROM comentarios c " +
+                         "JOIN usuarios u ON c.usuario_id = u.id_usuarios " +
+                         "JOIN tweets t ON c.tweet_id = t.id_tweet " +
+                         "WHERE c.contenido LIKE ?";
+
+            PreparedStatement ps = conexion.prepareStatement(sql);
+            ps.setString(1, "%@" + obtenerAliasUsuarioActual(conexion) + "%");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                JPanel panelMencion = crearPanelNotificacion(rs.getString("contenido"), rs.getString("nombre_usuario"), rs.getString("tweet_contenido"), "Mención");
+                jpanel.add(panelMencion);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al cargar menciones.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    private void cargarComentariosATusTweets() {
+        try (Connection conexion = BasededatosTwitter.getConnection()) {
+            String sql = "SELECT c.contenido, u.nombre_usuario, t.contenido AS tweet_contenido " +
+                         "FROM comentarios c " +
+                         "JOIN usuarios u ON c.usuario_id = u.id_usuarios " +
+                         "JOIN tweets t ON c.tweet_id = t.id_tweet " +
+                         "WHERE t.usuario_id = ?";
+
+            PreparedStatement ps = conexion.prepareStatement(sql);
+            ps.setInt(1, UsuarioSesion.getUsuarioId());
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                JPanel panelComentario = crearPanelNotificacion(rs.getString("contenido"), rs.getString("nombre_usuario"), rs.getString("tweet_contenido"), "Comentario en tu Tweet");
+                jpanel.add(panelComentario);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al cargar comentarios a tus tweets.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    private JPanel crearPanelNotificacion(String comentario, String autor, String tweetContenido, String tipoNotificacion) {
+        JPanel panelNotificacion = new JPanel();
+        panelNotificacion.setLayout(new BoxLayout(panelNotificacion, BoxLayout.Y_AXIS));
+
+        JTextArea textoComentario = new JTextArea("'" + comentario + "' - " + autor + " (" + tipoNotificacion + ")");
+        textoComentario.setEditable(false);
+        textoComentario.setLineWrap(true);
+        textoComentario.setWrapStyleWord(true);
+        panelNotificacion.add(textoComentario);
+
+        JTextArea textoTweet = new JTextArea("Tweet: " + tweetContenido);
+        textoTweet.setEditable(false);
+        textoTweet.setLineWrap(true);
+        textoTweet.setWrapStyleWord(true);
+        panelNotificacion.add(textoTweet);
+
+        panelNotificacion.add(Box.createVerticalStrut(10)); // Espacio entre notificaciones
+
+        return panelNotificacion;
+    }
+    
+     private String obtenerAliasUsuarioActual(Connection conexion) throws SQLException {
+        String sql = "SELECT alias FROM usuarios WHERE id_usuarios = ?";
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ps.setInt(1, UsuarioSesion.getUsuarioId());
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getString("alias");
+        }
+        return "";
+    }
+     
+     
+     
+    private void actualizarNombreYAlias() {
+    int idUsuario = PantallaInicio.UsuarioSesion.getUsuarioId(); // Obtener el ID del usuario en sesión
+
+    if (idUsuario != -1) {
+        try (Connection conexion = PantallaInicio.BasededatosTwitter.getConnection()) {
+            String sql = "SELECT nombre_usuario, alias FROM usuarios WHERE id_usuarios = ?";
+            PreparedStatement ps = conexion.prepareStatement(sql);
+            ps.setInt(1, idUsuario);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                String nombre = rs.getString("nombre_usuario");
+                String alias = rs.getString("alias");
+
+                // Verifica si los valores son nulos
+                if (nombre == null || alias == null) {
+                    lblAliasNombre.setText("Datos no disponibles");
+                } else {
+                    lblAliasNombre.setText(nombre + "  @" + alias);
+                }
+            } else {
+                lblAliasNombre.setText("Usuario no encontrado");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            lblAliasNombre.setText("Error SQL: " + e.getMessage());
+        }
+    } else {
+        lblAliasNombre.setText("No hay usuario en sesión");
+    }
+}
+    
+
+
+      private void abrirPerfilUsuario(String nombreUsuario) {
+        try (Connection conexion = BasededatosTwitter.getConnection()) {
+            String sql = "SELECT id_usuarios FROM usuarios WHERE nombre_usuario = ?";
+            PreparedStatement ps = conexion.prepareStatement(sql);
+            ps.setString(1, nombreUsuario);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                int idUsuario = rs.getInt("id_usuarios");
+                perfilusuario perfil = new perfilusuario(idUsuario); // Asumiendo que tienes perfilusuario.java
+                perfil.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Usuario no encontrado", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al abrir perfil", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
@@ -30,7 +368,7 @@ public class notificaciones extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        jpanel = new javax.swing.JPanel();
         Menu2 = new javax.swing.JPanel();
         LogoTwitter2 = new javax.swing.JLabel();
         pInicio = new javax.swing.JPanel();
@@ -43,17 +381,19 @@ public class notificaciones extends javax.swing.JFrame {
         Explorar = new javax.swing.JLabel();
         lblFotoPerfil = new javax.swing.JLabel();
         lblFotoPerfil1 = new javax.swing.JLabel();
-        ScrollPanel = new javax.swing.JScrollPane();
-        PNotificaciones = new javax.swing.JPanel();
         POpciones = new javax.swing.JPanel();
         pTodas = new javax.swing.JPanel();
-        Todas = new javax.swing.JLabel();
+        btnTodas = new javax.swing.JButton();
         pMenciones = new javax.swing.JPanel();
-        Menciones = new javax.swing.JLabel();
+        btnMenciones = new javax.swing.JButton();
+        lblAliasNombre = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        panelContenedorNotificaciones = new javax.swing.JPanel();
+        ScrollPanel = new javax.swing.JScrollPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jpanel.setBackground(new java.awt.Color(255, 255, 255));
 
         Menu2.setBackground(new java.awt.Color(246, 234, 250));
 
@@ -259,7 +599,7 @@ public class notificaciones extends javax.swing.JFrame {
                 .addComponent(pNotificaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(113, 113, 113)
                 .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(174, Short.MAX_VALUE))
         );
 
         lblFotoPerfil1.setText("Foto de perrfil");
@@ -274,19 +614,6 @@ public class notificaciones extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout PNotificacionesLayout = new javax.swing.GroupLayout(PNotificaciones);
-        PNotificaciones.setLayout(PNotificacionesLayout);
-        PNotificacionesLayout.setHorizontalGroup(
-            PNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 760, Short.MAX_VALUE)
-        );
-        PNotificacionesLayout.setVerticalGroup(
-            PNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 518, Short.MAX_VALUE)
-        );
-
-        ScrollPanel.setViewportView(PNotificaciones);
-
         POpciones.setBackground(new java.awt.Color(255, 255, 255));
 
         pTodas.setBackground(new java.awt.Color(255, 255, 255));
@@ -300,25 +627,27 @@ public class notificaciones extends javax.swing.JFrame {
             }
         });
 
-        Todas.setFont(new java.awt.Font("Arial Black", 0, 14)); // NOI18N
-        Todas.setForeground(new java.awt.Color(102, 0, 153));
-        Todas.setText("Todas");
+        btnTodas.setText("Todas");
+        btnTodas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTodasActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pTodasLayout = new javax.swing.GroupLayout(pTodas);
         pTodas.setLayout(pTodasLayout);
         pTodasLayout.setHorizontalGroup(
             pTodasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pTodasLayout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addComponent(Todas)
-                .addContainerGap(29, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(btnTodas)
+                .addContainerGap(38, Short.MAX_VALUE))
         );
         pTodasLayout.setVerticalGroup(
             pTodasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pTodasLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Todas)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(btnTodas)
+                .addGap(0, 10, Short.MAX_VALUE))
         );
 
         pMenciones.setBackground(new java.awt.Color(255, 255, 255));
@@ -332,26 +661,39 @@ public class notificaciones extends javax.swing.JFrame {
             }
         });
 
-        Menciones.setFont(new java.awt.Font("Arial Black", 0, 14)); // NOI18N
-        Menciones.setForeground(new java.awt.Color(102, 0, 153));
-        Menciones.setText("Menciones");
+        btnMenciones.setText("Menciones");
+        btnMenciones.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMencionesActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pMencionesLayout = new javax.swing.GroupLayout(pMenciones);
         pMenciones.setLayout(pMencionesLayout);
         pMencionesLayout.setHorizontalGroup(
             pMencionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pMencionesLayout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addComponent(Menciones)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(btnMenciones)
+                .addContainerGap(39, Short.MAX_VALUE))
         );
         pMencionesLayout.setVerticalGroup(
             pMencionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pMencionesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Menciones)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(btnMenciones)
+                .addGap(0, 10, Short.MAX_VALUE))
         );
+
+        lblAliasNombre.setText("Nombre y usuario");
+        lblAliasNombre.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                lblAliasNombreAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
 
         javax.swing.GroupLayout POpcionesLayout = new javax.swing.GroupLayout(POpciones);
         POpciones.setLayout(POpcionesLayout);
@@ -360,48 +702,108 @@ public class notificaciones extends javax.swing.JFrame {
             .addGroup(POpcionesLayout.createSequentialGroup()
                 .addGap(151, 151, 151)
                 .addComponent(pTodas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 249, Short.MAX_VALUE)
                 .addComponent(pMenciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(140, 140, 140))
+                .addGap(59, 59, 59)
+                .addComponent(lblAliasNombre)
+                .addContainerGap())
         );
         POpcionesLayout.setVerticalGroup(
             POpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, POpcionesLayout.createSequentialGroup()
+            .addGroup(POpcionesLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(POpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pMenciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pTodas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, POpcionesLayout.createSequentialGroup()
+                        .addGroup(POpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(pMenciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(pTodas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, POpcionesLayout.createSequentialGroup()
+                        .addComponent(lblAliasNombre)
+                        .addGap(14, 14, 14))))
         );
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(Menu2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblFotoPerfil1, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(44, 44, 44))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(71, 71, 71)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(ScrollPanel)
-                            .addComponent(POpciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addContainerGap(75, Short.MAX_VALUE))))
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
+        panelContenedorNotificaciones.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                panelContenedorNotificacionesAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+
+        ScrollPanel.setBackground(new java.awt.Color(255, 255, 255));
+
+        javax.swing.GroupLayout panelContenedorNotificacionesLayout = new javax.swing.GroupLayout(panelContenedorNotificaciones);
+        panelContenedorNotificaciones.setLayout(panelContenedorNotificacionesLayout);
+        panelContenedorNotificacionesLayout.setHorizontalGroup(
+            panelContenedorNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelContenedorNotificacionesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(ScrollPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 551, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        panelContenedorNotificacionesLayout.setVerticalGroup(
+            panelContenedorNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelContenedorNotificacionesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(ScrollPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout jpanelLayout = new javax.swing.GroupLayout(jpanel);
+        jpanel.setLayout(jpanelLayout);
+        jpanelLayout.setHorizontalGroup(
+            jpanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jpanelLayout.createSequentialGroup()
+                .addComponent(Menu2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jpanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jpanelLayout.createSequentialGroup()
+                        .addGap(78, 78, 78)
+                        .addComponent(panelContenedorNotificaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jpanelLayout.createSequentialGroup()
+                        .addGap(41, 41, 41)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jpanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(POpciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jpanelLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(lblFotoPerfil1, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(22, 22, 22)))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jpanelLayout.setVerticalGroup(
+            jpanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(Menu2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addComponent(lblFotoPerfil1, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(POpciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(ScrollPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 520, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(jpanelLayout.createSequentialGroup()
+                .addGroup(jpanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jpanelLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(lblFotoPerfil1, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(POpciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jpanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)))
+                .addGap(41, 41, 41)
+                .addComponent(panelContenedorNotificaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -409,59 +811,70 @@ public class notificaciones extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jpanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jpanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void LogoTwitter2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoTwitter2MouseClicked
-        Home h = new Home();
-        h.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_LogoTwitter2MouseClicked
+    private void lblAliasNombreAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblAliasNombreAncestorAdded
+        actualizarNombreYAlias(); // Llamar al método al cargar la interfaz
+    }//GEN-LAST:event_lblAliasNombreAncestorAdded
 
-    private void pInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseClicked
-        Home h = new Home();
-        h.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_pInicioMouseClicked
+    private void pMencionesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pMencionesMouseExited
+        pMenciones.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pMencionesMouseExited
 
-    private void pInicioMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseEntered
-        pInicio.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pInicioMouseEntered
+    private void pMencionesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pMencionesMouseEntered
+        pMenciones.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pMencionesMouseEntered
 
-    private void pInicioMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseExited
-        pInicio.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pInicioMouseExited
+    private void btnMencionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMencionesActionPerformed
+      
+    System.out.println("Botón 'Menciones' presionado.");
+    mostrarMenciones();
+    System.out.println("Método mostrarMenciones() ejecutado.");
 
-    private void pPerfilMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_pPerfilMouseClicked
+    }//GEN-LAST:event_btnMencionesActionPerformed
 
-    private void pPerfilMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseEntered
-        pPerfil.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pPerfilMouseEntered
+    private void pTodasMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pTodasMouseExited
+        pTodas.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pTodasMouseExited
 
-    private void pPerfilMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseExited
-        pPerfil.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pPerfilMouseExited
+    private void pTodasMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pTodasMouseEntered
+        pTodas.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pTodasMouseEntered
 
-    private void pNotificacionesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_pNotificacionesMouseClicked
+    private void btnTodasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTodasActionPerformed
+      System.out.println("Botón 'Todas' presionado.");
+    mostrarTodasNotificaciones();
+    System.out.println("Método mostrarTodasNotificaciones() ejecutado.");
+    }//GEN-LAST:event_btnTodasActionPerformed
 
-    private void pNotificacionesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseEntered
-        pNotificaciones.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pNotificacionesMouseEntered
+    private void lblFotoPerfil1AncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfil1AncestorAdded
+        //  lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
+        //   lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
+    }//GEN-LAST:event_lblFotoPerfil1AncestorAdded
 
-    private void pNotificacionesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseExited
-        pNotificaciones.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pNotificacionesMouseExited
+    private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
+        //  lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
+        //   lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
+    }//GEN-LAST:event_lblFotoPerfilAncestorAdded
+
+    private void pExplorarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseExited
+        pExplorar.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pExplorarMouseExited
+
+    private void pExplorarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseEntered
+        pExplorar.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pExplorarMouseEntered
 
     private void pExplorarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseClicked
         BusquedaTwitter b = new BusquedaTwitter();
@@ -469,39 +882,53 @@ public class notificaciones extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_pExplorarMouseClicked
 
-    private void pExplorarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseEntered
-        pExplorar.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pExplorarMouseEntered
+    private void pNotificacionesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseExited
+        pNotificaciones.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pNotificacionesMouseExited
 
-    private void pExplorarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseExited
-        pExplorar.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pExplorarMouseExited
+    private void pNotificacionesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseEntered
+        pNotificaciones.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pNotificacionesMouseEntered
 
-    private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
-        lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
-        lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
-    }//GEN-LAST:event_lblFotoPerfilAncestorAdded
+    private void pNotificacionesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pNotificacionesMouseClicked
 
-    private void lblFotoPerfil1AncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfil1AncestorAdded
-        lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
-        lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
-    }//GEN-LAST:event_lblFotoPerfil1AncestorAdded
+    private void pPerfilMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseExited
+        pPerfil.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pPerfilMouseExited
 
-    private void pTodasMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pTodasMouseEntered
-        pTodas.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pTodasMouseEntered
+    private void pPerfilMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseEntered
+        pPerfil.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pPerfilMouseEntered
 
-    private void pTodasMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pTodasMouseExited
-        pTodas.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pTodasMouseExited
+    private void pPerfilMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pPerfilMouseClicked
 
-    private void pMencionesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pMencionesMouseEntered
-        pMenciones.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pMencionesMouseEntered
+    private void pInicioMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseExited
+        pInicio.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pInicioMouseExited
 
-    private void pMencionesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pMencionesMouseExited
-        pMenciones.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pMencionesMouseExited
+    private void pInicioMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseEntered
+        pInicio.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pInicioMouseEntered
+
+    private void pInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseClicked
+        Home h = new Home();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_pInicioMouseClicked
+
+    private void LogoTwitter2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoTwitter2MouseClicked
+        Home h = new Home();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_LogoTwitter2MouseClicked
+
+    private void panelContenedorNotificacionesAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_panelContenedorNotificacionesAncestorAdded
+        // TODO add your handling code here:
+    }//GEN-LAST:event_panelContenedorNotificacionesAncestorAdded
 
     /**
      * @param args the command line arguments
@@ -529,6 +956,9 @@ public class notificaciones extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(notificaciones.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -542,17 +972,16 @@ public class notificaciones extends javax.swing.JFrame {
     private javax.swing.JLabel Explorar;
     private javax.swing.JLabel Inicio;
     private javax.swing.JLabel LogoTwitter2;
-    private javax.swing.JLabel Menciones;
     private javax.swing.JPanel Menu2;
     private javax.swing.JLabel Notificaciones;
-    private javax.swing.JPanel PNotificaciones;
     private javax.swing.JPanel POpciones;
     private javax.swing.JLabel Perfil;
     private javax.swing.JScrollPane ScrollPanel;
-    private javax.swing.JLabel Todas;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel5;
+    private javax.swing.JButton btnMenciones;
+    private javax.swing.JButton btnTodas;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jpanel;
+    private javax.swing.JLabel lblAliasNombre;
     private javax.swing.JLabel lblFotoPerfil;
     private javax.swing.JLabel lblFotoPerfil1;
     private javax.swing.JPanel pExplorar;
@@ -561,5 +990,6 @@ public class notificaciones extends javax.swing.JFrame {
     private javax.swing.JPanel pNotificaciones;
     private javax.swing.JPanel pPerfil;
     private javax.swing.JPanel pTodas;
+    private javax.swing.JPanel panelContenedorNotificaciones;
     // End of variables declaration//GEN-END:variables
 }

@@ -55,7 +55,7 @@ import Perfil.EdiPerfil;
 import Perfilusuario.perfilusuario;
 import java.io.FileInputStream;
 import java.io.ByteArrayOutputStream;
-
+import Notificaciones.notificaciones;
 import java.nio.file.Files;
 import java.io.File;
 import java.io.IOException;
@@ -1707,6 +1707,20 @@ frame.setVisible(true);
         Notificaciones.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/Notificaciones.png"))); // NOI18N
         Notificaciones.setText("Notificaciones");
         Notificaciones.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Notificaciones.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                NotificacionesAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+        Notificaciones.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                NotificacionesMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout pNotificacionesLayout = new javax.swing.GroupLayout(pNotificaciones);
         pNotificaciones.setLayout(pNotificacionesLayout);
@@ -2208,6 +2222,16 @@ setVisible(true);
     private void pExplorarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseExited
         pExplorar.setBackground(colorNormalMenu);
     }//GEN-LAST:event_pExplorarMouseExited
+
+    private void NotificacionesAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_NotificacionesAncestorAdded
+       
+    }//GEN-LAST:event_NotificacionesAncestorAdded
+
+    private void NotificacionesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_NotificacionesMouseClicked
+         notificaciones notificaciones = new notificaciones();
+    notificaciones.setVisible(true);
+    this.dispose();
+    }//GEN-LAST:event_NotificacionesMouseClicked
 byte[] fotoBytes = null; // Declaración
 
     /**
