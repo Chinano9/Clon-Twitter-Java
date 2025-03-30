@@ -4,15 +4,19 @@
  */
 package Notificaciones;
 
+import Explorar.BusquedaTwitter;
+import PantallaInicio.Home;
+import java.awt.Color;
+
 /**
  *
  * @author Jaime Paredes
  */
 public class notificaciones extends javax.swing.JFrame {
-
-    /**
-     * Creates new form notificaciones
-     */
+    
+    Color colorNormalMenu = new Color(246,234,250);
+    Color colorOscuroMenu = new Color(242, 226, 248);
+    
     public notificaciones() {
         initComponents();
     }
@@ -26,21 +30,478 @@ public class notificaciones extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
+        Menu2 = new javax.swing.JPanel();
+        LogoTwitter2 = new javax.swing.JLabel();
+        pInicio = new javax.swing.JPanel();
+        Inicio = new javax.swing.JLabel();
+        pPerfil = new javax.swing.JPanel();
+        Perfil = new javax.swing.JLabel();
+        pNotificaciones = new javax.swing.JPanel();
+        Notificaciones = new javax.swing.JLabel();
+        pExplorar = new javax.swing.JPanel();
+        Explorar = new javax.swing.JLabel();
+        lblFotoPerfil = new javax.swing.JLabel();
+        lblFotoPerfil1 = new javax.swing.JLabel();
+        ScrollPanel = new javax.swing.JScrollPane();
+        PNotificaciones = new javax.swing.JPanel();
+        POpciones = new javax.swing.JPanel();
+        pTodas = new javax.swing.JPanel();
+        Todas = new javax.swing.JLabel();
+        pMenciones = new javax.swing.JPanel();
+        Menciones = new javax.swing.JLabel();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+
+        Menu2.setBackground(new java.awt.Color(246, 234, 250));
+
+        LogoTwitter2.setFont(new java.awt.Font("Eras Bold ITC", 0, 36)); // NOI18N
+        LogoTwitter2.setForeground(new java.awt.Color(102, 0, 153));
+        LogoTwitter2.setText("Twitter");
+        LogoTwitter2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        LogoTwitter2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                LogoTwitter2MouseClicked(evt);
+            }
+        });
+
+        pInicio.setBackground(new java.awt.Color(246, 234, 250));
+        pInicio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        pInicio.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                pInicioMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                pInicioMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                pInicioMouseExited(evt);
+            }
+        });
+
+        Inicio.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
+        Inicio.setForeground(new java.awt.Color(102, 0, 153));
+        Inicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/brujula.png"))); // NOI18N
+        Inicio.setText("Inicio");
+        Inicio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        javax.swing.GroupLayout pInicioLayout = new javax.swing.GroupLayout(pInicio);
+        pInicio.setLayout(pInicioLayout);
+        pInicioLayout.setHorizontalGroup(
+            pInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pInicioLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Inicio)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        pInicioLayout.setVerticalGroup(
+            pInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pInicioLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Inicio)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pPerfil.setBackground(new java.awt.Color(246, 234, 250));
+        pPerfil.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        pPerfil.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                pPerfilMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                pPerfilMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                pPerfilMouseExited(evt);
+            }
+        });
+
+        Perfil.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
+        Perfil.setForeground(new java.awt.Color(102, 0, 153));
+        Perfil.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/perfil.png"))); // NOI18N
+        Perfil.setText("Perfil");
+        Perfil.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        javax.swing.GroupLayout pPerfilLayout = new javax.swing.GroupLayout(pPerfil);
+        pPerfil.setLayout(pPerfilLayout);
+        pPerfilLayout.setHorizontalGroup(
+            pPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pPerfilLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Perfil)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        pPerfilLayout.setVerticalGroup(
+            pPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pPerfilLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Perfil)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pNotificaciones.setBackground(new java.awt.Color(246, 234, 250));
+        pNotificaciones.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        pNotificaciones.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                pNotificacionesMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                pNotificacionesMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                pNotificacionesMouseExited(evt);
+            }
+        });
+
+        Notificaciones.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
+        Notificaciones.setForeground(new java.awt.Color(102, 0, 153));
+        Notificaciones.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/Notificaciones.png"))); // NOI18N
+        Notificaciones.setText("Notificaciones");
+        Notificaciones.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        javax.swing.GroupLayout pNotificacionesLayout = new javax.swing.GroupLayout(pNotificaciones);
+        pNotificaciones.setLayout(pNotificacionesLayout);
+        pNotificacionesLayout.setHorizontalGroup(
+            pNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pNotificacionesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Notificaciones)
+                .addContainerGap(24, Short.MAX_VALUE))
+        );
+        pNotificacionesLayout.setVerticalGroup(
+            pNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pNotificacionesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Notificaciones)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pExplorar.setBackground(new java.awt.Color(246, 234, 250));
+        pExplorar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        pExplorar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                pExplorarMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                pExplorarMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                pExplorarMouseExited(evt);
+            }
+        });
+
+        Explorar.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
+        Explorar.setForeground(new java.awt.Color(102, 0, 153));
+        Explorar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/lupa.png"))); // NOI18N
+        Explorar.setText("Explorar");
+        Explorar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+
+        javax.swing.GroupLayout pExplorarLayout = new javax.swing.GroupLayout(pExplorar);
+        pExplorar.setLayout(pExplorarLayout);
+        pExplorarLayout.setHorizontalGroup(
+            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pExplorarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Explorar)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        pExplorarLayout.setVerticalGroup(
+            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pExplorarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Explorar)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        lblFotoPerfil.setText("Foto de perrfil");
+        lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
+        lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                lblFotoPerfilAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+
+        javax.swing.GroupLayout Menu2Layout = new javax.swing.GroupLayout(Menu2);
+        Menu2.setLayout(Menu2Layout);
+        Menu2Layout.setHorizontalGroup(
+            Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Menu2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(LogoTwitter2)
+                .addGap(43, 43, 43))
+            .addComponent(pInicio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(pPerfil, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(pNotificaciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(pExplorar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(Menu2Layout.createSequentialGroup()
+                .addGap(41, 41, 41)
+                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        Menu2Layout.setVerticalGroup(
+            Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Menu2Layout.createSequentialGroup()
+                .addGap(29, 29, 29)
+                .addComponent(LogoTwitter2)
+                .addGap(45, 45, 45)
+                .addComponent(pInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(pPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(pExplorar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(pNotificaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(113, 113, 113)
+                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        lblFotoPerfil1.setText("Foto de perrfil");
+        lblFotoPerfil1.setPreferredSize(new java.awt.Dimension(150, 150));
+        lblFotoPerfil1.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                lblFotoPerfil1AncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+
+        javax.swing.GroupLayout PNotificacionesLayout = new javax.swing.GroupLayout(PNotificaciones);
+        PNotificaciones.setLayout(PNotificacionesLayout);
+        PNotificacionesLayout.setHorizontalGroup(
+            PNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 760, Short.MAX_VALUE)
+        );
+        PNotificacionesLayout.setVerticalGroup(
+            PNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 518, Short.MAX_VALUE)
+        );
+
+        ScrollPanel.setViewportView(PNotificaciones);
+
+        POpciones.setBackground(new java.awt.Color(255, 255, 255));
+
+        pTodas.setBackground(new java.awt.Color(255, 255, 255));
+        pTodas.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        pTodas.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                pTodasMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                pTodasMouseExited(evt);
+            }
+        });
+
+        Todas.setFont(new java.awt.Font("Arial Black", 0, 14)); // NOI18N
+        Todas.setForeground(new java.awt.Color(102, 0, 153));
+        Todas.setText("Todas");
+
+        javax.swing.GroupLayout pTodasLayout = new javax.swing.GroupLayout(pTodas);
+        pTodas.setLayout(pTodasLayout);
+        pTodasLayout.setHorizontalGroup(
+            pTodasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pTodasLayout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addComponent(Todas)
+                .addContainerGap(29, Short.MAX_VALUE))
+        );
+        pTodasLayout.setVerticalGroup(
+            pTodasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pTodasLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Todas)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pMenciones.setBackground(new java.awt.Color(255, 255, 255));
+        pMenciones.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        pMenciones.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                pMencionesMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                pMencionesMouseExited(evt);
+            }
+        });
+
+        Menciones.setFont(new java.awt.Font("Arial Black", 0, 14)); // NOI18N
+        Menciones.setForeground(new java.awt.Color(102, 0, 153));
+        Menciones.setText("Menciones");
+
+        javax.swing.GroupLayout pMencionesLayout = new javax.swing.GroupLayout(pMenciones);
+        pMenciones.setLayout(pMencionesLayout);
+        pMencionesLayout.setHorizontalGroup(
+            pMencionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pMencionesLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addComponent(Menciones)
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
+        pMencionesLayout.setVerticalGroup(
+            pMencionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pMencionesLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Menciones)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout POpcionesLayout = new javax.swing.GroupLayout(POpciones);
+        POpciones.setLayout(POpcionesLayout);
+        POpcionesLayout.setHorizontalGroup(
+            POpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(POpcionesLayout.createSequentialGroup()
+                .addGap(151, 151, 151)
+                .addComponent(pTodas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(pMenciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(140, 140, 140))
+        );
+        POpcionesLayout.setVerticalGroup(
+            POpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, POpcionesLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(POpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pMenciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pTodas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(Menu2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(lblFotoPerfil1, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(44, 44, 44))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(71, 71, 71)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(ScrollPanel)
+                            .addComponent(POpciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap(75, Short.MAX_VALUE))))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(Menu2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(lblFotoPerfil1, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(POpciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(ScrollPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 520, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 538, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 360, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void LogoTwitter2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoTwitter2MouseClicked
+        Home h = new Home();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_LogoTwitter2MouseClicked
+
+    private void pInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseClicked
+        Home h = new Home();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_pInicioMouseClicked
+
+    private void pInicioMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseEntered
+        pInicio.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pInicioMouseEntered
+
+    private void pInicioMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseExited
+        pInicio.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pInicioMouseExited
+
+    private void pPerfilMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pPerfilMouseClicked
+
+    private void pPerfilMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseEntered
+        pPerfil.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pPerfilMouseEntered
+
+    private void pPerfilMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseExited
+        pPerfil.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pPerfilMouseExited
+
+    private void pNotificacionesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pNotificacionesMouseClicked
+
+    private void pNotificacionesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseEntered
+        pNotificaciones.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pNotificacionesMouseEntered
+
+    private void pNotificacionesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseExited
+        pNotificaciones.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pNotificacionesMouseExited
+
+    private void pExplorarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseClicked
+        BusquedaTwitter b = new BusquedaTwitter();
+        b.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_pExplorarMouseClicked
+
+    private void pExplorarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseEntered
+        pExplorar.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pExplorarMouseEntered
+
+    private void pExplorarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseExited
+        pExplorar.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pExplorarMouseExited
+
+    private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
+        lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
+        lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
+    }//GEN-LAST:event_lblFotoPerfilAncestorAdded
+
+    private void lblFotoPerfil1AncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfil1AncestorAdded
+        lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
+        lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
+    }//GEN-LAST:event_lblFotoPerfil1AncestorAdded
+
+    private void pTodasMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pTodasMouseEntered
+        pTodas.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pTodasMouseEntered
+
+    private void pTodasMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pTodasMouseExited
+        pTodas.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pTodasMouseExited
+
+    private void pMencionesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pMencionesMouseEntered
+        pMenciones.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pMencionesMouseEntered
+
+    private void pMencionesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pMencionesMouseExited
+        pMenciones.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pMencionesMouseExited
 
     /**
      * @param args the command line arguments
@@ -78,5 +539,27 @@ public class notificaciones extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel Explorar;
+    private javax.swing.JLabel Inicio;
+    private javax.swing.JLabel LogoTwitter2;
+    private javax.swing.JLabel Menciones;
+    private javax.swing.JPanel Menu2;
+    private javax.swing.JLabel Notificaciones;
+    private javax.swing.JPanel PNotificaciones;
+    private javax.swing.JPanel POpciones;
+    private javax.swing.JLabel Perfil;
+    private javax.swing.JScrollPane ScrollPanel;
+    private javax.swing.JLabel Todas;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JLabel lblFotoPerfil;
+    private javax.swing.JLabel lblFotoPerfil1;
+    private javax.swing.JPanel pExplorar;
+    private javax.swing.JPanel pInicio;
+    private javax.swing.JPanel pMenciones;
+    private javax.swing.JPanel pNotificaciones;
+    private javax.swing.JPanel pPerfil;
+    private javax.swing.JPanel pTodas;
     // End of variables declaration//GEN-END:variables
 }
