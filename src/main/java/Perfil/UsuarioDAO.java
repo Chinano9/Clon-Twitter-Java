@@ -1,20 +1,21 @@
-package PantallaInicio;
-
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+package Perfil; // Asegúrate de que el paquete sea correcto
 
-
-import java.sql.ResultSet;
-import java.sql.SQLException; // 👈 Agregar este si falta
-import java.util.Arrays;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
-
-
+import PantallaInicio.BasededatosTwitter; // 👈 Asegúrate de que esta clase existe y tiene getConnection()
 
 public class UsuarioDAO {
    public byte[] getFotoPerfil(int idUsuario) {

@@ -1,18 +1,23 @@
-package PantallaInicio;
+package runproyectlogin;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
+/**
+ *
+ * @author Macke
+ */
 
+import PantallaInicio.*;
 import java.sql.ResultSet;
 import java.sql.SQLException; // 👈 Agregar este si falta
+import PantallaInicio.BasededatosTwitter; // 👈 Asegúrate de que esta clase existe y tiene getConnection()
 import java.util.Arrays;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
 
 
 

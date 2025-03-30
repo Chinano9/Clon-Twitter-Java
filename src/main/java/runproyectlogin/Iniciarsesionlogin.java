@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import PantallaInicio.UsuarioSesion; // Agregar esta línea arriba de la clase
 
+import Perfil.EdiPerfil;
 
 public class Iniciarsesionlogin extends javax.swing.JFrame {
 
@@ -280,11 +281,10 @@ Connection conexion = BasededatosTwitter.getConnection();
             return;
         }
 
-        // Verificar si el usuario existe en la base de datos
-        int idUsuario = obtenerIdUsuario(email, password);  // Método que obtiene el ID del usuario
-
-        if (idUsuario != -1) {  // Si el usuario existe en la base de datos
-            JOptionPane.showMessageDialog(this, "¡Bienvenido!");
+        int idUsuario = obtenerIdUsuario(email, password);
+if (idUsuario != -1) {
+    System.out.println("ID del usuario obtenido: " + idUsuario); // Depuración
+    UsuarioSesion.setUsuarioId(idUsuario);
 
             // Guardar el ID del usuario en sesión
             UsuarioSesion.setUsuarioId(idUsuario); 

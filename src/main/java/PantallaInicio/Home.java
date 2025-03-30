@@ -5,6 +5,7 @@
 package PantallaInicio;
 import java.awt.Insets;  // Este es el import necesario para setMargin()
 import Explorar.BusquedaTwitter;
+
 import java.awt.Dimension;
 import Explorar.BusquedaTwitter;
 import javax.swing.SwingConstants;
@@ -47,8 +48,10 @@ import java.util.HashMap;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import Explorar.BusquedaTwitter;
-
+import Perfil.EdiPerfil;
 import java.util.Base64;
+import runproyectlogin.Iniciarsesionlogin;
+import Perfil.EdiPerfil;
 
 import java.io.FileInputStream;
 import java.io.ByteArrayOutputStream;
@@ -1410,6 +1413,73 @@ private void cargarTrendingTopics() {
         JOptionPane.showMessageDialog(this, "Error al cargar trending topics");
     }
 }
+
+ private void agregarMenuFotoPerfil() {
+        lblFotoPerfil.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                mostrarMenuOpciones(evt);
+            }
+        });
+    }
+ 
+ private void mostrarMenuOpciones(java.awt.event.MouseEvent evt) {
+        JPopupMenu menu = new JPopupMenu();
+        
+        // Botón Configuración
+        JMenuItem itemConfiguracion = new JMenuItem("Configuración");
+        itemConfiguracion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                abrirConfiguracion();
+            }
+        });
+        menu.add(itemConfiguracion);
+        
+        // Separador
+        menu.addSeparator();
+        
+        // Botón Cerrar Sesión
+        JMenuItem itemCerrarSesion = new JMenuItem("Cerrar Sesión");
+        itemCerrarSesion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cerrarSesion();
+            }
+        });
+        menu.add(itemCerrarSesion);
+        
+        // Mostrar el menú en la posición del clic
+        menu.show(lblFotoPerfil, evt.getX(), evt.getY());
+    }
+ 
+private void abrirConfiguracion() {
+    EdiPerfil editarPerfil = new EdiPerfil();
+    editarPerfil.setLocationRelativeTo(this);
+    editarPerfil.setVisible(true);
+}
+
+     private void cerrarSesion() {
+        int opcion = JOptionPane.showConfirmDialog(
+            this, 
+            "¿Estás seguro que deseas cerrar sesión?", 
+            "Confirmar Cierre de Sesión", 
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+        );
+        
+        if (opcion == JOptionPane.YES_OPTION) {
+            // Cerrar la ventana actual
+            this.dispose();
+            
+            // Abrir el formulario de login
+            EventQueue.invokeLater(() -> {
+                Iniciarsesionlogin login = new Iniciarsesionlogin();
+                login.setVisible(true);
+                login.setLocationRelativeTo(null); // Centrar en pantalla
+            });
+            
+            // Aquí puedes agregar lógica adicional de cierre de sesión
+            // como limpiar variables de sesión, etc.
+        }
+    }
     /**
      * Creates new form perfilVisual
      */
@@ -1417,6 +1487,7 @@ public Home() {
     initComponents();  // Método generado por NetBeans GUI Builder
           cargarFotoPerfil(); // Llamamos al método para cargar la imagen de perfil
    cargarTrendingTopics(); 
+        agregarMenuFotoPerfil();
 
         // 🔹 Cargar los tweets al iniciar
         cargarTweets();
