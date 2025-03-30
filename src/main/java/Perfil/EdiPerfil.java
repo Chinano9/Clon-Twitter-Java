@@ -119,21 +119,31 @@ public class EdiPerfil extends javax.swing.JFrame {
     private int idUsuario;
 private BufferedImage fotoPerfil;
 private BufferedImage fotoPortada;
-
+    private File archivoFondoPortadaSeleccionada = null; // Variable para almacenar el archivo seleccionado
     private UsuarioDAO usuarioDAO = new UsuarioDAO();
 
        public EdiPerfil() {
         initComponents();
         this.idUsuario = UsuarioSesion.getUsuarioId();
         cargarDatosUsuario();
+         panelFotoPortada.setLayout(new BorderLayout()); // Establecer BorderLayout
+        panelFotoPortada.add(lblFondoPortada, BorderLayout.CENTER); // Agregar lblFondoPortada al panel
         cargarFotos(); // Llama al método para cargar las fotos
+        
+        // Obtener dimensiones del panel
+        int panelAncho = panelFotoPortada.getWidth();
+        int panelAlto = panelFotoPortada.getHeight();
+
+        // Mostrar dimensiones en la consola
+        System.out.println("Ancho del panel: " + panelAncho);
+        System.out.println("Alto del panel: " + panelAlto);
     }
 
-    private void cargarDatosUsuario() {
+   private void cargarDatosUsuario() {
         Connection con = BasededatosTwitter.getConnection();
         if (con != null) {
             try {
-                String sql = "SELECT nombre_usuario, alias, email, password, foto_perfil FROM usuarios WHERE id_usuarios = ?"; // Incluir foto_perfil
+                String sql = "SELECT nombre_usuario, alias, email, password, foto_perfil, fondo_portada FROM usuarios WHERE id_usuarios = ?"; // Incluir fondo_portada
                 PreparedStatement ps = con.prepareStatement(sql);
                 ps.setInt(1, idUsuario);
                 ResultSet rs = ps.executeQuery();
@@ -150,15 +160,24 @@ private BufferedImage fotoPortada;
 
                     txtPasswordAnterior.setForeground(Color.GRAY);
                     txtPasswordAnterior.setText(rs.getString("password"));
+                   
 
                     // Mostrar la foto de perfil
                     byte[] fotoPerfilBytes = rs.getBytes("foto_perfil");
                     if (fotoPerfilBytes != null && fotoPerfilBytes.length > 0) {
-                        mostrarFotoEnJPanel(panelFotoPerfil, fotoPerfilBytes);
+                        mostrarFotoEnJLabel(lblFotoPerfil, fotoPerfilBytes);
                     } else {
-                        panelFotoPerfil.removeAll();
-                        panelFotoPerfil.repaint();
-                        System.out.println("No hay foto de perfil para este usuario.");
+                        lblFotoPerfil.setIcon(null);
+                        lblFotoPerfil.setText("No hay foto de perfil");
+                    }
+
+                    // Mostrar el fondo de portada
+                    byte[] fondoPortadaBytes = rs.getBytes("fondo_portada");
+                    if (fondoPortadaBytes != null && fondoPortadaBytes.length > 0) {
+                        mostrarFondoPortadaEnJLabel(lblFondoPortada, fondoPortadaBytes);
+                    } else {
+                        lblFondoPortada.setIcon(null);
+                        lblFondoPortada.setText("No hay fondo de portada");
                     }
                 }
 
@@ -175,6 +194,28 @@ private BufferedImage fotoPortada;
         }
     }
 
+    private void mostrarFotoEnJLabel(JLabel label, byte[] fotoPerfilBytes) {
+        ImageIcon imageIcon = new ImageIcon(fotoPerfilBytes);
+        Image imagenEscalada = imageIcon.getImage().getScaledInstance(label.getWidth(), label.getHeight(), Image.SCALE_SMOOTH);
+        label.setIcon(new ImageIcon(imagenEscalada));
+        label.setText("");
+    }
+
+  private void mostrarFondoPortadaEnJLabel(JLabel label, byte[] fondoPortadaBytes) {
+        ImageIcon imageIcon = new ImageIcon(fondoPortadaBytes);
+        Image imagenOriginal = imageIcon.getImage();
+
+        // Establecer ancho y alto del icono
+        int nuevoAncho = 680; // Ancho del panel
+        int nuevoAlto = 122; // Alto del panel
+
+        Image imagenEscalada = imagenOriginal.getScaledInstance(nuevoAncho, nuevoAlto, Image.SCALE_SMOOTH);
+        label.setIcon(new ImageIcon(imagenEscalada));
+        label.setText("");
+    }
+
+
+ 
     // Método para mostrar la foto en el JPanel
     private void mostrarFotoEnJPanel(JPanel panel, byte[] imageData) {
         try {
@@ -234,7 +275,7 @@ private BufferedImage fotoPortada;
         }
     }
           
-      private void actualizarDatosUsuario() {
+private void actualizarDatosUsuario() {
         String antiguaPassword = new String(txtPasswordAnterior.getPassword());
         String nuevaPassword = new String(txtPasswordNueva.getPassword());
         String confirmarPassword = new String(txtConfirmarPassword.getPassword());
@@ -254,25 +295,54 @@ private BufferedImage fotoPortada;
 
         System.out.println("ID del usuario a actualizar: " + idUsuario); // Depuración
 
-       Connection con = BasededatosTwitter.getConnection();
+        Connection con = BasededatosTwitter.getConnection();
         if (con != null) {
+            FileInputStream fisFondoPortada = null; // Declarar fisFondoPortada aquí
             try {
-                String sql = "UPDATE usuarios SET nombre_usuario = ?, alias = ?, email = ?, password = ?, foto_perfil = ? WHERE id_usuarios = ?";
+                String sql = "UPDATE usuarios SET nombre_usuario = ?, alias = ?, email = ?, password = ?, foto_perfil = ?, fondo_portada = ? WHERE id_usuarios = ?"; // Incluir fondo_portada
                 PreparedStatement ps = con.prepareStatement(sql);
-                ps.setString(1, txtNombreUsuario.getText());
-                ps.setString(2, txtAlias.getText());
-                ps.setString(3, txtEmail.getText());
-                ps.setString(4, nuevaPassword);
 
-                byte[] imagenBytes = null;
+                // Obtener valores existentes de la base de datos
+                String nombreUsuarioExistente = obtenerValorExistente("nombre_usuario", idUsuario);
+                String aliasExistente = obtenerValorExistente("alias", idUsuario);
+                String emailExistente = obtenerValorExistente("email", idUsuario);
+                String passwordExistente = obtenerValorExistente("password", idUsuario);
+
+                // Establecer valores solo si no están vacíos o si se ha seleccionado un archivo
+                ps.setString(1, txtNombreUsuario.getText().isEmpty() ? nombreUsuarioExistente : txtNombreUsuario.getText());
+                ps.setString(2, txtAlias.getText().isEmpty() ? aliasExistente : txtAlias.getText());
+                ps.setString(3, txtEmail.getText().isEmpty() ? emailExistente : txtEmail.getText());
+                ps.setString(4, nuevaPassword.isEmpty() ? passwordExistente : nuevaPassword);
+
+               byte[] imagenBytes = null;
                 if (fotoPerfil != null) {
                     imagenBytes = convertirImagenABytes(fotoPerfil);
+                    ps.setBytes(5, imagenBytes); // Convertir la imagen a bytes
+                } else {
+                    // Mantener el valor existente si no se selecciona imagen
+                    ps.setBytes(5, obtenerBytesExistentes("foto_perfil", idUsuario));
                 }
 
-                ps.setBytes(5, imagenBytes); // Convertir la imagen a bytes
-                ps.setInt(6, idUsuario);
+               
+                if (archivoFondoPortadaSeleccionada != null) {
+                    System.out.println("Ruta del archivo de portada: " + archivoFondoPortadaSeleccionada.getAbsolutePath());
+                    System.out.println("Tamaño del archivo de portada: " + archivoFondoPortadaSeleccionada.length());
+                    fisFondoPortada = new FileInputStream(archivoFondoPortadaSeleccionada);
+                    ps.setBinaryStream(6, fisFondoPortada, (int) archivoFondoPortadaSeleccionada.length());
+                } else {
+                    // Solo mantener el valor existente si ya hay un valor en la base de datos
+                    if (obtenerBytesExistentes("fondo_portada", idUsuario) != null) {
+                        ps.setBytes(6, obtenerBytesExistentes("fondo_portada", idUsuario));
+                    } else {
+                        ps.setNull(6, java.sql.Types.BLOB); // Establecer a NULL si no hay valor existente
+                    }
+                }
+                System.out.println("Consulta SQL: " + ps.toString());
+                
+                ps.setInt(7, idUsuario);
 
                 int filasAfectadas = ps.executeUpdate();
+                System.out.println("Filas afectadas: " + filasAfectadas); // Depuración
 
                 if (filasAfectadas > 0) {
                     JOptionPane.showMessageDialog(this, "Datos actualizados correctamente.");
@@ -283,14 +353,46 @@ private BufferedImage fotoPortada;
                 ps.close();
                 con.close();
 
-            } catch (SQLException e) {
+            } catch (SQLException | FileNotFoundException e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Error al actualizar datos.");
+            } finally {
+                try {
+                    if (fisFondoPortada != null) {
+                        fisFondoPortada.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         } else {
             JOptionPane.showMessageDialog(this, "Error de conexión a la base de datos.");
         }
     }
+
+    // Método para obtener el valor existente de un campo en la base de datos
+    private String obtenerValorExistente(String columna, int idUsuario) {
+        Connection con = BasededatosTwitter.getConnection();
+        String valorExistente = null;
+        if (con != null) {
+            try {
+                String sql = "SELECT " + columna + " FROM usuarios WHERE id_usuarios = ?";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setInt(1, idUsuario);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    valorExistente = rs.getString(columna);
+                }
+                rs.close();
+                ps.close();
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return valorExistente;
+    }
+
 
     // Método para convertir BufferedImage a byte[]
     private byte[] convertirImagenABytes(BufferedImage image) {
@@ -310,7 +412,29 @@ private BufferedImage fotoPortada;
     }
 
     
-     
+     // Método para obtener los bytes existentes de una imagen en la base de datos
+    private byte[] obtenerBytesExistentes(String columna, int idUsuario) {
+        Connection con = BasededatosTwitter.getConnection();
+        byte[] bytesExistentes = null;
+        if (con != null) {
+            try {
+                String sql = "SELECT " + columna + " FROM usuarios WHERE id_usuarios = ?";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setInt(1, idUsuario);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    bytesExistentes = rs.getBytes(columna);
+                }
+                rs.close();
+                ps.close();
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return bytesExistentes;
+    }
+
     // Método para obtener la contraseña antigua de la base de datos
 private String obtenerContraseñaAntigua(int idUsuario) {
     String contraseñaAntigua = null;
@@ -340,29 +464,32 @@ private String obtenerContraseñaAntigua(int idUsuario) {
     return contraseñaAntigua;
 }
     
-   private void seleccionarFoto(JPanel panel, String tipoFoto) {
-    JFileChooser fileChooser = new JFileChooser();
-    FileNameExtensionFilter filter = new FileNameExtensionFilter("Imágenes", "jpg", "jpeg", "png", "gif");
-    fileChooser.setFileFilter(filter);
+  private File seleccionarFoto(JPanel panel, String tipoFoto) { // Usar JPanel en lugar de JLabel
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Imágenes", "jpg", "jpeg", "png", "gif");
+        fileChooser.setFileFilter(filter);
 
-    int returnVal = fileChooser.showOpenDialog(this);
-    if (returnVal == JFileChooser.APPROVE_OPTION) {
-        File selectedFile = fileChooser.getSelectedFile();
-        try {
-            BufferedImage image = ImageIO.read(selectedFile);
-            mostrarFoto(panel, image);
-
-            if (tipoFoto.equals("foto de perfil")) {
-                fotoPerfil = image;
-            } else {
-                fotoPortada = image;
+        int returnVal = fileChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try {
+                BufferedImage image = ImageIO.read(selectedFile);
+                mostrarFotoEnJPanel(panel, convertirImagenABytes(image)); // Usar mostrarFotoEnJPanel
+                if (tipoFoto.equals("foto de perfil")) {
+                    fotoPerfil = image;
+                } else {
+                    fotoPortada = image;
+                }
+                return selectedFile; // Devuelve el archivo seleccionado
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error al cargar la imagen.");
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error al cargar la imagen.");
         }
+        return null; // Devuelve null si no se selecciona un archivo
     }
-}
+
+   
    
    private void mostrarFoto(JPanel panel, BufferedImage image) {
     // Redimensionar la imagen para ajustarla al JPanel
@@ -401,7 +528,6 @@ private String obtenerContraseñaAntigua(int idUsuario) {
         Notificaciones = new javax.swing.JLabel();
         pExplorar = new javax.swing.JPanel();
         Explorar = new javax.swing.JLabel();
-        lblFotoPerfil = new javax.swing.JLabel();
         panelDatos = new javax.swing.JPanel();
         Panel1 = new javax.swing.JPanel();
         Tacha = new javax.swing.JLabel();
@@ -410,6 +536,7 @@ private String obtenerContraseñaAntigua(int idUsuario) {
         btnGuardar = new javax.swing.JButton();
         Portada = new javax.swing.JPanel();
         panelFotoPortada = new javax.swing.JPanel();
+        lblFondoPortada = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -420,12 +547,13 @@ private String obtenerContraseñaAntigua(int idUsuario) {
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        panelFotoPerfil = new javax.swing.JPanel();
         txtPasswordNueva = new javax.swing.JPasswordField();
         txtConfirmarPassword = new javax.swing.JPasswordField();
         txtPasswordAnterior = new javax.swing.JPasswordField();
         btnSeleccionarPortada = new javax.swing.JButton();
         btnSeleccionarPerfil = new javax.swing.JButton();
+        lblFotoPerfil = new javax.swing.JLabel();
+        panelFotoPerfil = new javax.swing.JPanel();
 
         jLabel1.setText("jLabel1");
 
@@ -593,34 +721,18 @@ private String obtenerContraseñaAntigua(int idUsuario) {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        lblFotoPerfil.setText("Foto de perrfil");
-        lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
-        lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
-            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                lblFotoPerfilAncestorAdded(evt);
-            }
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
-            }
-        });
-
         javax.swing.GroupLayout Menu2Layout = new javax.swing.GroupLayout(Menu2);
         Menu2.setLayout(Menu2Layout);
         Menu2Layout.setHorizontalGroup(
             Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Menu2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(LogoTwitter2)
-                .addGap(43, 43, 43))
             .addComponent(pInicio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(pPerfil, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(pNotificaciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(pExplorar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(Menu2Layout.createSequentialGroup()
-                .addGap(41, 41, 41)
-                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Menu2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(LogoTwitter2)
+                .addGap(43, 43, 43))
         );
         Menu2Layout.setVerticalGroup(
             Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -635,9 +747,7 @@ private String obtenerContraseñaAntigua(int idUsuario) {
                 .addComponent(pExplorar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(pNotificaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(113, 113, 113)
-                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(502, Short.MAX_VALUE))
         );
 
         panelDatos.setBackground(new java.awt.Color(246, 234, 250));
@@ -716,15 +826,20 @@ private String obtenerContraseñaAntigua(int idUsuario) {
             }
         });
 
+        lblFondoPortada.setText("jLabel8");
+
         javax.swing.GroupLayout panelFotoPortadaLayout = new javax.swing.GroupLayout(panelFotoPortada);
         panelFotoPortada.setLayout(panelFotoPortadaLayout);
         panelFotoPortadaLayout.setHorizontalGroup(
             panelFotoPortadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addComponent(lblFondoPortada, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         panelFotoPortadaLayout.setVerticalGroup(
             panelFotoPortadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 122, Short.MAX_VALUE)
+            .addGroup(panelFotoPortadaLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblFondoPortada, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout PortadaLayout = new javax.swing.GroupLayout(Portada);
@@ -780,28 +895,6 @@ private String obtenerContraseñaAntigua(int idUsuario) {
         jLabel7.setForeground(new java.awt.Color(153, 153, 153));
         jLabel7.setText("Confirmar contraseña");
 
-        panelFotoPerfil.setBackground(new java.awt.Color(255, 255, 255));
-        panelFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
-            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                panelFotoPerfilAncestorAdded(evt);
-            }
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
-            }
-        });
-
-        javax.swing.GroupLayout panelFotoPerfilLayout = new javax.swing.GroupLayout(panelFotoPerfil);
-        panelFotoPerfil.setLayout(panelFotoPerfilLayout);
-        panelFotoPerfilLayout.setHorizontalGroup(
-            panelFotoPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-        panelFotoPerfilLayout.setVerticalGroup(
-            panelFotoPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-
         txtPasswordAnterior.setText("jPasswordField1");
 
         btnSeleccionarPortada.setText("jButton1");
@@ -815,6 +908,18 @@ private String obtenerContraseñaAntigua(int idUsuario) {
         btnSeleccionarPerfil.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSeleccionarPerfilActionPerformed(evt);
+            }
+        });
+
+        lblFotoPerfil.setText("Foto de perrfil");
+        lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
+        lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                lblFotoPerfilAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
             }
         });
 
@@ -833,11 +938,11 @@ private String obtenerContraseñaAntigua(int idUsuario) {
                         .addComponent(Portada, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(panelDatosLayout.createSequentialGroup()
                             .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(panelFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGroup(panelDatosLayout.createSequentialGroup()
                                     .addGap(9, 9, 9)
-                                    .addComponent(btnSeleccionarPerfil)))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(btnSeleccionarPerfil))
+                                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(26, 26, 26)
                             .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelDatosLayout.createSequentialGroup()
                                     .addComponent(txtPasswordAnterior)
@@ -869,13 +974,15 @@ private String obtenerContraseñaAntigua(int idUsuario) {
                 .addComponent(Portada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnSeleccionarPortada)
-                .addGap(5, 5, 5)
                 .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelDatosLayout.createSequentialGroup()
+                    .addGroup(panelDatosLayout.createSequentialGroup()
+                        .addGap(46, 46, 46)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtNombreUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(panelFotoPerfil, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelDatosLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
@@ -903,6 +1010,28 @@ private String obtenerContraseñaAntigua(int idUsuario) {
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
+        panelFotoPerfil.setBackground(new java.awt.Color(255, 255, 255));
+        panelFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                panelFotoPerfilAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+
+        javax.swing.GroupLayout panelFotoPerfilLayout = new javax.swing.GroupLayout(panelFotoPerfil);
+        panelFotoPerfil.setLayout(panelFotoPerfilLayout);
+        panelFotoPerfilLayout.setHorizontalGroup(
+            panelFotoPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+        panelFotoPerfilLayout.setVerticalGroup(
+            panelFotoPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 11, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout panelPrincipalLayout = new javax.swing.GroupLayout(panelPrincipal);
         panelPrincipal.setLayout(panelPrincipalLayout);
         panelPrincipalLayout.setHorizontalGroup(
@@ -910,7 +1039,9 @@ private String obtenerContraseñaAntigua(int idUsuario) {
             .addGroup(panelPrincipalLayout.createSequentialGroup()
                 .addComponent(Menu2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(44, 44, 44)
-                .addComponent(panelDatos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(panelDatos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(panelFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(124, Short.MAX_VALUE))
         );
         panelPrincipalLayout.setVerticalGroup(
@@ -919,7 +1050,9 @@ private String obtenerContraseñaAntigua(int idUsuario) {
             .addGroup(panelPrincipalLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(panelDatos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(panelFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(16, 16, 16))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -1022,7 +1155,8 @@ private boolean mostrarContraseña = false;
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnSeleccionarPortadaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarPortadaActionPerformed
-            seleccionarFoto(panelFotoPortada, "foto de portada");
+        archivoFondoPortadaSeleccionada = seleccionarFoto(panelFotoPortada, "foto de portada");
+        
     }//GEN-LAST:event_btnSeleccionarPortadaActionPerformed
 
     private void btnSeleccionarPerfilActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarPerfilActionPerformed
@@ -1033,15 +1167,14 @@ private boolean mostrarContraseña = false;
         // TODO add your handling code here:
     }//GEN-LAST:event_panelFotoPortadaAncestorAdded
 
-    private void panelFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_panelFotoPerfilAncestorAdded
-               panelFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
-
-    }//GEN-LAST:event_panelFotoPerfilAncestorAdded
-
     private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
         lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
         lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
     }//GEN-LAST:event_lblFotoPerfilAncestorAdded
+
+    private void panelFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_panelFotoPerfilAncestorAdded
+        panelFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
+    }//GEN-LAST:event_panelFotoPerfilAncestorAdded
 
     /**
      * @param args the command line arguments
@@ -1101,6 +1234,7 @@ private boolean mostrarContraseña = false;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel lblFondoPortada;
     private javax.swing.JLabel lblFotoPerfil;
     private javax.swing.JPanel pExplorar;
     private javax.swing.JPanel pInicio;
