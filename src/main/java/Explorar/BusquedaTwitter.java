@@ -1257,7 +1257,7 @@ public BusquedaTwitter() {
         ContenedordeExplorer.setLayout(ContenedordeExplorerLayout);
         ContenedordeExplorerLayout.setHorizontalGroup(
             ContenedordeExplorerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 343, Short.MAX_VALUE)
+            .addGap(0, 481, Short.MAX_VALUE)
         );
         ContenedordeExplorerLayout.setVerticalGroup(
             ContenedordeExplorerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1271,7 +1271,7 @@ public BusquedaTwitter() {
             .addGroup(NoticiasDelDiaLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(ContenedordeExplorer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(278, Short.MAX_VALUE))
+                .addContainerGap(140, Short.MAX_VALUE))
         );
         NoticiasDelDiaLayout.setVerticalGroup(
             NoticiasDelDiaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

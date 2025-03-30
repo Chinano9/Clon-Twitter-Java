@@ -28,21 +28,21 @@ public class UsuarioDAO {
 
     try (Connection con = BasededatosTwitter.getConnection();
          PreparedStatement ps = con.prepareStatement(query)) {
-        
+
         ps.setInt(1, idUsuario);
         ResultSet rs = ps.executeQuery();
-        
-       if (rs.next()) {
-    foto = rs.getBytes("foto_perfil");
-    
-    if (foto != null && foto.length > 0) {
-        System.out.println("Imagen obtenida para ID: " + idUsuario);
-    } else {
-        System.out.println("No hay imagen para este usuario.");
-    }
-} else {
-    System.out.println("Usuario no encontrado.");
-}
+
+        if (rs.next()) {
+            foto = rs.getBytes("foto_perfil");
+
+            if (foto != null && foto.length > 0) {
+                System.out.println("Imagen obtenida para ID: " + idUsuario);
+            } else {
+                System.out.println("No hay imagen para este usuario.");
+            }
+        } else {
+            System.out.println("Usuario no encontrado.");
+        }
 
     } catch (Exception e) {
         e.printStackTrace();

@@ -5,7 +5,7 @@
 package PantallaInicio;
 import java.awt.Insets;  // Este es el import necesario para setMargin()
 import Explorar.BusquedaTwitter;
-
+import java.util.ArrayList; // Importa ArrayList
 import java.awt.Dimension;
 import Explorar.BusquedaTwitter;
 import javax.swing.SwingConstants;
@@ -52,7 +52,7 @@ import Perfil.EdiPerfil;
 import java.util.Base64;
 import runproyectlogin.Iniciarsesionlogin;
 import Perfil.EdiPerfil;
-
+import Perfilusuario.perfilusuario;
 import java.io.FileInputStream;
 import java.io.ByteArrayOutputStream;
 
@@ -86,6 +86,21 @@ public class Home extends javax.swing.JFrame {
 private javax.swing.JTextArea txtTweet;
 private File archivoImagen; 
 
+
+
+private class Tweet { // Clase interna para representar un tweet
+    int usuarioId;
+    String nombreUsuario;
+    String alias;
+    // ... (Otros campos que necesites)
+
+    public Tweet(int usuarioId, String nombreUsuario, String alias) {
+        this.usuarioId = usuarioId;
+        this.nombreUsuario = nombreUsuario;
+        this.alias = alias;
+        // ...
+    }
+}
 
 private void cargarFotoPerfil() {
     int idUsuario = UsuarioSesion.getUsuarioId();  // Obtener el ID del usuario actual
@@ -560,14 +575,14 @@ private void editarTweet(int id_tweet, String contenidoNuevo, byte[] multimediaB
 }
 
 
-
+private ArrayList<Tweet> tweets = new ArrayList<>(); // Lista para guardar los tweets
 
 private void cargarTweets() {
     try (Connection conexion = BasededatosTwitter.getConnection()) {
         String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion, t.multimedia, t.id_tweet, " +
-             "t.usuario_id, u.foto_perfil " +  // Añadido este campo
-             "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios " +
-             "ORDER BY t.fecha_creacion DESC";
+                     "t.usuario_id, u.foto_perfil " +
+                     "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios " +
+                     "ORDER BY t.fecha_creacion DESC";
 
         PreparedStatement ps = conexion.prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
@@ -575,17 +590,21 @@ private void cargarTweets() {
         panelContenedorTweets.removeAll();
         panelContenedorTweets.setLayout(new BoxLayout(panelContenedorTweets, BoxLayout.Y_AXIS));
 
+        tweets.clear(); // Limpiar la lista antes de cargar nuevos tweets
+
         while (rs.next()) {
-            String nombre = rs.getString("nombre_usuario");
+            int usuarioId = rs.getInt("usuario_id");
+            String nombreUsuario = rs.getString("nombre_usuario");
             String alias = rs.getString("alias");
             String contenido = rs.getString("contenido");
             String fecha = rs.getString("fecha_creacion");
             Blob multimedia = rs.getBlob("multimedia");
             int idTweet = rs.getInt("id_tweet");
-            int idAutor = rs.getInt("usuario_id");
             Blob fotoPerfilBlob = rs.getBlob("foto_perfil");
 
-            boolean esMio = (idAutor == UsuarioSesion.getUsuarioId());
+            tweets.add(new Tweet(usuarioId, nombreUsuario, alias)); // Crear y agregar Tweet a la lista
+
+            boolean esMio = (usuarioId == UsuarioSesion.getUsuarioId());
 
             JPanel panelTweet = new JPanel(new BorderLayout());
             panelTweet.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
@@ -609,9 +628,27 @@ private void cargarTweets() {
                 }
             }
 
-            // Añadir nombre, alias y fecha
-            JLabel labelUsuario = new JLabel("<html><b>" + nombre + "</b> @" + alias + " 🕒 " + fecha + "</html>");
+           // Añadir nombre, alias y fecha
+            JLabel labelUsuario = new JLabel("<html><b>" + nombreUsuario + "</b> @" + alias + " 🕒 " + fecha + "</html>");
             panelUsuario.add(labelUsuario);
+
+            JLabel lblNombreUsuario = new JLabel(nombreUsuario + " @" + alias);
+            lblNombreUsuario.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            // Agregar MouseListener para abrir el perfil del usuario
+            lblNombreUsuario.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    // Obtener el usuarioId del Tweet correspondiente al JLabel clickeado
+                    for (Tweet tweet : tweets) {
+                        if (tweet.nombreUsuario.equals(nombreUsuario) && tweet.alias.equals(alias)) {
+                            abrirPerfilUsuario(tweet.usuarioId);
+                            return; // Importante: salir del bucle después de encontrar el Tweet
+                        }
+                    }
+                }
+            });
+            panelUsuario.add(lblNombreUsuario);
             panelTweet.add(panelUsuario, BorderLayout.NORTH);
 
             // Contenido del tweet
@@ -757,7 +794,10 @@ private void cargarTweets() {
 }
 
 
-
+private void abrirPerfilUsuario(int idUsuario) {
+    perfilusuario perfil = new perfilusuario(idUsuario); // Abre el perfil del usuario con el idUsuario
+    perfil.setVisible(true);
+}
 
 private String obtenerMultimediaDeTweet(int id_tweet) {
     String rutaMultimedia = null;
@@ -1446,10 +1486,23 @@ private void cargarTrendingTopics() {
         });
         menu.add(itemCerrarSesion);
         
+         // Botón Ver Perfil
+        JMenuItem itemVerPerfil = new JMenuItem("Ver Perfil");
+        itemVerPerfil.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                abrirPerfilUsuario();
+            }
+        });
+        menu.add(itemVerPerfil);
+        
         // Mostrar el menú en la posición del clic
         menu.show(lblFotoPerfil, evt.getX(), evt.getY());
     }
- 
+  private void abrirPerfilUsuario() {
+        perfilusuario perfilUsuario = new perfilusuario(); // Crea una instancia de Perfilusuario
+        perfilUsuario.setLocationRelativeTo(this); // Centra la ventana en la pantalla
+        perfilUsuario.setVisible(true); // Muestra la ventana
+    }
 private void abrirConfiguracion() {
     EdiPerfil editarPerfil = new EdiPerfil();
     editarPerfil.setLocationRelativeTo(this);
