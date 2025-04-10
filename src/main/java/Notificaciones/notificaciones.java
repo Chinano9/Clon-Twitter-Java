@@ -75,6 +75,7 @@ import java.util.HashMap;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import Explorar.BusquedaTwitter;
+import Perfil.EdiPerfil;
 import java.awt.Dimension;
 
 
@@ -109,11 +110,13 @@ import javax.swing.BoxLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Cursor; 
+import runproyectlogin.Iniciarsesionlogin;
 /**
  *
  * @author Jaime Paredes
  */
 public class notificaciones extends javax.swing.JFrame {
+    private int usuarioIdPerfilMostrado = -1; // Variable global para almacenar el usuarioId del perfil mostrado
 
     Color colorNormalMenu = new Color(246,234,250);
     Color colorOscuroMenu = new Color(242, 226, 248);
@@ -121,6 +124,9 @@ public class notificaciones extends javax.swing.JFrame {
  public notificaciones() {
         System.out.println("Antes de initComponents(): ScrollPanel = " + ScrollPanel);
         initComponents();
+                  cargarFotoPerfil(); 
+agregarMenuFotoPerfil();
+
         System.out.println("Después de initComponents(): ScrollPanel = " + ScrollPanel);
         panelContenedorNotificaciones = new JPanel();
         panelContenedorNotificaciones.setLayout(new BoxLayout(panelContenedorNotificaciones, BoxLayout.Y_AXIS));
@@ -128,7 +134,35 @@ public class notificaciones extends javax.swing.JFrame {
         ScrollPanel.setViewportView(panelContenedorNotificaciones);
         mostrarTodasNotificaciones();
     }
- 
+ private void cargarFotoPerfil() {
+    int idUsuario = UsuarioSesion.getUsuarioId();  // Obtener el ID del usuario actual
+    PantallaInicio.UsuarioDAO usuarioDAO = new PantallaInicio.UsuarioDAO(); // Instancia del DAO
+    
+    byte[] imgBytes = usuarioDAO.getFotoPerfil(idUsuario); // Obtener la imagen desde la base de datos
+
+    if (imgBytes != null && imgBytes.length > 0) {
+        // Si la imagen está presente, crear una ImageIcon
+        ImageIcon imageIcon = new ImageIcon(imgBytes);
+        
+        // Verificar que lblFotoPerfil tenga un tamaño válido
+        int width = lblFotoPerfil.getWidth();
+        int height = lblFotoPerfil.getHeight();
+        
+        if (width > 0 && height > 0) {
+            // Escalar la imagen solo si las dimensiones son válidas
+            Image image = imageIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH); 
+            lblFotoPerfil.setIcon(new ImageIcon(image)); // Establecer la imagen en el JLabel
+        } else {
+            System.out.println("Las dimensiones del JLabel no son válidas.");
+        }
+    } else {
+        // Si no hay imagen, mostrar un mensaje o imagen por defecto
+        lblFotoPerfil.setIcon(null); // O puedes poner una imagen por defecto si lo prefieres
+        System.out.println("No se encontró imagen para el usuario.");
+    }
+}
+
+
 private void mostrarTodasNotificaciones() {
     panelContenedorNotificaciones.removeAll();
     cargarNotificaciones("todas");
@@ -211,6 +245,93 @@ private void mostrarMenciones() {
         JOptionPane.showMessageDialog(this, "Error al cargar notificaciones", "Error", JOptionPane.ERROR_MESSAGE);
     }
 }
+private void abrirPerfilUsuario(int idUsuario) {
+            this.dispose();
+    perfilusuario perfil = new perfilusuario(idUsuario); // Abre el perfil del usuario con el idUsuario
+    perfil.setVisible(true);
+}
+
+ private void mostrarMenuOpciones(java.awt.event.MouseEvent evt) {
+        JPopupMenu menu = new JPopupMenu();
+        
+        // Botón Configuración
+        JMenuItem itemConfiguracion = new JMenuItem("Configuración");
+        itemConfiguracion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                abrirConfiguracion();
+            }
+        });
+        menu.add(itemConfiguracion);
+        
+        // Separador
+        menu.addSeparator();
+        
+        // Botón Cerrar Sesión
+        JMenuItem itemCerrarSesion = new JMenuItem("Cerrar Sesión");
+        itemCerrarSesion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cerrarSesion();
+            }
+        });
+        menu.add(itemCerrarSesion);
+        
+// Botón Ver Perfil
+JMenuItem itemVerPerfil = new JMenuItem("Ver Perfil");
+itemVerPerfil.addActionListener(new java.awt.event.ActionListener() {
+    public void actionPerformed(java.awt.event.ActionEvent evt) {
+        // Obtener el usuarioId del perfil mostrado
+        int usuarioId = usuarioIdPerfilMostrado;
+        abrirPerfilUsuario(usuarioId);
+    }
+});
+menu.add(itemVerPerfil);
+
+        // Mostrar el menú en la posición del clic
+        menu.show(lblFotoPerfil, evt.getX(), evt.getY());
+    }
+ private void mostrarMenuContextualFotoPerfil(java.awt.event.MouseEvent evt) {
+    JPopupMenu menu = new JPopupMenu();
+
+    // Opción "Ver Perfil"
+ JMenuItem itemVerPerfil = new JMenuItem("Ver Perfil");
+itemVerPerfil.addActionListener(new ActionListener() {
+    public void actionPerformed(ActionEvent evt) {
+        int usuarioId = usuarioIdPerfilMostrado; // Obtener el ID del usuario seleccionado
+        perfilusuario perfil = new perfilusuario(usuarioId); // Pasar ID al perfil
+        perfil.setVisible(true);
+    }
+});
+menu.add(itemVerPerfil);
+
+
+    // Opción "Configuración"
+    JMenuItem itemConfiguracion = new JMenuItem("Configuración");
+    itemConfiguracion.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            abrirConfiguracion();
+        }
+    });
+    menu.add(itemConfiguracion);
+
+    // Opción "Cerrar Sesión"
+    JMenuItem itemCerrarSesion = new JMenuItem("Cerrar Sesión");
+    itemCerrarSesion.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            cerrarSesion();
+        }
+    });
+    menu.add(itemCerrarSesion);
+
+    menu.show(evt.getComponent(), evt.getX(), evt.getY());
+}
+private void agregarMenuFotoPerfil() {
+    lblFotoPerfil.addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            mostrarMenuContextualFotoPerfil(evt);
+        }
+    });
+}
+
 
   private String obtenerNombreUsuario() {
         try (Connection conexion = BasededatosTwitter.getConnection()) {
@@ -226,6 +347,44 @@ private void mostrarMenciones() {
         }
         return "";
     }
+  
+  
+    private void abrirPerfilUsuario() {
+        perfilusuario perfilUsuario = new perfilusuario(); // Crea una instancia de Perfilusuario
+        perfilUsuario.setLocationRelativeTo(this); // Centra la ventana en la pantalla
+        perfilUsuario.setVisible(true); // Muestra la ventana
+    }
+private void abrirConfiguracion() {
+    EdiPerfil editarPerfil = new EdiPerfil();
+    editarPerfil.setLocationRelativeTo(this);
+    editarPerfil.setVisible(true);
+}
+
+     private void cerrarSesion() {
+        int opcion = JOptionPane.showConfirmDialog(
+            this, 
+            "¿Estás seguro que deseas cerrar sesión?", 
+            "Confirmar Cierre de Sesión", 
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+        );
+        
+        if (opcion == JOptionPane.YES_OPTION) {
+            // Cerrar la ventana actual
+            this.dispose();
+            
+            // Abrir el formulario de login
+            EventQueue.invokeLater(() -> {
+                Iniciarsesionlogin login = new Iniciarsesionlogin();
+                login.setVisible(true);
+                login.setLocationRelativeTo(null); // Centrar en pantalla
+            });
+            
+            // Aquí puedes agregar lógica adicional de cierre de sesión
+            // como limpiar variables de sesión, etc.
+        }
+    }
+     
   
       private void cargarMenciones() {
         try (Connection conexion = BasededatosTwitter.getConnection()) {
@@ -374,22 +533,20 @@ private void mostrarMenciones() {
         pInicio = new javax.swing.JPanel();
         Inicio = new javax.swing.JLabel();
         pPerfil = new javax.swing.JPanel();
-        Perfil = new javax.swing.JLabel();
         pNotificaciones = new javax.swing.JPanel();
         Notificaciones = new javax.swing.JLabel();
         pExplorar = new javax.swing.JPanel();
         Explorar = new javax.swing.JLabel();
-        lblFotoPerfil = new javax.swing.JLabel();
-        lblFotoPerfil1 = new javax.swing.JLabel();
         POpciones = new javax.swing.JPanel();
         pTodas = new javax.swing.JPanel();
-        btnTodas = new javax.swing.JButton();
         pMenciones = new javax.swing.JPanel();
-        btnMenciones = new javax.swing.JButton();
         lblAliasNombre = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         panelContenedorNotificaciones = new javax.swing.JPanel();
         ScrollPanel = new javax.swing.JScrollPane();
+        lblFotoPerfil = new javax.swing.JLabel();
+        btnTodas = new javax.swing.JButton();
+        btnMenciones = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -426,6 +583,11 @@ private void mostrarMenciones() {
         Inicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/brujula.png"))); // NOI18N
         Inicio.setText("Inicio");
         Inicio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Inicio.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                InicioMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout pInicioLayout = new javax.swing.GroupLayout(pInicio);
         pInicio.setLayout(pInicioLayout);
@@ -458,27 +620,15 @@ private void mostrarMenciones() {
             }
         });
 
-        Perfil.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
-        Perfil.setForeground(new java.awt.Color(102, 0, 153));
-        Perfil.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/perfil.png"))); // NOI18N
-        Perfil.setText("Perfil");
-        Perfil.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
         javax.swing.GroupLayout pPerfilLayout = new javax.swing.GroupLayout(pPerfil);
         pPerfil.setLayout(pPerfilLayout);
         pPerfilLayout.setHorizontalGroup(
             pPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pPerfilLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Perfil)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 0, Short.MAX_VALUE)
         );
         pPerfilLayout.setVerticalGroup(
             pPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pPerfilLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Perfil)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 42, Short.MAX_VALUE)
         );
 
         pNotificaciones.setBackground(new java.awt.Color(246, 234, 250));
@@ -500,6 +650,11 @@ private void mostrarMenciones() {
         Notificaciones.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/Notificaciones.png"))); // NOI18N
         Notificaciones.setText("Notificaciones");
         Notificaciones.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Notificaciones.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                NotificacionesMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout pNotificacionesLayout = new javax.swing.GroupLayout(pNotificaciones);
         pNotificaciones.setLayout(pNotificacionesLayout);
@@ -532,38 +687,25 @@ private void mostrarMenciones() {
             }
         });
 
+        javax.swing.GroupLayout pExplorarLayout = new javax.swing.GroupLayout(pExplorar);
+        pExplorar.setLayout(pExplorarLayout);
+        pExplorarLayout.setHorizontalGroup(
+            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        pExplorarLayout.setVerticalGroup(
+            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 42, Short.MAX_VALUE)
+        );
+
         Explorar.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
         Explorar.setForeground(new java.awt.Color(102, 0, 153));
         Explorar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/lupa.png"))); // NOI18N
         Explorar.setText("Explorar");
         Explorar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        javax.swing.GroupLayout pExplorarLayout = new javax.swing.GroupLayout(pExplorar);
-        pExplorar.setLayout(pExplorarLayout);
-        pExplorarLayout.setHorizontalGroup(
-            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pExplorarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Explorar)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        pExplorarLayout.setVerticalGroup(
-            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pExplorarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Explorar)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        lblFotoPerfil.setText("Foto de perrfil");
-        lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
-        lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
-            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                lblFotoPerfilAncestorAdded(evt);
-            }
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+        Explorar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ExplorarMouseClicked(evt);
             }
         });
 
@@ -580,8 +722,8 @@ private void mostrarMenciones() {
             .addComponent(pNotificaciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(pExplorar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(Menu2Layout.createSequentialGroup()
-                .addGap(41, 41, 41)
-                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap()
+                .addComponent(Explorar)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         Menu2Layout.setVerticalGroup(
@@ -593,26 +735,14 @@ private void mostrarMenciones() {
                 .addComponent(pInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(pPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(Explorar)
+                .addGap(9, 9, 9)
                 .addComponent(pExplorar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(pNotificaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(113, 113, 113)
-                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(174, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-
-        lblFotoPerfil1.setText("Foto de perrfil");
-        lblFotoPerfil1.setPreferredSize(new java.awt.Dimension(150, 150));
-        lblFotoPerfil1.addAncestorListener(new javax.swing.event.AncestorListener() {
-            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                lblFotoPerfil1AncestorAdded(evt);
-            }
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
-            }
-        });
 
         POpciones.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -627,27 +757,15 @@ private void mostrarMenciones() {
             }
         });
 
-        btnTodas.setText("Todas");
-        btnTodas.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnTodasActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout pTodasLayout = new javax.swing.GroupLayout(pTodas);
         pTodas.setLayout(pTodasLayout);
         pTodasLayout.setHorizontalGroup(
             pTodasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pTodasLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(btnTodas)
-                .addContainerGap(38, Short.MAX_VALUE))
+            .addGap(0, 116, Short.MAX_VALUE)
         );
         pTodasLayout.setVerticalGroup(
             pTodasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pTodasLayout.createSequentialGroup()
-                .addComponent(btnTodas)
-                .addGap(0, 10, Short.MAX_VALUE))
+            .addGap(0, 33, Short.MAX_VALUE)
         );
 
         pMenciones.setBackground(new java.awt.Color(255, 255, 255));
@@ -661,29 +779,6 @@ private void mostrarMenciones() {
             }
         });
 
-        btnMenciones.setText("Menciones");
-        btnMenciones.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnMencionesActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout pMencionesLayout = new javax.swing.GroupLayout(pMenciones);
-        pMenciones.setLayout(pMencionesLayout);
-        pMencionesLayout.setHorizontalGroup(
-            pMencionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pMencionesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(btnMenciones)
-                .addContainerGap(39, Short.MAX_VALUE))
-        );
-        pMencionesLayout.setVerticalGroup(
-            pMencionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pMencionesLayout.createSequentialGroup()
-                .addComponent(btnMenciones)
-                .addGap(0, 10, Short.MAX_VALUE))
-        );
-
         lblAliasNombre.setText("Nombre y usuario");
         lblAliasNombre.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
@@ -695,6 +790,22 @@ private void mostrarMenciones() {
             }
         });
 
+        javax.swing.GroupLayout pMencionesLayout = new javax.swing.GroupLayout(pMenciones);
+        pMenciones.setLayout(pMencionesLayout);
+        pMencionesLayout.setHorizontalGroup(
+            pMencionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pMencionesLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addComponent(lblAliasNombre)
+                .addContainerGap(23, Short.MAX_VALUE))
+        );
+        pMencionesLayout.setVerticalGroup(
+            pMencionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pMencionesLayout.createSequentialGroup()
+                .addComponent(lblAliasNombre)
+                .addGap(0, 17, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout POpcionesLayout = new javax.swing.GroupLayout(POpciones);
         POpciones.setLayout(POpcionesLayout);
         POpcionesLayout.setHorizontalGroup(
@@ -704,23 +815,16 @@ private void mostrarMenciones() {
                 .addComponent(pTodas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 249, Short.MAX_VALUE)
                 .addComponent(pMenciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(59, 59, 59)
-                .addComponent(lblAliasNombre)
-                .addContainerGap())
+                .addGap(159, 159, 159))
         );
         POpcionesLayout.setVerticalGroup(
             POpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(POpcionesLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, POpcionesLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(POpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, POpcionesLayout.createSequentialGroup()
-                        .addGroup(POpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(pMenciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(pTodas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, POpcionesLayout.createSequentialGroup()
-                        .addComponent(lblAliasNombre)
-                        .addGap(14, 14, 14))))
+                    .addComponent(pMenciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pTodas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
@@ -747,6 +851,7 @@ private void mostrarMenciones() {
         });
 
         ScrollPanel.setBackground(new java.awt.Color(255, 255, 255));
+        ScrollPanel.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(255, 153, 255)));
 
         javax.swing.GroupLayout panelContenedorNotificacionesLayout = new javax.swing.GroupLayout(panelContenedorNotificaciones);
         panelContenedorNotificaciones.setLayout(panelContenedorNotificacionesLayout);
@@ -754,8 +859,8 @@ private void mostrarMenciones() {
             panelContenedorNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelContenedorNotificacionesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(ScrollPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 551, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(ScrollPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 760, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelContenedorNotificacionesLayout.setVerticalGroup(
             panelContenedorNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -763,6 +868,32 @@ private void mostrarMenciones() {
                 .addContainerGap()
                 .addComponent(ScrollPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE))
         );
+
+        lblFotoPerfil.setText("Foto de perrfil");
+        lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
+        lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                lblFotoPerfilAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+
+        btnTodas.setText("Todas");
+        btnTodas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTodasActionPerformed(evt);
+            }
+        });
+
+        btnMenciones.setText("Menciones");
+        btnMenciones.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMencionesActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jpanelLayout = new javax.swing.GroupLayout(jpanel);
         jpanel.setLayout(jpanelLayout);
@@ -772,20 +903,26 @@ private void mostrarMenciones() {
                 .addComponent(Menu2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jpanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jpanelLayout.createSequentialGroup()
-                        .addGap(78, 78, 78)
-                        .addComponent(panelContenedorNotificaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(jpanelLayout.createSequentialGroup()
-                        .addGap(41, 41, 41)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jpanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(POpciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jpanelLayout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(lblFotoPerfil1, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(22, 22, 22)))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(78, 78, 78)
+                                .addComponent(panelContenedorNotificaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jpanelLayout.createSequentialGroup()
+                                .addGap(41, 41, 41)
+                                .addGroup(jpanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(POpciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(jpanelLayout.createSequentialGroup()
+                                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(521, 521, 521)
+                                        .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(188, 188, 188)))))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jpanelLayout.createSequentialGroup()
+                        .addGap(110, 110, 110)
+                        .addComponent(btnTodas)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnMenciones)
+                        .addGap(209, 209, 209))))
         );
         jpanelLayout.setVerticalGroup(
             jpanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -794,17 +931,20 @@ private void mostrarMenciones() {
                 .addGroup(jpanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jpanelLayout.createSequentialGroup()
                         .addGap(18, 18, 18)
-                        .addComponent(lblFotoPerfil1, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(POpciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                        .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jpanelLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)))
-                .addGap(41, 41, 41)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(POpciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jpanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnTodas)
+                    .addComponent(btnMenciones))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(panelContenedorNotificaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -813,8 +953,8 @@ private void mostrarMenciones() {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jpanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jpanel, javax.swing.GroupLayout.PREFERRED_SIZE, 1105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -823,45 +963,6 @@ private void mostrarMenciones() {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void lblAliasNombreAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblAliasNombreAncestorAdded
-        actualizarNombreYAlias(); // Llamar al método al cargar la interfaz
-    }//GEN-LAST:event_lblAliasNombreAncestorAdded
-
-    private void pMencionesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pMencionesMouseExited
-        pMenciones.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pMencionesMouseExited
-
-    private void pMencionesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pMencionesMouseEntered
-        pMenciones.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pMencionesMouseEntered
-
-    private void btnMencionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMencionesActionPerformed
-      
-    System.out.println("Botón 'Menciones' presionado.");
-    mostrarMenciones();
-    System.out.println("Método mostrarMenciones() ejecutado.");
-
-    }//GEN-LAST:event_btnMencionesActionPerformed
-
-    private void pTodasMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pTodasMouseExited
-        pTodas.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pTodasMouseExited
-
-    private void pTodasMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pTodasMouseEntered
-        pTodas.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pTodasMouseEntered
-
-    private void btnTodasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTodasActionPerformed
-      System.out.println("Botón 'Todas' presionado.");
-    mostrarTodasNotificaciones();
-    System.out.println("Método mostrarTodasNotificaciones() ejecutado.");
-    }//GEN-LAST:event_btnTodasActionPerformed
-
-    private void lblFotoPerfil1AncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfil1AncestorAdded
-        //  lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
-        //   lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
-    }//GEN-LAST:event_lblFotoPerfil1AncestorAdded
 
     private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
         //  lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
@@ -930,6 +1031,58 @@ private void mostrarMenciones() {
         // TODO add your handling code here:
     }//GEN-LAST:event_panelContenedorNotificacionesAncestorAdded
 
+    private void lblAliasNombreAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblAliasNombreAncestorAdded
+        actualizarNombreYAlias(); // Llamar al método al cargar la interfaz
+    }//GEN-LAST:event_lblAliasNombreAncestorAdded
+
+    private void pMencionesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pMencionesMouseExited
+        pMenciones.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pMencionesMouseExited
+
+    private void pMencionesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pMencionesMouseEntered
+        pMenciones.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pMencionesMouseEntered
+
+    private void btnMencionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMencionesActionPerformed
+
+        System.out.println("Botón 'Menciones' presionado.");
+        mostrarMenciones();
+        System.out.println("Método mostrarMenciones() ejecutado.");
+    }//GEN-LAST:event_btnMencionesActionPerformed
+
+    private void pTodasMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pTodasMouseExited
+        pTodas.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pTodasMouseExited
+
+    private void pTodasMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pTodasMouseEntered
+        pTodas.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pTodasMouseEntered
+
+    private void btnTodasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTodasActionPerformed
+        System.out.println("Botón 'Todas' presionado.");
+        mostrarTodasNotificaciones();
+        System.out.println("Método mostrarTodasNotificaciones() ejecutado.");
+    }//GEN-LAST:event_btnTodasActionPerformed
+
+    private void NotificacionesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_NotificacionesMouseClicked
+           notificaciones h = new notificaciones();
+        h.setVisible(true);
+        this.dispose();
+                    
+    }//GEN-LAST:event_NotificacionesMouseClicked
+
+    private void ExplorarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ExplorarMouseClicked
+             BusquedaTwitter h = new BusquedaTwitter();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_ExplorarMouseClicked
+
+    private void InicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_InicioMouseClicked
+       Home h = new Home();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_InicioMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -975,7 +1128,6 @@ private void mostrarMenciones() {
     private javax.swing.JPanel Menu2;
     private javax.swing.JLabel Notificaciones;
     private javax.swing.JPanel POpciones;
-    private javax.swing.JLabel Perfil;
     private javax.swing.JScrollPane ScrollPanel;
     private javax.swing.JButton btnMenciones;
     private javax.swing.JButton btnTodas;
@@ -983,7 +1135,6 @@ private void mostrarMenciones() {
     private javax.swing.JPanel jpanel;
     private javax.swing.JLabel lblAliasNombre;
     private javax.swing.JLabel lblFotoPerfil;
-    private javax.swing.JLabel lblFotoPerfil1;
     private javax.swing.JPanel pExplorar;
     private javax.swing.JPanel pInicio;
     private javax.swing.JPanel pMenciones;

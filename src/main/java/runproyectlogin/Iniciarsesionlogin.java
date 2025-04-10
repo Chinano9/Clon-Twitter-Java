@@ -8,7 +8,8 @@ package runproyectlogin;
  *
  * @author alan_
  */
-
+import javax.swing.*;
+import java.awt.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -24,28 +25,35 @@ public class Iniciarsesionlogin extends javax.swing.JFrame {
     /**
      * Creates new form login1123213
      */
- private int obtenerIdUsuario(String email, String password) {
+public int obtenerIdUsuario(String usuarioOEmail, String password) {
+    Connection conexion = null;
+    PreparedStatement pst = null;
+    ResultSet rs = null;
     int idUsuario = -1;
 
-    try (Connection conexion = BasededatosTwitter.getConnection()) {
-        String sql = "SELECT id_usuarios FROM usuarios WHERE email = ? AND password = ?";
-        PreparedStatement ps = conexion.prepareStatement(sql);
-        ps.setString(1, email);
-        ps.setString(2, password);
+    try {
+        conexion = BasededatosTwitter.getConnection();
+        String consulta = "SELECT id_usuarios FROM usuarios WHERE (email = ? OR nombre_usuario = ?) AND password = ?";
+        pst = conexion.prepareStatement(consulta);
+        pst.setString(1, usuarioOEmail);
+        pst.setString(2, usuarioOEmail);
+        pst.setString(3, password);
 
-        ResultSet rs = ps.executeQuery();
-
+        rs = pst.executeQuery();
         if (rs.next()) {
             idUsuario = rs.getInt("id_usuarios");
-            System.out.println("✅ ID obtenido: " + idUsuario);
-        } else {
-            System.out.println("❌ Usuario no encontrado con esos datos.");
         }
-
     } catch (SQLException e) {
         e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (pst != null) pst.close();
+            if (conexion != null) conexion.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
-
     return idUsuario;
 }
 
@@ -74,13 +82,22 @@ Connection conexion = BasededatosTwitter.getConnection();
     }
     return false;
 }
+   
+public class VentanaUtilidades {
 
+    public static void configurarResolucionVentana(JFrame ventana) {
+        ventana.setPreferredSize(new Dimension(1920, 1080));
+        // O
+        // ventana.setExtendedState(JFrame.MAXIMIZED_BOTH);
+    }
+}
     
     public Iniciarsesionlogin() 
     {
         initComponents();
         // b_iniciarsesionyacuenta.setEnabled(false); // Inicialmente deshabilitado hasta marcar los terminos.
-         
+                 VentanaUtilidades.configurarResolucionVentana(this);
+
         //Letras azules boton iniciar sesion
         b_crearcuentayacuenta.setText("Crea una");
         b_crearcuentayacuenta.setBorder(null);
@@ -260,51 +277,46 @@ Connection conexion = BasededatosTwitter.getConnection();
     }//GEN-LAST:event_b_showpasswordyacuentaActionPerformed
 
     private void b_iniciarsesionyacuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_iniciarsesionyacuentaActionPerformed
- Connection conexion = null;
-    
-    try {
-        // Obtener conexión a la base de datos
-        conexion = BasededatosTwitter.getConnection();
-        if (conexion == null) {
-            JOptionPane.showMessageDialog(this, "Error al conectar con la base de datos.");
-            return;
-        }
+Connection conexion = null;
 
-        // Tomar los datos ingresados por el usuario
-        String nombre_usuario = tf_correoyacuenta.getText().trim();
-        String email = tf_correoyacuenta.getText().trim();
-        String password = tf_passwordyacuenta.getText().trim();
-
-        // Verificar que los campos no estén vacíos
-        if (email.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
-            return;
-        }
-
-        int idUsuario = obtenerIdUsuario(email, password);
-if (idUsuario != -1) {
-    System.out.println("ID del usuario obtenido: " + idUsuario); // Depuración
-    UsuarioSesion.setUsuarioId(idUsuario);
-
-            // Guardar el ID del usuario en sesión
-            UsuarioSesion.setUsuarioId(idUsuario); 
-            System.out.println("Usuario en sesión: " + idUsuario); 
-
-            // Cambiar a pantalla de inicio
-            PantallaInicio.Home inicio1 = new PantallaInicio.Home();
-            inicio1.setVisible(true);
-            this.dispose();
-        } else {
-            JOptionPane.showMessageDialog(this, "No se encontró la cuenta, correo y/o contraseña incorrectos");
-        }
-
-    }  finally {
-        try {
-            if (conexion != null) conexion.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+try {
+    // Obtener conexión a la base de datos
+    conexion = BasededatosTwitter.getConnection();
+    if (conexion == null) {
+        JOptionPane.showMessageDialog(this, "Error al conectar con la base de datos.");
+        return;
     }
+
+    // Tomar los datos ingresados por el usuario
+    String usuarioOEmail = tf_correoyacuenta.getText().trim(); // Puede ser usuario o email
+    String password = tf_passwordyacuenta.getText().trim();
+
+    // Verificar que los campos no estén vacíos
+    if (usuarioOEmail.isEmpty() || password.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
+        return;
+    }
+
+    int idUsuario = obtenerIdUsuario(usuarioOEmail, password);
+    if (idUsuario != -1) {
+        System.out.println("ID del usuario obtenido: " + idUsuario); // Depuración
+        UsuarioSesion.setUsuarioId(idUsuario);
+
+        // Cambiar a pantalla de inicio
+        PantallaInicio.Home inicio1 = new PantallaInicio.Home();
+        inicio1.setVisible(true);
+        this.dispose();
+    } else {
+        JOptionPane.showMessageDialog(this, "No se encontró la cuenta, usuario/correo y/o contraseña incorrectos.");
+    }
+} finally {
+    try {
+        if (conexion != null) conexion.close();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
 
     }//GEN-LAST:event_b_iniciarsesionyacuentaActionPerformed
 

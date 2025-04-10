@@ -81,6 +81,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Cursor; // Para el cursor de mano
 import Explorar.BusquedaTwitter;
+import Notificaciones.notificaciones;
 import PantallaInicio.Home;
 import runproyectlogin.Iniciarsesionlogin;
 import java.awt.Color;
@@ -126,7 +127,8 @@ import java.io.ByteArrayInputStream;
  * @author Jaime Paredes
  */
 public class perfilusuario extends javax.swing.JFrame {
-
+private int idUsuario;
+private int idDestinatario;
     Color colorNormalMenu = new Color(246,234,250);
     Color colorOscuroMenu = new Color(242, 226, 248);
     
@@ -167,17 +169,54 @@ private void cargarFondoPortada() {
         JOptionPane.showMessageDialog(this, "Error al cargar fondo de portada", "Error", JOptionPane.ERROR_MESSAGE);
     }
 }
-    public perfilusuario(int idUsuario) {
-        initComponents();
-        this.idUsuario = idUsuario;
-        this.esPerfilPropio = (idUsuario == UsuarioSesion.getUsuarioId());
-        inicializarPerfil();
-        cargarTweetsUsuario(); // Cargar tweets por defecto
-            cargarFollowingYFollowers(); // Cargar "following" y "followers" al inicio
-        
+  public perfilusuario(int idUsuario) {
+    initComponents();
+    this.idUsuario = idUsuario; // Asigna el ID del perfil visitado
+    this.esPerfilPropio = (idUsuario == UsuarioSesion.getUsuarioId()); // Comprueba si es su perfil
+
+    verificarBotones(); // Ahora que idUsuario está asignado, podemos llamar a este método
+
+    inicializarPerfil();
+    cargarTweetsUsuario(); // Cargar tweets por defecto
+    cargarFollowingYFollowers(); // Cargar "following" y "followers" al inicio
+
+    // Modificar el ActionListener del botón de mensajes
+    btnMensajes.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Botón Mensajes clickeado.");
+
+            if (esPerfilPropio) {
+                System.out.println("Abriendo ventana Mensajes.");
+                Mensajes mensajes = new Mensajes(idUsuario); // idUsuario ya está disponible
+                mensajes.setVisible(true); // Mostrar la ventana de mensajes
+            } else {
+                System.out.println("Abriendo ventana Chat.");
+Chat chat = new Chat(idUsuario, idDestinatario);
+                chat.setVisible(true);
+            }
+        }
+    });
+}
+
+    private void verificarBotones() {
+    if (esPerfilPropio) { 
+        btnMensajes.setVisible(true);  // Si es su perfil, muestra "Mensajes"
+        btnAbrirChat.setVisible(false);
+    } else {
+        btnMensajes.setVisible(false); // Si es otro perfil, muestra "Abrir Chat"
+        btnAbrirChat.setVisible(true);
     }
+}
+
+private void abrirMensajes() {
+    Mensajes ventanaMensajes = new Mensajes();
+    ventanaMensajes.mostrarEnVentana();
+}
+
+
     
-    
+
         // Método para mostrar el fondo de portada en el JLabel
 private void mostrarFondoPortadaEnLabel(byte[] fondoPortadaBytes) {
     ImageIcon imageIcon = new ImageIcon(fondoPortadaBytes);
@@ -188,10 +227,22 @@ private void mostrarFondoPortadaEnLabel(byte[] fondoPortadaBytes) {
 
     public perfilusuario() {
        initComponents();
+       
         this.idUsuario = UsuarioSesion.getUsuarioId();
         this.esPerfilPropio = true; // Es el perfil propio
        
-               
+              // Panel de botones
+        JPanel panelBotones = new JPanel();
+        panelBotones.setLayout(new FlowLayout());
+        panelBotones.setBackground(Color.WHITE);
+        
+        // Botón de Mensaje
+        btnMensajes = new JButton("Enviar Mensaje");
+        estilizarBoton(btnMensajes);
+        panelBotones.add(btnMensajes);
+        
+     
+        
         agregarMenuFotoPerfil();
 btnTweets = new JButton("Tweets");
         btnRetweets = new JButton("Retweets");
@@ -214,6 +265,23 @@ btnTweets = new JButton("Tweets");
         // Mostrar dimensiones en la consola
         System.out.println("Ancho del panel: " + panelAncho);
         System.out.println("Alto del panel: " + panelAlto);
+    }
+    
+     private void estilizarBoton(JButton boton) {
+        boton.setFont(new Font("Arial", Font.BOLD, 14));
+        boton.setBackground(new Color(30, 144, 255));
+        boton.setForeground(Color.WHITE);
+        boton.setFocusPainted(false);
+        boton.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        
+        boton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                boton.setBackground(new Color(0, 102, 204));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                boton.setBackground(new Color(30, 144, 255));
+            }
+        });
     }
 // Método para seguir a un usuario
 private void seguirUsuario() {
@@ -251,7 +319,6 @@ private void seguirUsuario() {
     }
 }
 
-  private int idUsuario;
 private BufferedImage fotoPerfil;
 private BufferedImage fotoPortada;
     private UsuarioDAO usuarioDAO = new UsuarioDAO();
@@ -260,43 +327,100 @@ private BufferedImage fotoPortada;
     
     
        
-       
- // Método auxiliar para cargar contenido (tweets, likes, retweets)
-    private void cargarContenido(int idUsuario, String tipoContenido) {
-        try (Connection conexion = BasededatosTwitter.getConnection()) {
-            String sql = "";
-            switch (tipoContenido) {
-                case "tweets":
-                    sql = "SELECT contenido FROM tweets WHERE usuario_id = ?";
-                    break;
-                case "likes":
-                    sql = "SELECT t.contenido FROM tweets t JOIN likes l ON t.id_tweet = l.tweet_id WHERE l.usuario_id = ?";
-                    break;
-                case "retweets":
-                    sql = "SELECT t.contenido FROM tweets t JOIN retweets r ON t.id_tweet = r.tweet_id WHERE r.usuario_id = ?";
-                    break;
-            }
-
-            PreparedStatement ps = conexion.prepareStatement(sql);
-            ps.setInt(1, idUsuario);
-            ResultSet rs = ps.executeQuery();
-
-            JPanel panelContenido = new JPanel();
-            panelContenido.setLayout(new BoxLayout(panelContenido, BoxLayout.Y_AXIS));
-
-            while (rs.next()) {
-                JTextArea textArea = new JTextArea(rs.getString("contenido"));
-                panelContenido.add(textArea);
-            }
-
-            JScrollPane scrollPane = new JScrollPane(panelContenido);
-            panelContenedorContenido.setViewportView(scrollPane); // Asumiendo que tienes un JScrollPane llamado panelContenedorContenido
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error al cargar " + tipoContenido + ".", "Error", JOptionPane.ERROR_MESSAGE);
+private void cargarContenido(int idUsuario, String tipoContenido) {
+    try (Connection conexion = BasededatosTwitter.getConnection()) {
+        String sql = "";
+        switch (tipoContenido) {
+            case "tweets":
+                sql = "SELECT t.contenido, u.alias, u.nombre_usuario, t.usuario_id " +
+                      "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios " +
+                      "WHERE t.usuario_id = ?";
+                break;
+            case "likes":
+                sql = "SELECT t.contenido, u_like.alias AS alias_like, u_like.nombre_usuario AS nombre_like, u_like.id_usuarios AS usuario_id_like " +
+                      "FROM tweets t JOIN likes l ON t.id_tweet = l.tweet_id " +
+                      "JOIN usuarios u_like ON l.usuario_id = u_like.id_usuarios " +
+                      "WHERE t.id_tweet IN (SELECT tweet_id FROM likes WHERE usuario_id = ?)";
+                break;
+            case "retweets":
+                sql = "SELECT t.contenido, u_rt.alias AS alias_rt, u_rt.nombre_usuario AS nombre_rt, u_rt.id_usuarios AS usuario_id_rt " +
+                      "FROM tweets t JOIN retweets r ON t.id_tweet = r.tweet_id " +
+                      "JOIN usuarios u_rt ON r.usuario_id = u_rt.id_usuarios " +
+                      "WHERE t.id_tweet IN (SELECT tweet_id FROM retweets WHERE usuario_id = ?)";
+                break;
         }
+
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ps.setInt(1, idUsuario);
+        ResultSet rs = ps.executeQuery();
+
+         JPanel panelContenido = new JPanel();
+        panelContenido.setLayout(new BoxLayout(panelContenido, BoxLayout.Y_AXIS));
+
+        while (rs.next()) {
+            String contenido = rs.getString("contenido");
+            String alias = "";
+            String nombreUsuario = "";
+            int usuarioIdAutor = 0;
+
+            if (tipoContenido.equals("likes")) {
+                alias = rs.getString("alias_like");
+                nombreUsuario = rs.getString("nombre_like");
+                usuarioIdAutor = rs.getInt("usuario_id_like");
+            } else if (tipoContenido.equals("retweets")) {
+                alias = rs.getString("alias_rt");
+                nombreUsuario = rs.getString("nombre_rt");
+                usuarioIdAutor = rs.getInt("usuario_id_rt");
+            } else {
+                alias = rs.getString("alias");
+                nombreUsuario = rs.getString("nombre_usuario");
+                usuarioIdAutor = rs.getInt("usuario_id");
+            }
+
+            // Crear copias finales o efectivamente finales de las variables
+            final int finalUsuarioIdAutor = usuarioIdAutor;
+
+            JPanel panelTweet = new JPanel();
+            panelTweet.setLayout(new BoxLayout(panelTweet, BoxLayout.Y_AXIS));
+
+            JLabel lblUsuario = new JLabel("<html><b>" + alias + " (" + nombreUsuario + ")</b></html>");
+            JTextArea textArea = new JTextArea(contenido);
+            textArea.setEditable(false);
+            textArea.setLineWrap(true);
+            textArea.setWrapStyleWord(true);
+            textArea.setBackground(panelTweet.getBackground());
+
+            panelTweet.add(lblUsuario);
+            panelTweet.add(textArea);
+           
+
+            // Hacer el JLabel del usuario clickable para visitar el perfil
+            lblUsuario.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            lblUsuario.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    abrirPerfilUsuario(finalUsuarioIdAutor); // Usar la copia final
+                }
+            });
+
+            panelContenido.add(panelTweet);
+        }
+
+        JScrollPane scrollPane = new JScrollPane(panelContenido);
+        panelContenedorContenido.setViewportView(scrollPane);
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al cargar " + tipoContenido + ".", "Error", JOptionPane.ERROR_MESSAGE);
     }
+}
+
+private void abrirPerfilUsuario(int idUsuario) {
+            this.dispose();
+    perfilusuario perfil = new perfilusuario(idUsuario); // Abre el perfil del usuario con el idUsuario
+    perfil.setVisible(true);
+}
+
 
     private void mostrarFotoEnJLabel(JLabel label, byte[] fotoPerfilBytes) {
         ImageIcon imageIcon = new ImageIcon(fotoPerfilBytes);
@@ -717,33 +841,28 @@ private void actualizarNombreYAlias() {
         Menu2 = new javax.swing.JPanel();
         LogoTwitter2 = new javax.swing.JLabel();
         pInicio = new javax.swing.JPanel();
-        Inicio = new javax.swing.JLabel();
         pPerfil = new javax.swing.JPanel();
-        Perfil = new javax.swing.JLabel();
         pNotificaciones = new javax.swing.JPanel();
-        Notificaciones = new javax.swing.JLabel();
         pExplorar = new javax.swing.JPanel();
+        Notificaciones = new javax.swing.JLabel();
         Explorar = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        panelContenedorContenido = new javax.swing.JScrollPane();
-        Opciones = new javax.swing.JPanel();
-        PTweets = new javax.swing.JPanel();
-        PLikes = new javax.swing.JPanel();
-        PRetweets = new javax.swing.JPanel();
-        btnTweets = new javax.swing.JButton();
-        btnRetweets = new javax.swing.JButton();
-        btnLikes = new javax.swing.JButton();
+        Inicio = new javax.swing.JLabel();
         PPerfil = new javax.swing.JPanel();
         panelFotoPortada = new javax.swing.JPanel();
         lblFondoPortada = new javax.swing.JLabel();
         btnSeguir = new javax.swing.JButton();
-        lblFotoPerfil1 = new javax.swing.JLabel();
         lblAliasNombre = new javax.swing.JLabel();
         lblFollowing = new javax.swing.JLabel();
         lblFollowers = new javax.swing.JLabel();
-        Ubicacion = new javax.swing.JLabel();
-        lblFotoPerfil = new javax.swing.JLabel();
         panelFotoPerfil = new javax.swing.JPanel();
+        btnTweets = new javax.swing.JButton();
+        btnRetweets = new javax.swing.JButton();
+        btnLikes = new javax.swing.JButton();
+        btnMensajes = new javax.swing.JButton();
+        lblFotoPerfil = new javax.swing.JLabel();
+        btnAbrirChat = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        panelContenedorContenido = new javax.swing.JScrollPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -775,27 +894,15 @@ private void actualizarNombreYAlias() {
             }
         });
 
-        Inicio.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
-        Inicio.setForeground(new java.awt.Color(102, 0, 153));
-        Inicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/brujula.png"))); // NOI18N
-        Inicio.setText("Inicio");
-        Inicio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
         javax.swing.GroupLayout pInicioLayout = new javax.swing.GroupLayout(pInicio);
         pInicio.setLayout(pInicioLayout);
         pInicioLayout.setHorizontalGroup(
             pInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pInicioLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Inicio)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 0, Short.MAX_VALUE)
         );
         pInicioLayout.setVerticalGroup(
             pInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pInicioLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Inicio)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 42, Short.MAX_VALUE)
         );
 
         pPerfil.setBackground(new java.awt.Color(246, 234, 250));
@@ -812,27 +919,15 @@ private void actualizarNombreYAlias() {
             }
         });
 
-        Perfil.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
-        Perfil.setForeground(new java.awt.Color(102, 0, 153));
-        Perfil.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/perfil.png"))); // NOI18N
-        Perfil.setText("Perfil");
-        Perfil.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
         javax.swing.GroupLayout pPerfilLayout = new javax.swing.GroupLayout(pPerfil);
         pPerfil.setLayout(pPerfilLayout);
         pPerfilLayout.setHorizontalGroup(
             pPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pPerfilLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Perfil)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 0, Short.MAX_VALUE)
         );
         pPerfilLayout.setVerticalGroup(
             pPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pPerfilLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Perfil)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 42, Short.MAX_VALUE)
         );
 
         pNotificaciones.setBackground(new java.awt.Color(246, 234, 250));
@@ -849,27 +944,15 @@ private void actualizarNombreYAlias() {
             }
         });
 
-        Notificaciones.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
-        Notificaciones.setForeground(new java.awt.Color(102, 0, 153));
-        Notificaciones.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/Notificaciones.png"))); // NOI18N
-        Notificaciones.setText("Notificaciones");
-        Notificaciones.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
         javax.swing.GroupLayout pNotificacionesLayout = new javax.swing.GroupLayout(pNotificaciones);
         pNotificaciones.setLayout(pNotificacionesLayout);
         pNotificacionesLayout.setHorizontalGroup(
             pNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pNotificacionesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Notificaciones)
-                .addContainerGap(24, Short.MAX_VALUE))
+            .addGap(0, 0, Short.MAX_VALUE)
         );
         pNotificacionesLayout.setVerticalGroup(
             pNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pNotificacionesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Notificaciones)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 42, Short.MAX_VALUE)
         );
 
         pExplorar.setBackground(new java.awt.Color(246, 234, 250));
@@ -886,28 +969,49 @@ private void actualizarNombreYAlias() {
             }
         });
 
+        javax.swing.GroupLayout pExplorarLayout = new javax.swing.GroupLayout(pExplorar);
+        pExplorar.setLayout(pExplorarLayout);
+        pExplorarLayout.setHorizontalGroup(
+            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        pExplorarLayout.setVerticalGroup(
+            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 42, Short.MAX_VALUE)
+        );
+
+        Notificaciones.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
+        Notificaciones.setForeground(new java.awt.Color(102, 0, 153));
+        Notificaciones.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/Notificaciones.png"))); // NOI18N
+        Notificaciones.setText("Notificaciones");
+        Notificaciones.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Notificaciones.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                NotificacionesMouseClicked(evt);
+            }
+        });
+
         Explorar.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
         Explorar.setForeground(new java.awt.Color(102, 0, 153));
         Explorar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/lupa.png"))); // NOI18N
         Explorar.setText("Explorar");
         Explorar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Explorar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ExplorarMouseClicked(evt);
+            }
+        });
 
-        javax.swing.GroupLayout pExplorarLayout = new javax.swing.GroupLayout(pExplorar);
-        pExplorar.setLayout(pExplorarLayout);
-        pExplorarLayout.setHorizontalGroup(
-            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pExplorarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Explorar)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        pExplorarLayout.setVerticalGroup(
-            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pExplorarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Explorar)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        Inicio.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
+        Inicio.setForeground(new java.awt.Color(102, 0, 153));
+        Inicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/brujula.png"))); // NOI18N
+        Inicio.setText("Inicio");
+        Inicio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Inicio.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                InicioMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout Menu2Layout = new javax.swing.GroupLayout(Menu2);
         Menu2.setLayout(Menu2Layout);
@@ -921,6 +1025,13 @@ private void actualizarNombreYAlias() {
             .addComponent(pPerfil, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(pNotificaciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(pExplorar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(Menu2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(Notificaciones)
+                    .addComponent(Explorar)
+                    .addComponent(Inicio))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
         Menu2Layout.setVerticalGroup(
             Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -929,144 +1040,33 @@ private void actualizarNombreYAlias() {
                 .addComponent(LogoTwitter2)
                 .addGap(45, 45, 45)
                 .addComponent(pInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(pPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(pExplorar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(pNotificaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        jScrollPane1.setViewportView(panelContenedorContenido);
-
-        Opciones.setBackground(new java.awt.Color(255, 255, 255));
-
-        PTweets.setBackground(new java.awt.Color(255, 255, 255));
-        PTweets.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        PTweets.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                PTweetsMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                PTweetsMouseExited(evt);
-            }
-        });
-
-        javax.swing.GroupLayout PTweetsLayout = new javax.swing.GroupLayout(PTweets);
-        PTweets.setLayout(PTweetsLayout);
-        PTweetsLayout.setHorizontalGroup(
-            PTweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 96, Short.MAX_VALUE)
-        );
-        PTweetsLayout.setVerticalGroup(
-            PTweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 33, Short.MAX_VALUE)
-        );
-
-        PLikes.setBackground(new java.awt.Color(255, 255, 255));
-        PLikes.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        PLikes.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                PLikesMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                PLikesMouseExited(evt);
-            }
-        });
-
-        javax.swing.GroupLayout PLikesLayout = new javax.swing.GroupLayout(PLikes);
-        PLikes.setLayout(PLikesLayout);
-        PLikesLayout.setHorizontalGroup(
-            PLikesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 116, Short.MAX_VALUE)
-        );
-        PLikesLayout.setVerticalGroup(
-            PLikesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 33, Short.MAX_VALUE)
-        );
-
-        PRetweets.setBackground(new java.awt.Color(255, 255, 255));
-        PRetweets.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        PRetweets.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                PRetweetsMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                PRetweetsMouseExited(evt);
-            }
-        });
-
-        javax.swing.GroupLayout PRetweetsLayout = new javax.swing.GroupLayout(PRetweets);
-        PRetweets.setLayout(PRetweetsLayout);
-        PRetweetsLayout.setHorizontalGroup(
-            PRetweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 137, Short.MAX_VALUE)
-        );
-        PRetweetsLayout.setVerticalGroup(
-            PRetweetsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 34, Short.MAX_VALUE)
-        );
-
-        btnTweets.setText("Tweets");
-        btnTweets.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnTweetsActionPerformed(evt);
-            }
-        });
-
-        btnRetweets.setText("Retweets");
-        btnRetweets.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRetweetsActionPerformed(evt);
-            }
-        });
-
-        btnLikes.setText("Likes");
-        btnLikes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnLikesActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout OpcionesLayout = new javax.swing.GroupLayout(Opciones);
-        Opciones.setLayout(OpcionesLayout);
-        OpcionesLayout.setHorizontalGroup(
-            OpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(OpcionesLayout.createSequentialGroup()
-                .addGap(53, 53, 53)
-                .addComponent(btnTweets)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(PTweets, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(80, 80, 80)
-                .addComponent(btnRetweets)
-                .addGap(88, 88, 88)
-                .addComponent(PRetweets, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnLikes)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(PLikes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(74, 74, 74))
-        );
-        OpcionesLayout.setVerticalGroup(
-            OpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, OpcionesLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(OpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(PRetweets, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(OpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(btnTweets)
-                        .addComponent(PTweets, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnRetweets))
-                    .addGroup(OpcionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(btnLikes)
-                        .addComponent(PLikes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(31, 31, 31))
+                .addComponent(Inicio)
+                .addGap(10, 10, 10)
+                .addComponent(pPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(Explorar)
+                .addGap(8, 8, 8)
+                .addComponent(pExplorar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(Notificaciones)
+                .addGap(10, 10, 10)
+                .addComponent(pNotificaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(569, Short.MAX_VALUE))
         );
 
         PPerfil.setBackground(new java.awt.Color(255, 255, 255));
+        PPerfil.setDoubleBuffered(false);
+        PPerfil.setEnabled(false);
+        PPerfil.setFocusable(false);
 
         panelFotoPortada.setBackground(new java.awt.Color(255, 255, 255));
+        panelFotoPortada.setDoubleBuffered(false);
+        panelFotoPortada.setEnabled(false);
+        panelFotoPortada.setFocusable(false);
+        panelFotoPortada.setOpaque(false);
+        panelFotoPortada.setRequestFocusEnabled(false);
+        panelFotoPortada.setVerifyInputWhenFocusTarget(false);
         panelFotoPortada.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
                 panelFotoPortadaAncestorAdded(evt);
@@ -1083,14 +1083,15 @@ private void actualizarNombreYAlias() {
         panelFotoPortada.setLayout(panelFotoPortadaLayout);
         panelFotoPortadaLayout.setHorizontalGroup(
             panelFotoPortadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblFondoPortada, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(panelFotoPortadaLayout.createSequentialGroup()
+                .addComponent(lblFondoPortada, javax.swing.GroupLayout.PREFERRED_SIZE, 738, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 12, Short.MAX_VALUE))
         );
         panelFotoPortadaLayout.setVerticalGroup(
             panelFotoPortadaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelFotoPortadaLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblFondoPortada, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(lblFondoPortada, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 23, Short.MAX_VALUE))
         );
 
         btnSeguir.setFont(new java.awt.Font("Arial Black", 0, 12)); // NOI18N
@@ -1099,18 +1100,6 @@ private void actualizarNombreYAlias() {
         btnSeguir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSeguirActionPerformed(evt);
-            }
-        });
-
-        lblFotoPerfil1.setText("Foto de perrfil");
-        lblFotoPerfil1.setPreferredSize(new java.awt.Dimension(150, 150));
-        lblFotoPerfil1.addAncestorListener(new javax.swing.event.AncestorListener() {
-            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                lblFotoPerfil1AncestorAdded(evt);
-            }
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
             }
         });
 
@@ -1139,20 +1128,6 @@ private void actualizarNombreYAlias() {
             }
         });
 
-        Ubicacion.setText("Ubicacion");
-
-        lblFotoPerfil.setText("Foto de perrfil");
-        lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
-        lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
-            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                lblFotoPerfilAncestorAdded(evt);
-            }
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
-            }
-        });
-
         panelFotoPerfil.setBackground(new java.awt.Color(255, 255, 255));
         panelFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
@@ -1175,6 +1150,71 @@ private void actualizarNombreYAlias() {
             .addGap(0, 11, Short.MAX_VALUE)
         );
 
+        btnTweets.setText("Tweets");
+        btnTweets.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTweetsActionPerformed(evt);
+            }
+        });
+
+        btnRetweets.setText("Retweets");
+        btnRetweets.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRetweetsActionPerformed(evt);
+            }
+        });
+
+        btnLikes.setText("Likes");
+        btnLikes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLikesActionPerformed(evt);
+            }
+        });
+
+        btnMensajes.setFont(new java.awt.Font("Arial Black", 0, 12)); // NOI18N
+        btnMensajes.setForeground(new java.awt.Color(102, 0, 153));
+        btnMensajes.setText("Mensaje");
+        btnMensajes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnMensajesMouseClicked(evt);
+            }
+        });
+        btnMensajes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMensajesActionPerformed(evt);
+            }
+        });
+
+        lblFotoPerfil.setText("Foto de perrfil");
+        lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
+        lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                lblFotoPerfilAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+
+        btnAbrirChat.setFont(new java.awt.Font("Arial Black", 0, 12)); // NOI18N
+        btnAbrirChat.setForeground(new java.awt.Color(102, 0, 153));
+        btnAbrirChat.setText("Chat");
+        btnAbrirChat.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnAbrirChatMouseClicked(evt);
+            }
+        });
+        btnAbrirChat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAbrirChatActionPerformed(evt);
+            }
+        });
+
+        panelContenedorContenido.setBackground(new java.awt.Color(255, 255, 255));
+        panelContenedorContenido.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(255, 153, 204)));
+        jScrollPane1.setViewportView(panelContenedorContenido);
+
         javax.swing.GroupLayout PPerfilLayout = new javax.swing.GroupLayout(PPerfil);
         PPerfil.setLayout(PPerfilLayout);
         PPerfilLayout.setHorizontalGroup(
@@ -1183,59 +1223,70 @@ private void actualizarNombreYAlias() {
                 .addContainerGap()
                 .addGroup(PPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PPerfilLayout.createSequentialGroup()
-                        .addGroup(PPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(panelFotoPortada, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(PPerfilLayout.createSequentialGroup()
-                                .addGap(58, 58, 58)
-                                .addComponent(panelFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(lblFotoPerfil1, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addContainerGap())
-                    .addGroup(PPerfilLayout.createSequentialGroup()
-                        .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(27, 27, 27)
-                        .addGroup(PPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(9, 9, 9)
+                        .addGroup(PPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnTweets))
+                        .addGap(32, 32, 32)
+                        .addGroup(PPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(PPerfilLayout.createSequentialGroup()
                                 .addComponent(lblFollowing)
-                                .addGap(26, 26, 26)
+                                .addGap(60, 60, 60)
                                 .addComponent(lblFollowers))
+                            .addComponent(lblAliasNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(PPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnMensajes, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PPerfilLayout.createSequentialGroup()
+                                .addComponent(btnRetweets)
+                                .addGap(254, 254, 254)
+                                .addComponent(btnLikes))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PPerfilLayout.createSequentialGroup()
+                                .addComponent(btnAbrirChat)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnSeguir)))
+                        .addGap(44, 44, 44))
+                    .addGroup(PPerfilLayout.createSequentialGroup()
+                        .addGroup(PPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(panelFotoPortada, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(PPerfilLayout.createSequentialGroup()
-                                .addComponent(lblAliasNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(377, 377, 377)
-                                .addComponent(btnSeguir))
-                            .addComponent(Ubicacion))
-                        .addGap(31, 31, 31))))
+                                .addGap(58, 58, 58)
+                                .addComponent(panelFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(PPerfilLayout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 768, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         PPerfilLayout.setVerticalGroup(
             PPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PPerfilLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addComponent(panelFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 67, Short.MAX_VALUE)
+                .addComponent(panelFotoPortada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(PPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PPerfilLayout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblFotoPerfil1, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                        .addGap(6, 6, 6)
+                        .addGroup(PPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnAbrirChat)
+                            .addComponent(btnSeguir)
+                            .addComponent(lblAliasNombre))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(PPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnMensajes)
+                            .addComponent(lblFollowing)
+                            .addComponent(lblFollowers)))
                     .addGroup(PPerfilLayout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addComponent(panelFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGroup(PPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(PPerfilLayout.createSequentialGroup()
-                        .addComponent(panelFotoPortada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(PPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(PPerfilLayout.createSequentialGroup()
-                                .addGap(33, 33, 33)
-                                .addComponent(btnSeguir))
-                            .addGroup(PPerfilLayout.createSequentialGroup()
-                                .addGap(46, 46, 46)
-                                .addComponent(lblAliasNombre)))
-                        .addGap(30, 30, 30)
-                        .addComponent(Ubicacion))
-                    .addComponent(lblFotoPerfil, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(40, 40, 40)
                 .addGroup(PPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblFollowing)
-                    .addComponent(lblFollowers))
-                .addGap(79, 79, 79))
+                    .addComponent(btnLikes)
+                    .addComponent(btnRetweets)
+                    .addComponent(btnTweets))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -1244,24 +1295,19 @@ private void actualizarNombreYAlias() {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(Menu2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(54, 54, 54)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1)
-                    .addComponent(Opciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(PPerfil, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(50, 50, 50)
+                .addComponent(PPerfil, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 68, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(Menu2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(PPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(Opciones, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(Menu2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -1272,126 +1318,14 @@ private void actualizarNombreYAlias() {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 957, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void LogoTwitter2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoTwitter2MouseClicked
-        Home h = new Home();
-        h.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_LogoTwitter2MouseClicked
-
-    private void pInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseClicked
-        Home h = new Home();
-        h.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_pInicioMouseClicked
-
-    private void pInicioMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseEntered
-        pInicio.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pInicioMouseEntered
-
-    private void pInicioMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseExited
-        pInicio.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pInicioMouseExited
-
-    private void pPerfilMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_pPerfilMouseClicked
-
-    private void pPerfilMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseEntered
-        pPerfil.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pPerfilMouseEntered
-
-    private void pPerfilMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseExited
-        pPerfil.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pPerfilMouseExited
-
-    private void pNotificacionesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_pNotificacionesMouseClicked
-
-    private void pNotificacionesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseEntered
-        pNotificaciones.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pNotificacionesMouseEntered
-
-    private void pNotificacionesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseExited
-        pNotificaciones.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pNotificacionesMouseExited
-
-    private void pExplorarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseClicked
-        BusquedaTwitter b = new BusquedaTwitter();
-        b.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_pExplorarMouseClicked
-
-    private void pExplorarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseEntered
-        pExplorar.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pExplorarMouseEntered
-
-    private void pExplorarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseExited
-        pExplorar.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pExplorarMouseExited
-
-    private void lblFotoPerfil1AncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfil1AncestorAdded
-        lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
-        lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
-    }//GEN-LAST:event_lblFotoPerfil1AncestorAdded
-
-    private void btnSeguirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeguirActionPerformed
-        seguirUsuario();
-        btnSeguir.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            btnSeguirActionPerformed(evt);
-        }
-    });
-    }//GEN-LAST:event_btnSeguirActionPerformed
-
-    private void panelFotoPortadaAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_panelFotoPortadaAncestorAdded
-        // TODO add your handling code here:
-    }//GEN-LAST:event_panelFotoPortadaAncestorAdded
-
-    private void PTweetsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PTweetsMouseEntered
-        PTweets.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_PTweetsMouseEntered
-
-    private void PTweetsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PTweetsMouseExited
-        PTweets.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_PTweetsMouseExited
-
-    private void PLikesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PLikesMouseEntered
-        PLikes.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_PLikesMouseEntered
-
-    private void PLikesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PLikesMouseExited
-        PLikes.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_PLikesMouseExited
-
-    private void PRetweetsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PRetweetsMouseEntered
-        PRetweets.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_PRetweetsMouseEntered
-
-    private void PRetweetsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PRetweetsMouseExited
-        PRetweets.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_PRetweetsMouseExited
-
-    private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
-        // TODO add your handling code here:
-    }//GEN-LAST:event_lblFotoPerfilAncestorAdded
-
-    private void panelFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_panelFotoPerfilAncestorAdded
-        panelFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
-    }//GEN-LAST:event_panelFotoPerfilAncestorAdded
-
-    private void lblAliasNombreAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblAliasNombreAncestorAdded
-               actualizarNombreYAlias(); // Llamar al método al cargar la interfaz
-    }//GEN-LAST:event_lblAliasNombreAncestorAdded
-
     private void btnLikesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLikesActionPerformed
-       cargarLikesUsuario();
+        cargarLikesUsuario();
         btnLikes.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 btnLikesActionPerformed(evt);
@@ -1399,19 +1333,9 @@ private void actualizarNombreYAlias() {
         });
     }//GEN-LAST:event_btnLikesActionPerformed
 
-    private void btnTweetsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTweetsActionPerformed
-        cargarTweetsUsuario();
-      btnTweets.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                btnTweetsActionPerformed(evt);
-            }
-        });
-
-    }//GEN-LAST:event_btnTweetsActionPerformed
-
     private void btnRetweetsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRetweetsActionPerformed
-       cargarRetweetsUsuario();
-       btnRetweets.addActionListener(new ActionListener() {
+        cargarRetweetsUsuario();
+        btnRetweets.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 btnRetweetsActionPerformed(evt);
@@ -1419,15 +1343,165 @@ private void actualizarNombreYAlias() {
         });
     }//GEN-LAST:event_btnRetweetsActionPerformed
 
-    private void lblFollowingMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblFollowingMouseClicked
-           cargarListaFollowing();
-          
-    }//GEN-LAST:event_lblFollowingMouseClicked
+    private void btnTweetsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTweetsActionPerformed
+        cargarTweetsUsuario();
+        btnTweets.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnTweetsActionPerformed(evt);
+            }
+        });
+    }//GEN-LAST:event_btnTweetsActionPerformed
+
+    private void panelFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_panelFotoPerfilAncestorAdded
+        panelFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
+    }//GEN-LAST:event_panelFotoPerfilAncestorAdded
+
+    private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
+        // TODO add your handling code here:
+    }//GEN-LAST:event_lblFotoPerfilAncestorAdded
 
     private void lblFollowersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblFollowersMouseClicked
-      cargarListaFollowers();
-      
+        cargarListaFollowers();
+
     }//GEN-LAST:event_lblFollowersMouseClicked
+
+    private void lblFollowingMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblFollowingMouseClicked
+        cargarListaFollowing();
+
+    }//GEN-LAST:event_lblFollowingMouseClicked
+
+    private void lblAliasNombreAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblAliasNombreAncestorAdded
+        actualizarNombreYAlias(); // Llamar al método al cargar la interfaz
+    }//GEN-LAST:event_lblAliasNombreAncestorAdded
+
+    private void btnSeguirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeguirActionPerformed
+        seguirUsuario();
+        btnSeguir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSeguirActionPerformed(evt);
+            }
+        });
+    }//GEN-LAST:event_btnSeguirActionPerformed
+
+    private void panelFotoPortadaAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_panelFotoPortadaAncestorAdded
+        // TODO add your handling code here:
+    }//GEN-LAST:event_panelFotoPortadaAncestorAdded
+
+    private void pExplorarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseExited
+        pExplorar.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pExplorarMouseExited
+
+    private void pExplorarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseEntered
+        pExplorar.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pExplorarMouseEntered
+
+    private void pExplorarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseClicked
+        BusquedaTwitter b = new BusquedaTwitter();
+        b.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_pExplorarMouseClicked
+
+    private void pNotificacionesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseExited
+        pNotificaciones.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pNotificacionesMouseExited
+
+    private void pNotificacionesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseEntered
+        pNotificaciones.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pNotificacionesMouseEntered
+
+    private void pNotificacionesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pNotificacionesMouseClicked
+
+    private void pPerfilMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseExited
+        pPerfil.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pPerfilMouseExited
+
+    private void pPerfilMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseEntered
+        pPerfil.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pPerfilMouseEntered
+
+    private void pPerfilMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pPerfilMouseClicked
+
+    private void pInicioMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseExited
+        pInicio.setBackground(colorNormalMenu);
+    }//GEN-LAST:event_pInicioMouseExited
+
+    private void pInicioMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseEntered
+        pInicio.setBackground(colorOscuroMenu);
+    }//GEN-LAST:event_pInicioMouseEntered
+
+    private void pInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseClicked
+        Home h = new Home();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_pInicioMouseClicked
+
+    private void LogoTwitter2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoTwitter2MouseClicked
+        Home h = new Home();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_LogoTwitter2MouseClicked
+
+    private void btnMensajesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMensajesActionPerformed
+btnMensajes.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        abrirMensajes();
+    }
+});
+
+    }//GEN-LAST:event_btnMensajesActionPerformed
+
+    private void btnMensajesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnMensajesMouseClicked
+btnMensajes.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        int usuarioId = UsuarioSesion.getUsuarioId(); // Obtener el ID del usuario actual
+        Mensajes mensajes = new Mensajes(usuarioId); // Pasar el ID del usuario
+        mensajes.setVisible(true); // Mostrar la ventana de mensajes
+    }
+});
+    }//GEN-LAST:event_btnMensajesMouseClicked
+
+    private void btnAbrirChatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnAbrirChatMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnAbrirChatMouseClicked
+
+
+    private void btnAbrirChatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirChatActionPerformed
+ idDestinatario = this.idUsuario; // Asegura que tomas el ID correcto del perfil visitado
+    System.out.println("idUsuario obtenido: " + UsuarioSesion.getUsuarioId());
+    System.out.println("idDestinatario obtenido: " + idDestinatario);
+
+    if (idDestinatario == 0) {
+        System.err.println("Error: idDestinatario no está inicializado correctamente.");
+        return; // Evita abrir el chat si no hay destinatario
+    }
+
+    Chat chat = new Chat(UsuarioSesion.getUsuarioId(), idDestinatario);
+    chat.setVisible(true);
+    }//GEN-LAST:event_btnAbrirChatActionPerformed
+
+    private void InicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_InicioMouseClicked
+        Home h = new Home();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_InicioMouseClicked
+
+    private void ExplorarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ExplorarMouseClicked
+         BusquedaTwitter h = new BusquedaTwitter();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_ExplorarMouseClicked
+
+    private void NotificacionesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_NotificacionesMouseClicked
+           notificaciones h = new notificaciones();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_NotificacionesMouseClicked
 
     /**
      * @param args the command line arguments
@@ -1470,14 +1544,10 @@ private void actualizarNombreYAlias() {
     private javax.swing.JLabel LogoTwitter2;
     private javax.swing.JPanel Menu2;
     private javax.swing.JLabel Notificaciones;
-    private javax.swing.JPanel Opciones;
-    private javax.swing.JPanel PLikes;
     private javax.swing.JPanel PPerfil;
-    private javax.swing.JPanel PRetweets;
-    private javax.swing.JPanel PTweets;
-    private javax.swing.JLabel Perfil;
-    private javax.swing.JLabel Ubicacion;
+    private javax.swing.JButton btnAbrirChat;
     private javax.swing.JButton btnLikes;
+    private javax.swing.JButton btnMensajes;
     private javax.swing.JButton btnRetweets;
     private javax.swing.JButton btnSeguir;
     private javax.swing.JButton btnTweets;
@@ -1488,7 +1558,6 @@ private void actualizarNombreYAlias() {
     private javax.swing.JLabel lblFollowing;
     private javax.swing.JLabel lblFondoPortada;
     private javax.swing.JLabel lblFotoPerfil;
-    private javax.swing.JLabel lblFotoPerfil1;
     private javax.swing.JPanel pExplorar;
     private javax.swing.JPanel pInicio;
     private javax.swing.JPanel pNotificaciones;

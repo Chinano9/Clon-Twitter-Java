@@ -44,6 +44,5 @@
             <artifactId>AbsoluteLayout</artifactId>
             <version>RELEASE240</version>
         </dependency>
-        
     </dependencies>
 </project>

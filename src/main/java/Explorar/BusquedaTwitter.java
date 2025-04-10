@@ -59,6 +59,9 @@ import java.util.HashMap;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import Explorar.BusquedaTwitter;
+import Notificaciones.notificaciones;
+import Perfil.EdiPerfil;
+import Perfilusuario.perfilusuario;
 import java.awt.Dimension;
 
 
@@ -91,11 +94,16 @@ import java.beans.PropertyChangeEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Cursor; 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import runproyectlogin.Iniciarsesionlogin;
 /**
  *
  * @author Jaime Paredes
  */
 public class BusquedaTwitter extends javax.swing.JFrame {
+private String filtro; 
+    private int usuarioIdPerfilMostrado = -1; // Variable global para almacenar el usuarioId del perfil mostrado
 
     Color colorNormal = new Color(255, 255, 255);
     Color colorOscuro = new Color(246, 246, 246);
@@ -115,11 +123,11 @@ private void cargarFotoPerfil() {
         // Si la imagen está presente, crear una ImageIcon
         ImageIcon imageIcon = new ImageIcon(imgBytes);
         Image image = imageIcon.getImage().getScaledInstance(
-            lblFotoPerfil1.getWidth(), lblFotoPerfil1.getHeight(), Image.SCALE_SMOOTH); // Escalar la imagen
-        lblFotoPerfil1.setIcon(new ImageIcon(image)); // Establecer la imagen en el JLabel
+            lblFotoPerfil.getWidth(), lblFotoPerfil.getHeight(), Image.SCALE_SMOOTH); // Escalar la imagen
+        lblFotoPerfil.setIcon(new ImageIcon(image)); // Establecer la imagen en el JLabel
     } else {
         // Si no hay imagen, mostrar un mensaje o imagen por defecto
-        lblFotoPerfil1.setIcon(null); // O puedes poner una imagen por defecto si lo prefieres
+        lblFotoPerfil.setIcon(null); // O puedes poner una imagen por defecto si lo prefieres
         System.out.println("No se encontró imagen para el usuario.");
     }
 }
@@ -156,31 +164,18 @@ private void actualizarNombreYAlias() {
         lblAliasNombre.setText("No hay usuario en sesión");
     }
 }
-public void cargarTweets(String filtro) {
-    try (Connection conexion = BasededatosTwitter.getConnection()) {
+
+public void buscarTweets(String textoBusqueda) {
+    try (Connection conexion = PantallaInicio.BasededatosTwitter.getConnection()) {
+        // Consulta modificada para incluir foto_perfil
         String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion, t.id_tweet, " +
-                     "t.usuario_id, t.multimedia, u.foto_perfil " +
-                     "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios ";
-
-       
-  // Aplicar filtros según la categoría seleccionada
-        if (filtro.equals("Trending")) {
-            sql += "WHERE t.contenido NOT LIKE '%#NEWS%' AND t.contenido NOT LIKE '%#ENTRETENIMIENTO%' " +
-                   "AND t.contenido NOT LIKE '%#SPORTS%' AND t.contenido NOT LIKE '%#NEWS%' ";
-        } else if (filtro.equals("News")) {
-            sql += "WHERE t.contenido LIKE '%#NEWS%' ";
-        } else if (filtro.equals("Sports")) {
-            sql += "WHERE t.contenido LIKE '%#SPORTS%' ";
-        } else if (filtro.equals("Entretenimiento")) {
-            sql += "WHERE t.contenido LIKE '%#ENTRETENIMIENTO%' ";
-        } else if (filtro.equals("Para Ti")) {
-            // Filtro para "Para Ti" (combinación de #NEWS y #SPORTS)
-            sql += "WHERE t.contenido LIKE '%#NEWS%' OR t.contenido LIKE '%#SPORTS%' ";
-        }
-
-        sql += "ORDER BY t.fecha_creacion DESC";
+                    "t.usuario_id, t.multimedia, u.foto_perfil " +  // Añadido u.foto_perfil
+                    "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios " +
+                    "WHERE t.contenido LIKE ? " +
+                    "ORDER BY t.fecha_creacion DESC";
 
         PreparedStatement ps = conexion.prepareStatement(sql);
+        ps.setString(1, "%" + textoBusqueda + "%");
         ResultSet rs = ps.executeQuery();
 
         ContenedordeExplorer.removeAll();
@@ -194,19 +189,20 @@ public void cargarTweets(String filtro) {
             int idTweet = rs.getInt("id_tweet");
             int idAutor = rs.getInt("usuario_id");
             Blob multimedia = rs.getBlob("multimedia");
-            Blob fotoPerfilBlob = rs.getBlob("foto_perfil");
+            Blob fotoPerfilBlob = rs.getBlob("foto_perfil");  // Nuevo: obtener foto de perfil
 
             boolean esMio = (idAutor == UsuarioSesion.getUsuarioId());
 
-           JPanel panelTweet = new JPanel();
-                    panelTweet.setLayout(new BoxLayout(panelTweet, BoxLayout.Y_AXIS));
-                    panelTweet.setMaximumSize(new Dimension(ContenedordeExplorer.getWidth(), 150));
-                    
-            // 📌 Panel superior con foto de perfil, nombre y alias
+            JPanel panelTweet = new JPanel(new BorderLayout());
+            panelTweet.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+            panelTweet.setBackground(Color.WHITE);
+            panelTweet.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
+
+            // Panel superior con foto de perfil, nombre y alias
             JPanel panelUsuario = new JPanel(new FlowLayout(FlowLayout.LEFT));
             panelUsuario.setBackground(Color.WHITE);
 
-            // ✅ Foto de perfil
+            // Mostrar foto de perfil
             if (fotoPerfilBlob != null) {
                 try {
                     byte[] fotoBytes = fotoPerfilBlob.getBytes(1, (int) fotoPerfilBlob.length());
@@ -219,12 +215,12 @@ public void cargarTweets(String filtro) {
                 }
             }
 
-            
+            // Añadir nombre, alias y fecha
             JLabel labelUsuario = new JLabel("<html><b>" + nombre + "</b> @" + alias + " 🕒 " + fecha + "</html>");
             panelUsuario.add(labelUsuario);
             panelTweet.add(panelUsuario, BorderLayout.NORTH);
 
-            // 📌 Contenido del tweet
+            // Contenido del tweet (solo texto)
             JTextArea textoTweet = new JTextArea(contenido);
             textoTweet.setEditable(false);
             textoTweet.setLineWrap(true);
@@ -232,7 +228,7 @@ public void cargarTweets(String filtro) {
             textoTweet.setBackground(Color.WHITE);
             panelTweet.add(textoTweet, BorderLayout.CENTER);
 
-            // 📌 Multimedia
+            // Multimedia del tweet (si existe)
             if (multimedia != null) {
                 try {
                     byte[] imageBytes = multimedia.getBytes(1, (int) multimedia.length());
@@ -245,59 +241,181 @@ public void cargarTweets(String filtro) {
                 }
             }
 
-            // 📌 Panel de interacciones
+            // Resto del código (panel de interacciones) permanece igual
             JPanel panelInteracciones = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
             // ❤️ Like
-            JButton btnLike = new JButton("❤️ " + obtenerTotalLikes(idTweet));
-            btnLike.addActionListener(e -> {
-                if (usuarioPuedeDarLike(idTweet)) {
-                    darLike(idTweet);
-                } else {
+            final JButton[] btnLike = new JButton[1];
+            final boolean[] yaDioLike = { !usuarioPuedeDarLike(idTweet) };
+            btnLike[0] = new JButton((yaDioLike[0] ? "💔 Quitar " : "❤️ ") + obtenerTotalLikes(idTweet));
+            btnLike[0].addActionListener(e -> {
+                if (yaDioLike[0]) {
                     quitarLike(idTweet);
+                    yaDioLike[0] = false;
+                } else {
+                    darLike(idTweet);
+                    yaDioLike[0] = true;
                 }
-                btnLike.setText("❤️ " + obtenerTotalLikes(idTweet));
+                btnLike[0].setText((yaDioLike[0] ? "💔 Quitar " : "❤️ ") + obtenerTotalLikes(idTweet));
             });
-            panelInteracciones.add(btnLike);
+            panelInteracciones.add(btnLike[0]);
 
             // 🔁 Retweet
-            JButton btnRT = new JButton("🔁 " + obtenerTotalRetweets(idTweet));
-            btnRT.addActionListener(e -> {
-                if (usuarioPuedeRetweetear(idTweet)) {
-                    retweetear(idTweet);
-                } else {
+            final JButton[] btnRT = new JButton[1];
+            final boolean[] yaRT = { !usuarioPuedeRetweetear(idTweet) };
+            btnRT[0] = new JButton((yaRT[0] ? "❌ Quitar RT " : "🔁 ") + obtenerTotalRetweets(idTweet));
+            btnRT[0].addActionListener(e -> {
+                if (yaRT[0]) {
                     quitarRetweet(idTweet);
+                    yaRT[0] = false;
+                } else {
+                    retweetear(idTweet);
+                    yaRT[0] = true;
                 }
-                btnRT.setText("🔁 " + obtenerTotalRetweets(idTweet));
+                btnRT[0].setText((yaRT[0] ? "❌ Quitar RT " : "🔁 ") + obtenerTotalRetweets(idTweet));
             });
-            panelInteracciones.add(btnRT);
+            panelInteracciones.add(btnRT[0]);
 
             // 💬 Ver comentarios
-            JButton btnVerComentarios = new JButton("💬 Ver comentarios");
+            int totalComentarios = obtenerTotalComentarios(idTweet);
+            JButton btnVerComentarios = new JButton("💬 Ver comentarios (" + totalComentarios + ")");
             btnVerComentarios.addActionListener(e -> {
                 mostrarComentarios(idTweet, ContenedordeExplorer);
             });
             panelInteracciones.add(btnVerComentarios);
 
-            // ✏️ Comentar
+            // 💬 Comentar
             JButton btnComentar = new JButton("💬 Comentar");
             btnComentar.addActionListener(e -> {
                 abrirVentanaComentario(idTweet);
             });
             panelInteracciones.add(btnComentar);
 
-            // 🗑 Editar y eliminar si es del usuario actual
-            if (esMio) {
-                JButton btnEditar = new JButton("✏️ Editar");
-                btnEditar.addActionListener(e -> {
-                    editarTweet(idTweet, contenido, null);
-                });
-                panelInteracciones.add(btnEditar);
+            // 🗑 Eliminar si es mío
+             if (esMio) {
+            // ✏️ Editar tweet
+JButton btnEditar = new JButton("✏️ Editar");
+btnEditar.addActionListener(e -> {
+    // Obtener el ID del tweet y la multimedia actual
+    String multimediaActual = obtenerMultimediaDeTweet(idTweet); // Obtener imagen actual
+
+    // Crear componentes para la edición
+    JTextField nuevoContenidoField = new JTextField(contenido);
+    JButton btnSeleccionarMultimedia = new JButton("📷 Seleccionar Imagen/GIF");
+    JLabel lblMultimediaSeleccionada = new JLabel();
+    JButton btnEliminarMultimedia = new JButton("🗑️ Quitar Multimedia");
+
+    final String[] nuevaRutaMultimedia = {multimediaActual};
+
+    // 🔹 Cargar y mostrar imagen actual si existe
+    if (multimediaActual != null && !multimediaActual.isEmpty()) {
+        File archivoImagen = new File(multimediaActual);
+        if (archivoImagen.exists()) { // Verifica que la imagen realmente existe
+            ImageIcon icono = new ImageIcon(multimediaActual);
+            Image imagen = icono.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH); // Ajuste fijo 100x100
+            lblMultimediaSeleccionada.setIcon(new ImageIcon(imagen));
+        } else {
+            lblMultimediaSeleccionada.setIcon(null); // Si no existe, no muestra nada
+        }
+    }
+
+    // Crear los paneles para la edición
+    JPanel panelEdicion = new JPanel(new BorderLayout());
+    JPanel panelSuperior = new JPanel(new GridLayout(2, 1));
+    JPanel panelInferior = new JPanel(new FlowLayout());
+
+    panelSuperior.add(nuevoContenidoField);
+    panelSuperior.add(lblMultimediaSeleccionada);
+
+    panelInferior.add(btnSeleccionarMultimedia);
+    panelInferior.add(btnEliminarMultimedia);
+
+    panelEdicion.add(panelSuperior, BorderLayout.CENTER);
+    panelEdicion.add(panelInferior, BorderLayout.SOUTH);
+
+    // Crear el JDialog para la ventana de edición
+    JDialog dialog = new JDialog();
+    dialog.setTitle("Editar Tweet");
+    dialog.setModal(true);
+    dialog.setSize(900, 800); // Ajustado el tamaño de la ventana
+    dialog.setLocationRelativeTo(null); // Centrar en la pantalla
+    dialog.setLayout(new BorderLayout());
+    dialog.add(panelEdicion, BorderLayout.CENTER);
+
+    // Acción para seleccionar una nueva multimedia
+    btnSeleccionarMultimedia.addActionListener(ev -> {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Imágenes/GIF", "jpg", "png", "gif"));
+        int resultado = fileChooser.showOpenDialog(null);
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+            nuevaRutaMultimedia[0] = fileChooser.getSelectedFile().getAbsolutePath();
+            ImageIcon iconoNuevo = new ImageIcon(nuevaRutaMultimedia[0]);
+            Image imagenNueva = iconoNuevo.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH); // Tamaño 100x100
+            lblMultimediaSeleccionada.setIcon(new ImageIcon(imagenNueva));
+        }
+    });
+
+    // Acción para eliminar la multimedia
+    btnEliminarMultimedia.addActionListener(ev -> {
+        nuevaRutaMultimedia[0] = null;
+        lblMultimediaSeleccionada.setIcon(null);
+    });
+
+    // Crear panel de botones para guardar o cancelar
+    JPanel panelBotones = new JPanel(new FlowLayout());
+    JButton btnGuardar = new JButton("Guardar");
+    JButton btnCancelar = new JButton("Cancelar");
+
+    // Acción para guardar los cambios
+    btnGuardar.addActionListener(ev -> {
+        String nuevoContenido = nuevoContenidoField.getText().trim();
+        if (!nuevoContenido.isEmpty()) {
+            // Guardar el contenido del tweet y la multimedia (convertir la imagen a bytes)
+            if (nuevaRutaMultimedia[0] != null) {
+                try {
+                    File file = new File(nuevaRutaMultimedia[0]);
+                    byte[] multimediaBytes = new byte[(int) file.length()];
+                    try (FileInputStream fis = new FileInputStream(file)) {
+                        fis.read(multimediaBytes);
+                    }
+
+                    // Llamar a editarTweet con la nueva imagen
+                    editarTweet(idTweet, nuevoContenido, multimediaBytes);
+                    cargarTweets(filtro); // Ahora se actualiza correctamente
+                    dialog.dispose(); // Cerrar la ventana después de guardar
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                // Si no se seleccionó nueva multimedia, solo editar el contenido del tweet
+                editarTweet(idTweet, nuevoContenido, null);
+                cargarTweets(filtro);
+                dialog.dispose();
+            }
+        }
+    });
+
+    // Acción para cancelar la edición
+    btnCancelar.addActionListener(ev -> dialog.dispose()); // Cerrar sin guardar
+
+    panelBotones.add(btnGuardar);
+    panelBotones.add(btnCancelar);
+
+    dialog.add(panelBotones, BorderLayout.SOUTH);
+    dialog.setVisible(true);
+});
+
+panelInteracciones.add(btnEditar);
+
 
                 JButton btnEliminar = new JButton("🗑 Eliminar");
                 btnEliminar.addActionListener(e -> {
-                    eliminarTweet(idTweet);
-                    cargarTweets(filtro); // ✅ Volver a cargar los tweets con el mismo filtro
+                    int confirm = JOptionPane.showConfirmDialog(this, "¿Eliminar este tweet?", "Confirmar", JOptionPane.YES_NO_OPTION);
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        eliminarTweet(idTweet);
+                        cargarTweets(filtro);
+                    }
                 });
                 panelInteracciones.add(btnEliminar);
             }
@@ -312,7 +430,288 @@ public void cargarTweets(String filtro) {
 
     } catch (SQLException e) {
         e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al cargar tweets.");
+        JOptionPane.showMessageDialog(this, "Error al buscar tweets.");
+    }
+}
+
+
+public void cargarTweets(String filtro) {
+    try (Connection conexion = BasededatosTwitter.getConnection()) {
+        String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion, t.id_tweet, " +
+                     "t.usuario_id, t.multimedia, u.foto_perfil " +
+                     "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios ";
+
+       
+// Aplicar filtros según la categoría seleccionada
+if (filtro.equals("Trending")) {
+    // Solo tweets que contengan al menos un hashtag
+    sql += "WHERE t.contenido LIKE '%#%' ";
+} else if (filtro.equals("News")) {
+    sql += "WHERE t.contenido LIKE '%#NEWS%' ";
+} else if (filtro.equals("Sports")) {
+    sql += "WHERE t.contenido LIKE '%#SPORTS%' ";
+} else if (filtro.equals("Entretenimiento")) {
+    sql += "WHERE t.contenido LIKE '%#ENTRETENIMIENTO%' ";
+} else if (filtro.equals("Para Ti")) {
+    // Debe tener hashtags o no tener hashtags, pero NO puede incluir #NEWS, #SPORTS, ni #ENTRETENIMIENTO
+    sql += "WHERE (t.contenido NOT LIKE '%#NEWS%' AND " +
+           "t.contenido NOT LIKE '%#SPORTS%' AND " +
+           "t.contenido NOT LIKE '%#ENTRETENIMIENTO%') ";
+}
+
+sql += "ORDER BY t.fecha_creacion DESC";
+
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+
+        ContenedordeExplorer.removeAll();
+        ContenedordeExplorer.setLayout(new BoxLayout(ContenedordeExplorer, BoxLayout.Y_AXIS));
+
+        while (rs.next()) {
+            int usuarioId = rs.getInt("usuario_id");
+            String nombreUsuario = rs.getString("nombre_usuario");
+            String alias = rs.getString("alias");
+            String contenido = rs.getString("contenido");
+            String fecha = rs.getString("fecha_creacion");
+            Blob multimedia = rs.getBlob("multimedia");
+            int idTweet = rs.getInt("id_tweet");
+            Blob fotoPerfilBlob = rs.getBlob("foto_perfil");
+
+
+            boolean esMio = (usuarioId == UsuarioSesion.getUsuarioId());
+
+            JPanel panelTweet = new JPanel(new BorderLayout());
+            panelTweet.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+            panelTweet.setBackground(Color.WHITE);
+            panelTweet.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
+
+            // Panel superior con foto de perfil, nombre y alias
+            JPanel panelUsuario = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            panelUsuario.setBackground(Color.WHITE);
+
+            // Mostrar foto de perfil
+            if (fotoPerfilBlob != null) {
+                try {
+                    byte[] fotoBytes = fotoPerfilBlob.getBytes(1, (int) fotoPerfilBlob.length());
+                    ImageIcon icon = new ImageIcon(fotoBytes);
+                    Image imagenEscalada = icon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+                    JLabel labelFoto = new JLabel(new ImageIcon(imagenEscalada));
+                    panelUsuario.add(labelFoto);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+           // Añadir nombre, alias y fecha
+            JLabel labelUsuario = new JLabel("<html><b>" + nombreUsuario + "</b> @" + alias + " 🕒 " + fecha + "</html>");
+            panelUsuario.add(labelUsuario);
+
+            JLabel lblNombreUsuario = new JLabel(nombreUsuario + " @" + alias);
+            lblNombreUsuario.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            
+            panelUsuario.add(lblNombreUsuario);
+            panelTweet.add(panelUsuario, BorderLayout.NORTH);
+
+            // Contenido del tweet
+            JTextArea textoTweet = new JTextArea(contenido);
+            textoTweet.setEditable(false);
+            textoTweet.setLineWrap(true);
+            textoTweet.setWrapStyleWord(true);
+            textoTweet.setBackground(Color.WHITE);
+            panelTweet.add(textoTweet, BorderLayout.CENTER);
+
+            // Multimedia del tweet (si existe)
+            if (multimedia != null) {
+                try {
+                    byte[] imageBytes = multimedia.getBytes(1, (int) multimedia.length());
+                    ImageIcon icon = new ImageIcon(imageBytes);
+                    Image imagenEscalada = icon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+                    JLabel imagenLabel = new JLabel(new ImageIcon(imagenEscalada));
+                    panelTweet.add(imagenLabel, BorderLayout.WEST);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // Panel de interacciones
+            JPanel panelInteracciones = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+            // ❤️ Like
+            final JButton[] btnLike = new JButton[1];
+            final boolean[] yaDioLike = { !usuarioPuedeDarLike(idTweet) };
+            btnLike[0] = new JButton((yaDioLike[0] ? "💔 Quitar " : "❤️ ") + obtenerTotalLikes(idTweet));
+            btnLike[0].addActionListener(e -> {
+                if (yaDioLike[0]) {
+                    quitarLike(idTweet);
+                    yaDioLike[0] = false;
+                } else {
+                    darLike(idTweet);
+                    yaDioLike[0] = true;
+                }
+                btnLike[0].setText((yaDioLike[0] ? "💔 Quitar " : "❤️ ") + obtenerTotalLikes(idTweet));
+            });
+            panelInteracciones.add(btnLike[0]);
+
+            // 🔁 Retweet
+            final JButton[] btnRT = new JButton[1];
+            final boolean[] yaRT = { !usuarioPuedeRetweetear(idTweet) };
+            btnRT[0] = new JButton((yaRT[0] ? "❌ Quitar RT " : "🔁 ") + obtenerTotalRetweets(idTweet));
+            btnRT[0].addActionListener(e -> {
+                if (yaRT[0]) {
+                    quitarRetweet(idTweet);
+                    yaRT[0] = false;
+                } else {
+                    retweetear(idTweet);
+                    yaRT[0] = true;
+                }
+                btnRT[0].setText((yaRT[0] ? "❌ Quitar RT " : "🔁 ") + obtenerTotalRetweets(idTweet));
+            });
+            panelInteracciones.add(btnRT[0]);
+
+            // 💬 Comentarios
+            int totalComentarios = obtenerTotalComentarios(idTweet);
+            JButton btnVerComentarios = new JButton("💬 Ver comentarios (" + totalComentarios + ")");
+            btnVerComentarios.addActionListener(e -> {
+                mostrarComentarios(idTweet, ContenedordeExplorer);
+            });
+            panelInteracciones.add(btnVerComentarios);
+
+            JButton btnComentar = new JButton("💬 Comentar");
+            btnComentar.addActionListener(e -> {
+                abrirVentanaComentario(idTweet);
+            });
+            panelInteracciones.add(btnComentar);
+
+            // ✏️ Editar y 🗑 Eliminar si es mío
+            if (esMio) {
+                // ✏️ Editar tweet
+                JButton btnEditar = new JButton("✏️ Editar");
+                btnEditar.addActionListener(e -> {
+                    // Obtener la multimedia actual
+                    byte[] multimediaBytesActual = null;
+                    if(multimedia != null){
+                        try{
+                            multimediaBytesActual = multimedia.getBytes(1,(int)multimedia.length());
+                        }catch(SQLException ex){
+                            ex.printStackTrace();
+                        }
+                    }
+
+                    // Crear componentes para la edición
+                    JTextField nuevoContenidoField = new JTextField(contenido);
+                    JButton btnSeleccionarMultimedia = new JButton("📷 Seleccionar Imagen/GIF");
+                    JLabel lblMultimediaSeleccionada = new JLabel();
+                    JButton btnEliminarMultimedia = new JButton("🗑️ Quitar Multimedia");
+
+                    final byte[][] nuevaMultimediaBytes = {multimediaBytesActual};
+
+                    // 🔹 Cargar y mostrar imagen actual si existe
+                    if (multimediaBytesActual != null) {
+                        ImageIcon icono = new ImageIcon(multimediaBytesActual);
+                        Image imagen = icono.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH); // Ajuste fijo 100x100
+                        lblMultimediaSeleccionada.setIcon(new ImageIcon(imagen));
+                    } else {
+                        lblMultimediaSeleccionada.setIcon(null); // Si no existe, no muestra nada
+                    }
+
+                    // Crear los paneles para la edición
+                    JPanel panelEdicion = new JPanel(new BorderLayout());
+                    JPanel panelSuperior = new JPanel(new GridLayout(2, 1));
+                    JPanel panelInferior = new JPanel(new FlowLayout());
+
+                    panelSuperior.add(nuevoContenidoField);
+                    panelSuperior.add(lblMultimediaSeleccionada);
+
+                    panelInferior.add(btnSeleccionarMultimedia);
+                    panelInferior.add(btnEliminarMultimedia);
+
+                    panelEdicion.add(panelSuperior, BorderLayout.CENTER);
+                    panelEdicion.add(panelInferior, BorderLayout.SOUTH);
+
+                    // Crear el JDialog para la ventana de edición
+                    JDialog dialog = new JDialog();
+                    dialog.setTitle("Editar Tweet");
+                    dialog.setModal(true);
+                    dialog.setSize(900, 800); // Ajustado el tamaño de la ventana
+                    dialog.setLocationRelativeTo(null); // Centrar en la pantalla
+                    dialog.setLayout(new BorderLayout());
+                    dialog.add(panelEdicion, BorderLayout.CENTER);
+
+                    // Acción para seleccionar una nueva multimedia
+                    btnSeleccionarMultimedia.addActionListener(ev -> {
+                        JFileChooser fileChooser = new JFileChooser();
+                        fileChooser.setFileFilter(new FileNameExtensionFilter("Imágenes/GIF", "jpg", "png", "gif"));
+                        int resultado = fileChooser.showOpenDialog(null);
+                        if (resultado == JFileChooser.APPROVE_OPTION) {
+                            File archivoSeleccionado = fileChooser.getSelectedFile();
+                            try(FileInputStream fis = new FileInputStream(archivoSeleccionado)) {
+                                nuevaMultimediaBytes[0] = fis.readAllBytes();
+                                ImageIcon iconoNuevo = new ImageIcon(nuevaMultimediaBytes[0]);
+                                Image imagenNueva = iconoNuevo.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH); // Tamaño 100x100
+                                lblMultimediaSeleccionada.setIcon(new ImageIcon(imagenNueva));
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
+
+                    // Acción para eliminar la multimedia
+                    btnEliminarMultimedia.addActionListener(ev -> {
+                        nuevaMultimediaBytes[0] = null;
+                        lblMultimediaSeleccionada.setIcon(null);
+                    });
+
+                    // Crear panel de botones para guardar o cancelar
+                    JPanel panelBotones = new JPanel(new FlowLayout());
+                    JButton btnGuardar = new JButton("Guardar");
+                    JButton btnCancelar = new JButton("Cancelar");
+
+                    // Acción para guardar los cambios
+                    btnGuardar.addActionListener(ev -> {
+                        String nuevoContenido = nuevoContenidoField.getText().trim();
+                        if (!nuevoContenido.isEmpty()) {
+                            // Guardar el contenido del tweet y la multimedia (convertir la imagen a bytes)
+                            editarTweet(idTweet, nuevoContenido, nuevaMultimediaBytes[0]);
+                            cargarTweets(filtro); // Ahora se actualiza correctamente
+                            dialog.dispose(); // Cerrar la ventana después de guardar
+                        }
+                    });
+
+                    // Acción para cancelar la edición
+                    btnCancelar.addActionListener(ev -> dialog.dispose()); // Cerrar sin guardar
+
+                    panelBotones.add(btnGuardar);
+                    panelBotones.add(btnCancelar);
+
+                    dialog.add(panelBotones, BorderLayout.SOUTH);
+                    dialog.setVisible(true);
+                });
+
+                panelInteracciones.add(btnEditar);
+
+                JButton btnEliminar = new JButton("🗑 Eliminar");
+                btnEliminar.addActionListener(e -> {
+                    int confirm = JOptionPane.showConfirmDialog(this, "¿Eliminar este tweet?", "Confirmar", JOptionPane.YES_NO_OPTION);
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        eliminarTweet(idTweet);
+                        cargarTweets(filtro);
+                    }
+                });
+                panelInteracciones.add(btnEliminar);
+            }
+
+            panelTweet.add(panelInteracciones, BorderLayout.SOUTH);
+            ContenedordeExplorer.add(panelTweet);
+            ContenedordeExplorer.add(Box.createVerticalStrut(10));
+        }
+
+        ContenedordeExplorer.revalidate();
+        ContenedordeExplorer.repaint();
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al cargar los tweets.");
     }
 }
 
@@ -814,7 +1213,120 @@ private void editarTweet(int id_tweet, String contenidoNuevo, byte[] multimediaB
     }
 }
 
+private void cargarTrendingTopics() {
+    try (Connection conexion = PantallaInicio.BasededatosTwitter.getConnection()) {
+        // Consulta para obtener hashtags populares
+        String sql = "SELECT " +
+                "SUBSTRING_INDEX(SUBSTRING_INDEX(t.contenido, '#', -1), ' ', 1) AS hashtag, " +
+                "COUNT(*) AS cantidad " +
+                "FROM tweets t " +
+                "WHERE t.contenido LIKE '%#%' " +
+                "GROUP BY hashtag " +
+                "ORDER BY cantidad DESC " +
+                "LIMIT 5";
 
+        PreparedStatement ps = conexion.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+
+        // Limpiar y configurar el panel principal
+        panelTrendingTopics.removeAll();
+        panelTrendingTopics.setLayout(new BoxLayout(panelTrendingTopics, BoxLayout.Y_AXIS));
+
+        // Panel contenedor para centrar los elementos
+        JPanel panelCentrado = new JPanel();
+        panelCentrado.setLayout(new BoxLayout(panelCentrado, BoxLayout.Y_AXIS));
+        panelCentrado.setBackground(new Color(245, 245, 245)); // Mismo color de fondo
+
+        // Título de la sección (arriba)
+        JLabel tituloSeccion = new JLabel("TRENDING TOPICS");
+        tituloSeccion.setFont(new Font("Arial", Font.BOLD, 18));
+        tituloSeccion.setAlignmentX(Component.CENTER_ALIGNMENT); // Centrado horizontal
+        panelCentrado.add(tituloSeccion);
+        panelCentrado.add(Box.createVerticalStrut(15));
+
+        while (rs.next()) {
+            String hashtag = rs.getString("hashtag");
+            int cantidad = rs.getInt("cantidad");
+
+            // Panel para cada hashtag (con alineación centrada)
+            JPanel panelHashtag = new JPanel();
+            panelHashtag.setLayout(new BoxLayout(panelHashtag, BoxLayout.Y_AXIS));
+            panelHashtag.setBackground(new Color(230, 230, 230));
+            panelHashtag.setAlignmentX(Component.CENTER_ALIGNMENT); // Centrado horizontal
+
+            // Label para el hashtag (centrado)
+            JLabel lblHashtag = new JLabel("#" + hashtag);
+            lblHashtag.setFont(new Font("Arial", Font.BOLD, 16));
+            lblHashtag.setForeground(new Color(29, 161, 242));
+            lblHashtag.setAlignmentX(Component.CENTER_ALIGNMENT); // Centrado
+
+            // Label para la cantidad (centrado)
+            JLabel lblCantidad = new JLabel(cantidad + " menciones");
+            lblCantidad.setFont(new Font("Arial", Font.PLAIN, 12));
+            lblCantidad.setForeground(Color.GRAY);
+            lblCantidad.setAlignmentX(Component.CENTER_ALIGNMENT); // Centrado
+
+            panelHashtag.add(lblHashtag);
+            panelHashtag.add(lblCantidad);
+
+            // Hacer clickable el panel
+            panelHashtag.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            panelHashtag.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    buscarTweets("#" + hashtag);
+                }
+            });
+
+            panelCentrado.add(panelHashtag);
+            panelCentrado.add(Box.createVerticalStrut(10));
+        }
+
+        // Añadir el panel centrado al panel principal
+        panelTrendingTopics.add(Box.createVerticalGlue()); // Espacio arriba
+        panelTrendingTopics.add(panelCentrado);
+        panelTrendingTopics.add(Box.createVerticalGlue()); // Espacio abajo
+
+        panelTrendingTopics.revalidate();
+        panelTrendingTopics.repaint();
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al cargar trending topics");
+    }
+}
+
+
+
+private String obtenerMultimediaDeTweet(int id_tweet) {
+    String rutaMultimedia = null;
+    try (Connection c = PantallaInicio.BasededatosTwitter.getConnection()) {
+        String sql = "SELECT multimedia FROM tweets WHERE id_tweet = ?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, id_tweet);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            rutaMultimedia = rs.getString("multimedia");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return rutaMultimedia; // Retorna null si el tweet no tiene multimedia
+}
+
+
+private int obtenerTotalComentarios(int idTweet) {
+    try (Connection c = PantallaInicio.BasededatosTwitter.getConnection()) {
+        String sql = "SELECT COUNT(*) FROM comentarios WHERE tweet_id = ?";
+        PreparedStatement ps = c.prepareStatement(sql);
+        ps.setInt(1, idTweet);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return rs.getInt(1);
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
 
 private void abrirVentanaComentario(int idTweet) {
     int usuarioId = UsuarioSesion.getUsuarioId();
@@ -980,8 +1492,124 @@ public void cargarTodosLosTweets() {
         e.printStackTrace();
     }
 }
+private void agregarMenuFotoPerfil() {
+    lblFotoPerfil.addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            mostrarMenuContextualFotoPerfil(evt);
+        }
+    });
+}
+
+private void mostrarMenuContextualFotoPerfil(java.awt.event.MouseEvent evt) {
+    JPopupMenu menu = new JPopupMenu();
+
+    // Opción "Ver Perfil"
+ JMenuItem itemVerPerfil = new JMenuItem("Ver Perfil");
+itemVerPerfil.addActionListener(new ActionListener() {
+    public void actionPerformed(ActionEvent evt) {
+        int usuarioId = usuarioIdPerfilMostrado; // Obtener el ID del usuario seleccionado
+        perfilusuario perfil = new perfilusuario(usuarioId); // Pasar ID al perfil
+        perfil.setVisible(true);
+    }
+});
+menu.add(itemVerPerfil);
 
 
+    // Opción "Configuración"
+    JMenuItem itemConfiguracion = new JMenuItem("Configuración");
+    itemConfiguracion.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            abrirConfiguracion();
+        }
+    });
+    menu.add(itemConfiguracion);
+
+    // Opción "Cerrar Sesión"
+    JMenuItem itemCerrarSesion = new JMenuItem("Cerrar Sesión");
+    itemCerrarSesion.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            cerrarSesion();
+        }
+    });
+    menu.add(itemCerrarSesion);
+
+    menu.show(evt.getComponent(), evt.getX(), evt.getY());
+}
+
+ private void mostrarMenuOpciones(java.awt.event.MouseEvent evt) {
+        JPopupMenu menu = new JPopupMenu();
+        
+        // Botón Configuración
+        JMenuItem itemConfiguracion = new JMenuItem("Configuración");
+        itemConfiguracion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                abrirConfiguracion();
+            }
+        });
+        menu.add(itemConfiguracion);
+        
+        // Separador
+        menu.addSeparator();
+        
+        // Botón Cerrar Sesión
+        JMenuItem itemCerrarSesion = new JMenuItem("Cerrar Sesión");
+        itemCerrarSesion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cerrarSesion();
+            }
+        });
+        menu.add(itemCerrarSesion);
+        
+// Botón Ver Perfil
+JMenuItem itemVerPerfil = new JMenuItem("Ver Perfil");
+itemVerPerfil.addActionListener(new java.awt.event.ActionListener() {
+    public void actionPerformed(java.awt.event.ActionEvent evt) {
+        // Obtener el usuarioId del perfil mostrado
+        int usuarioId = usuarioIdPerfilMostrado;
+        abrirPerfilUsuario(usuarioId);
+    }
+});
+menu.add(itemVerPerfil);
+
+        // Mostrar el menú en la posición del clic
+        menu.show(lblFotoPerfil, evt.getX(), evt.getY());
+    }
+ private void abrirPerfilUsuario(int idUsuario) {
+            this.dispose();
+    perfilusuario perfil = new perfilusuario(idUsuario); // Abre el perfil del usuario con el idUsuario
+    perfil.setVisible(true);
+}
+ 
+private void abrirConfiguracion() {
+    EdiPerfil editarPerfil = new EdiPerfil();
+    editarPerfil.setLocationRelativeTo(this);
+    editarPerfil.setVisible(true);
+}
+
+     private void cerrarSesion() {
+        int opcion = JOptionPane.showConfirmDialog(
+            this, 
+            "¿Estás seguro que deseas cerrar sesión?", 
+            "Confirmar Cierre de Sesión", 
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+        );
+        
+        if (opcion == JOptionPane.YES_OPTION) {
+            // Cerrar la ventana actual
+            this.dispose();
+            
+            // Abrir el formulario de login
+            EventQueue.invokeLater(() -> {
+                Iniciarsesionlogin login = new Iniciarsesionlogin();
+                login.setVisible(true);
+                login.setLocationRelativeTo(null); // Centrar en pantalla
+            });
+            
+            // Aquí puedes agregar lógica adicional de cierre de sesión
+            // como limpiar variables de sesión, etc.
+        }
+    }
     /**
      * Creates new form perfilVisual
      */
@@ -989,6 +1617,8 @@ public BusquedaTwitter() {
     initComponents();  // Método generado por NetBeans GUI Builder
       cargarFotoPerfil(); // Llamamos al método para cargar la imagen de perfil
     cargarTweets("Para Ti");
+    cargarTrendingTopics(); 
+        agregarMenuFotoPerfil();
 
 
 
@@ -1004,16 +1634,14 @@ public BusquedaTwitter() {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lblFotoPerfil = new javax.swing.JLabel();
         PanelPrincipal = new javax.swing.JPanel();
         Menu2 = new javax.swing.JPanel();
         LogoTwitter2 = new javax.swing.JLabel();
         btnInicio2 = new javax.swing.JButton();
         btnExprorar2 = new javax.swing.JButton();
         btnNotificaciones2 = new javax.swing.JButton();
-        btnPerfil2 = new javax.swing.JButton();
         PanelBuscador = new javax.swing.JPanel();
-        Buscador = new javax.swing.JTextField();
+        txtBuscar = new javax.swing.JTextField();
         btnBusqueda = new javax.swing.JButton();
         btnParaTi = new javax.swing.JButton();
         btnTrending = new javax.swing.JButton();
@@ -1024,27 +1652,9 @@ public BusquedaTwitter() {
         PanelPrincipalScroll = new javax.swing.JPanel();
         NoticiasDelDia = new javax.swing.JPanel();
         ContenedordeExplorer = new javax.swing.JPanel();
-        lblFotoPerfil1 = new javax.swing.JLabel();
+        lblFotoPerfil = new javax.swing.JLabel();
         lblAliasNombre = new javax.swing.JLabel();
-        hashtags = new javax.swing.JPanel();
-        ScrollHashtags = new javax.swing.JScrollPane();
-        PanelPrincipalHashtags = new javax.swing.JPanel();
-        Pr1Hashtags = new javax.swing.JPanel();
-        Pr2Hashtags = new javax.swing.JPanel();
-        Pr3Hashtags = new javax.swing.JPanel();
-        Pr4Hashtags = new javax.swing.JPanel();
-
-        lblFotoPerfil.setText("Foto de Perfil");
-        lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
-        lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
-            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                lblFotoPerfilAncestorAdded(evt);
-            }
-            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
-            }
-            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
-            }
-        });
+        panelTrendingTopics = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -1055,6 +1665,11 @@ public BusquedaTwitter() {
         LogoTwitter2.setFont(new java.awt.Font("Eras Bold ITC", 0, 36)); // NOI18N
         LogoTwitter2.setForeground(new java.awt.Color(102, 0, 153));
         LogoTwitter2.setText("Twitter");
+        LogoTwitter2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                LogoTwitter2MouseClicked(evt);
+            }
+        });
 
         btnInicio2.setBackground(new java.awt.Color(246, 234, 250));
         btnInicio2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
@@ -1064,6 +1679,11 @@ public BusquedaTwitter() {
         btnInicio2.setBorder(null);
         btnInicio2.setContentAreaFilled(false);
         btnInicio2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnInicio2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnInicio2MouseClicked(evt);
+            }
+        });
         btnInicio2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnInicio2ActionPerformed(evt);
@@ -1078,6 +1698,11 @@ public BusquedaTwitter() {
         btnExprorar2.setBorder(null);
         btnExprorar2.setContentAreaFilled(false);
         btnExprorar2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnExprorar2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnExprorar2MouseClicked(evt);
+            }
+        });
         btnExprorar2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnExprorar2ActionPerformed(evt);
@@ -1092,20 +1717,16 @@ public BusquedaTwitter() {
         btnNotificaciones2.setBorder(null);
         btnNotificaciones2.setContentAreaFilled(false);
         btnNotificaciones2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnNotificaciones2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnNotificaciones2MouseClicked(evt);
+            }
+        });
         btnNotificaciones2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnNotificaciones2ActionPerformed(evt);
             }
         });
-
-        btnPerfil2.setBackground(new java.awt.Color(246, 234, 250));
-        btnPerfil2.setFont(new java.awt.Font("Eras Bold ITC", 0, 18)); // NOI18N
-        btnPerfil2.setForeground(new java.awt.Color(102, 0, 153));
-        btnPerfil2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/perfil.png"))); // NOI18N
-        btnPerfil2.setText("Perfil");
-        btnPerfil2.setBorder(null);
-        btnPerfil2.setContentAreaFilled(false);
-        btnPerfil2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         javax.swing.GroupLayout Menu2Layout = new javax.swing.GroupLayout(Menu2);
         Menu2.setLayout(Menu2Layout);
@@ -1117,7 +1738,6 @@ public BusquedaTwitter() {
                     .addComponent(btnNotificaciones2)
                     .addComponent(btnInicio2)
                     .addComponent(btnExprorar2)
-                    .addComponent(btnPerfil2)
                     .addComponent(LogoTwitter2))
                 .addGap(9, 9, 9))
         );
@@ -1128,22 +1748,28 @@ public BusquedaTwitter() {
                 .addComponent(LogoTwitter2)
                 .addGap(35, 35, 35)
                 .addComponent(btnInicio2)
-                .addGap(34, 34, 34)
-                .addComponent(btnPerfil2)
-                .addGap(41, 41, 41)
+                .addGap(56, 56, 56)
                 .addComponent(btnExprorar2)
-                .addGap(43, 43, 43)
+                .addGap(55, 55, 55)
                 .addComponent(btnNotificaciones2)
-                .addContainerGap(432, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         PanelBuscador.setBackground(new java.awt.Color(255, 255, 255));
 
-        Buscador.setBackground(new java.awt.Color(246, 234, 250));
-        Buscador.setText("Buscar");
-        Buscador.addActionListener(new java.awt.event.ActionListener() {
+        txtBuscar.setBackground(new java.awt.Color(246, 234, 250));
+        txtBuscar.setText("Buscar");
+        txtBuscar.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txtBuscarFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtBuscarFocusLost(evt);
+            }
+        });
+        txtBuscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BuscadorActionPerformed(evt);
+                txtBuscarActionPerformed(evt);
             }
         });
 
@@ -1152,6 +1778,11 @@ public BusquedaTwitter() {
         btnBusqueda.setBorder(null);
         btnBusqueda.setContentAreaFilled(false);
         btnBusqueda.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnBusqueda.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBusquedaActionPerformed(evt);
+            }
+        });
 
         btnParaTi.setText("Para ti");
         btnParaTi.setBorder(null);
@@ -1197,6 +1828,15 @@ public BusquedaTwitter() {
         btnEntretenimiento.setBorder(null);
         btnEntretenimiento.setContentAreaFilled(false);
         btnEntretenimiento.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnEntretenimiento.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+                btnEntretenimientoAncestorMoved(evt);
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
 
         javax.swing.GroupLayout PanelBuscadorLayout = new javax.swing.GroupLayout(PanelBuscador);
         PanelBuscador.setLayout(PanelBuscadorLayout);
@@ -1206,10 +1846,9 @@ public BusquedaTwitter() {
                 .addContainerGap()
                 .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelBuscadorLayout.createSequentialGroup()
-                        .addComponent(Buscador, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtBuscar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnBusqueda)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addComponent(btnBusqueda))
                     .addGroup(PanelBuscadorLayout.createSequentialGroup()
                         .addComponent(btnParaTi)
                         .addGap(49, 49, 49)
@@ -1227,7 +1866,7 @@ public BusquedaTwitter() {
             .addGroup(PanelBuscadorLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(Buscador, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnBusqueda))
                 .addGap(18, 18, 18)
                 .addGroup(PanelBuscadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1257,7 +1896,7 @@ public BusquedaTwitter() {
         ContenedordeExplorer.setLayout(ContenedordeExplorerLayout);
         ContenedordeExplorerLayout.setHorizontalGroup(
             ContenedordeExplorerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 481, Short.MAX_VALUE)
+            .addGap(0, 567, Short.MAX_VALUE)
         );
         ContenedordeExplorerLayout.setVerticalGroup(
             ContenedordeExplorerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1271,7 +1910,7 @@ public BusquedaTwitter() {
             .addGroup(NoticiasDelDiaLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(ContenedordeExplorer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(140, Short.MAX_VALUE))
+                .addContainerGap(54, Short.MAX_VALUE))
         );
         NoticiasDelDiaLayout.setVerticalGroup(
             NoticiasDelDiaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1300,11 +1939,11 @@ public BusquedaTwitter() {
 
         ScrollBusqueda.setViewportView(PanelPrincipalScroll);
 
-        lblFotoPerfil1.setText("Foto de Perfil");
-        lblFotoPerfil1.setPreferredSize(new java.awt.Dimension(150, 150));
-        lblFotoPerfil1.addAncestorListener(new javax.swing.event.AncestorListener() {
+        lblFotoPerfil.setText("Foto de Perfil");
+        lblFotoPerfil.setPreferredSize(new java.awt.Dimension(150, 150));
+        lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
-                lblFotoPerfil1AncestorAdded(evt);
+                lblFotoPerfilAncestorAdded(evt);
             }
             public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
             }
@@ -1323,147 +1962,15 @@ public BusquedaTwitter() {
             }
         });
 
-        hashtags.setBackground(new java.awt.Color(255, 255, 255));
-        hashtags.setForeground(new java.awt.Color(255, 255, 255));
-
-        ScrollHashtags.setBackground(new java.awt.Color(255, 255, 255));
-        ScrollHashtags.setForeground(new java.awt.Color(255, 255, 255));
-
-        PanelPrincipalHashtags.setBackground(new java.awt.Color(255, 255, 255));
-        PanelPrincipalHashtags.setForeground(new java.awt.Color(255, 255, 255));
-
-        Pr1Hashtags.setBackground(new java.awt.Color(255, 255, 255));
-        Pr1Hashtags.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        Pr1Hashtags.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                Pr1HashtagsMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                Pr1HashtagsMouseExited(evt);
-            }
-        });
-
-        Pr2Hashtags.setBackground(new java.awt.Color(255, 255, 255));
-        Pr2Hashtags.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        Pr2Hashtags.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                Pr2HashtagsMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                Pr2HashtagsMouseExited(evt);
-            }
-        });
-
-        javax.swing.GroupLayout Pr2HashtagsLayout = new javax.swing.GroupLayout(Pr2Hashtags);
-        Pr2Hashtags.setLayout(Pr2HashtagsLayout);
-        Pr2HashtagsLayout.setHorizontalGroup(
-            Pr2HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 231, Short.MAX_VALUE)
+        javax.swing.GroupLayout panelTrendingTopicsLayout = new javax.swing.GroupLayout(panelTrendingTopics);
+        panelTrendingTopics.setLayout(panelTrendingTopicsLayout);
+        panelTrendingTopicsLayout.setHorizontalGroup(
+            panelTrendingTopicsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 167, Short.MAX_VALUE)
         );
-        Pr2HashtagsLayout.setVerticalGroup(
-            Pr2HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 77, Short.MAX_VALUE)
-        );
-
-        javax.swing.GroupLayout Pr1HashtagsLayout = new javax.swing.GroupLayout(Pr1Hashtags);
-        Pr1Hashtags.setLayout(Pr1HashtagsLayout);
-        Pr1HashtagsLayout.setHorizontalGroup(
-            Pr1HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Pr1HashtagsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Pr2Hashtags, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        Pr1HashtagsLayout.setVerticalGroup(
-            Pr1HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Pr1HashtagsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Pr2Hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        Pr3Hashtags.setBackground(new java.awt.Color(255, 255, 255));
-        Pr3Hashtags.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        Pr3Hashtags.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                Pr3HashtagsMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                Pr3HashtagsMouseExited(evt);
-            }
-        });
-
-        javax.swing.GroupLayout Pr3HashtagsLayout = new javax.swing.GroupLayout(Pr3Hashtags);
-        Pr3Hashtags.setLayout(Pr3HashtagsLayout);
-        Pr3HashtagsLayout.setHorizontalGroup(
-            Pr3HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 238, Short.MAX_VALUE)
-        );
-        Pr3HashtagsLayout.setVerticalGroup(
-            Pr3HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 77, Short.MAX_VALUE)
-        );
-
-        Pr4Hashtags.setBackground(new java.awt.Color(255, 255, 255));
-        Pr4Hashtags.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        Pr4Hashtags.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                Pr4HashtagsMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                Pr4HashtagsMouseExited(evt);
-            }
-        });
-
-        javax.swing.GroupLayout Pr4HashtagsLayout = new javax.swing.GroupLayout(Pr4Hashtags);
-        Pr4Hashtags.setLayout(Pr4HashtagsLayout);
-        Pr4HashtagsLayout.setHorizontalGroup(
-            Pr4HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 263, Short.MAX_VALUE)
-        );
-        Pr4HashtagsLayout.setVerticalGroup(
-            Pr4HashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 77, Short.MAX_VALUE)
-        );
-
-        javax.swing.GroupLayout PanelPrincipalHashtagsLayout = new javax.swing.GroupLayout(PanelPrincipalHashtags);
-        PanelPrincipalHashtags.setLayout(PanelPrincipalHashtagsLayout);
-        PanelPrincipalHashtagsLayout.setHorizontalGroup(
-            PanelPrincipalHashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PanelPrincipalHashtagsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(PanelPrincipalHashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(Pr1Hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(Pr3Hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(14, Short.MAX_VALUE))
-            .addComponent(Pr4Hashtags, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        PanelPrincipalHashtagsLayout.setVerticalGroup(
-            PanelPrincipalHashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PanelPrincipalHashtagsLayout.createSequentialGroup()
-                .addGap(50, 50, 50)
-                .addComponent(Pr1Hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(101, 101, 101)
-                .addComponent(Pr3Hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(Pr4Hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(145, Short.MAX_VALUE))
-        );
-
-        ScrollHashtags.setViewportView(PanelPrincipalHashtags);
-
-        javax.swing.GroupLayout hashtagsLayout = new javax.swing.GroupLayout(hashtags);
-        hashtags.setLayout(hashtagsLayout);
-        hashtagsLayout.setHorizontalGroup(
-            hashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(hashtagsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(ScrollHashtags, javax.swing.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        hashtagsLayout.setVerticalGroup(
-            hashtagsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(ScrollHashtags, javax.swing.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)
+        panelTrendingTopicsLayout.setVerticalGroup(
+            panelTrendingTopicsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 530, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout PanelPrincipalLayout = new javax.swing.GroupLayout(PanelPrincipal);
@@ -1473,20 +1980,23 @@ public BusquedaTwitter() {
             .addGroup(PanelPrincipalLayout.createSequentialGroup()
                 .addComponent(Menu2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(ScrollBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(PanelBuscador, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ScrollBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 588, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelPrincipalLayout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(lblFotoPerfil1, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(PanelPrincipalLayout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(lblAliasNombre))
+                        .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                                .addGap(0, 0, 0)
+                                .addComponent(lblAliasNombre)))
+                        .addGap(105, 105, 105))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelPrincipalLayout.createSequentialGroup()
-                        .addGap(152, 152, 152)
-                        .addComponent(hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                        .addComponent(panelTrendingTopics, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())))
         );
         PanelPrincipalLayout.setVerticalGroup(
             PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1496,15 +2006,15 @@ public BusquedaTwitter() {
                 .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(PanelPrincipalLayout.createSequentialGroup()
-                        .addComponent(lblFotoPerfil1, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(lblAliasNombre)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(ScrollBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(PanelPrincipalLayout.createSequentialGroup()
-                        .addComponent(hashtags, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(panelTrendingTopics, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 114, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -1512,9 +2022,7 @@ public BusquedaTwitter() {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(PanelPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(PanelPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1542,9 +2050,33 @@ public BusquedaTwitter() {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnNotificaciones2ActionPerformed
 
-    private void BuscadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscadorActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_BuscadorActionPerformed
+    private void txtBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarActionPerformed
+       
+
+    // Agregar un FocusListener al JTextField
+    txtBuscar.addFocusListener(new java.awt.event.FocusAdapter() {
+        @Override
+        public void focusGained(java.awt.event.FocusEvent evt) {
+            if (txtBuscar.getText().equals("Buscar")) {
+                txtBuscar.setText(""); // Borra el texto cuando el campo recibe el foco
+            }
+        }
+
+        @Override
+        public void focusLost(java.awt.event.FocusEvent evt) {
+            if (txtBuscar.getText().trim().isEmpty()) {
+                txtBuscar.setText("Buscar"); // Vuelve a mostrar "Buscar" si el campo está vacío
+            }
+        }
+    });
+
+    // Agregar un ActionListener para el evento de presionar Enter
+    txtBuscar.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            realizarBusqueda(); // Llama al método de búsqueda separado
+        }
+    });
+    }//GEN-LAST:event_txtBuscarActionPerformed
 
     private void btnParaTiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnParaTiActionPerformed
     cargarTweets("Para Ti");
@@ -1564,50 +2096,14 @@ public BusquedaTwitter() {
     }//GEN-LAST:event_ContenedordeExplorerMouseExited
 
     private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
-
+     lblFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
+lblFotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
     }//GEN-LAST:event_lblFotoPerfilAncestorAdded
-
-    private void lblFotoPerfil1AncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfil1AncestorAdded
-     lblFotoPerfil1.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
-lblFotoPerfil1.setHorizontalAlignment(SwingConstants.CENTER);
-    }//GEN-LAST:event_lblFotoPerfil1AncestorAdded
 
     private void lblAliasNombreAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblAliasNombreAncestorAdded
            actualizarNombreYAlias(); // Llamar al método al cargar la interfaz
 
     }//GEN-LAST:event_lblAliasNombreAncestorAdded
-
-    private void Pr1HashtagsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr1HashtagsMouseEntered
-        Pr1Hashtags.setBackground(colorOscuroHastags);
-    }//GEN-LAST:event_Pr1HashtagsMouseEntered
-
-    private void Pr1HashtagsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr1HashtagsMouseExited
-        Pr1Hashtags.setBackground(colorNomalHastags);
-    }//GEN-LAST:event_Pr1HashtagsMouseExited
-
-    private void Pr2HashtagsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr2HashtagsMouseEntered
-        Pr2Hashtags.setBackground(colorOscuroHastags);
-    }//GEN-LAST:event_Pr2HashtagsMouseEntered
-
-    private void Pr3HashtagsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr3HashtagsMouseEntered
-        Pr3Hashtags.setBackground(colorOscuroHastags);
-    }//GEN-LAST:event_Pr3HashtagsMouseEntered
-
-    private void Pr4HashtagsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr4HashtagsMouseEntered
-        Pr4Hashtags.setBackground(colorOscuroHastags);
-    }//GEN-LAST:event_Pr4HashtagsMouseEntered
-
-    private void Pr2HashtagsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr2HashtagsMouseExited
-        Pr2Hashtags.setBackground(colorNomalHastags);
-    }//GEN-LAST:event_Pr2HashtagsMouseExited
-
-    private void Pr3HashtagsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr3HashtagsMouseExited
-        Pr3Hashtags.setBackground(colorNomalHastags);
-    }//GEN-LAST:event_Pr3HashtagsMouseExited
-
-    private void Pr4HashtagsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Pr4HashtagsMouseExited
-        Pr4Hashtags.setBackground(colorNomalHastags);
-    }//GEN-LAST:event_Pr4HashtagsMouseExited
 
     private void btnTrendingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTrendingActionPerformed
     cargarTweets("Trending");
@@ -1632,6 +2128,64 @@ lblFotoPerfil1.setHorizontalAlignment(SwingConstants.CENTER);
                 panelTweet.setLayout(new BoxLayout(panelTweet, BoxLayout.Y_AXIS));
                 panelTweet.setMaximumSize(new Dimension(ContenedordeExplorer.getWidth(), 300));
     }//GEN-LAST:event_btnSportsActionPerformed
+
+    private void btnNotificaciones2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnNotificaciones2MouseClicked
+       notificaciones h = new notificaciones();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnNotificaciones2MouseClicked
+
+    private void LogoTwitter2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoTwitter2MouseClicked
+        Home h = new Home();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_LogoTwitter2MouseClicked
+
+    private void btnInicio2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnInicio2MouseClicked
+     Home h = new Home();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnInicio2MouseClicked
+
+    private void btnExprorar2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExprorar2MouseClicked
+        BusquedaTwitter h = new BusquedaTwitter();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnExprorar2MouseClicked
+
+    private void btnEntretenimientoAncestorMoved(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_btnEntretenimientoAncestorMoved
+        cargarTweets("Entretenimiento");
+       // Crear el panel del tweet
+                JPanel panelTweet = new JPanel();
+                panelTweet.setLayout(new BoxLayout(panelTweet, BoxLayout.Y_AXIS));
+                panelTweet.setMaximumSize(new Dimension(ContenedordeExplorer.getWidth(), 300));
+    }//GEN-LAST:event_btnEntretenimientoAncestorMoved
+private void realizarBusqueda() {
+
+   
+    buscarTweets(txtBuscar.getText()); // Llama a la función buscarTweets()
+
+}
+
+
+    private void txtBuscarFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtBuscarFocusGained
+              // Si el texto es "Buscar", lo borra cuando el campo recibe el foco
+    if (txtBuscar.getText().equals("Buscar")) {
+        txtBuscar.setText(""); 
+    }
+    }//GEN-LAST:event_txtBuscarFocusGained
+
+    private void txtBuscarFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtBuscarFocusLost
+               // Si el campo está vacío, vuelve a mostrar "Buscar"
+    if (txtBuscar.getText().trim().isEmpty()) {
+        txtBuscar.setText("Buscar");
+    }
+    }//GEN-LAST:event_txtBuscarFocusLost
+
+    private void btnBusquedaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBusquedaActionPerformed
+      buscarTweets(txtBuscar.getText());
+
+    }//GEN-LAST:event_btnBusquedaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1666,21 +2220,14 @@ lblFotoPerfil1.setHorizontalAlignment(SwingConstants.CENTER);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField Buscador;
     private javax.swing.JPanel ContenedordeExplorer;
     private javax.swing.JLabel LogoTwitter2;
     private javax.swing.JPanel Menu2;
     private javax.swing.JPanel NoticiasDelDia;
     private javax.swing.JPanel PanelBuscador;
     private javax.swing.JPanel PanelPrincipal;
-    private javax.swing.JPanel PanelPrincipalHashtags;
     private javax.swing.JPanel PanelPrincipalScroll;
-    private javax.swing.JPanel Pr1Hashtags;
-    private javax.swing.JPanel Pr2Hashtags;
-    private javax.swing.JPanel Pr3Hashtags;
-    private javax.swing.JPanel Pr4Hashtags;
     private javax.swing.JScrollPane ScrollBusqueda;
-    private javax.swing.JScrollPane ScrollHashtags;
     private javax.swing.JButton btnBusqueda;
     private javax.swing.JButton btnEntretenimiento;
     private javax.swing.JButton btnExprorar2;
@@ -1688,13 +2235,12 @@ lblFotoPerfil1.setHorizontalAlignment(SwingConstants.CENTER);
     private javax.swing.JButton btnNews;
     private javax.swing.JButton btnNotificaciones2;
     private javax.swing.JButton btnParaTi;
-    private javax.swing.JButton btnPerfil2;
     private javax.swing.JButton btnSports;
     private javax.swing.JButton btnTrending;
-    private javax.swing.JPanel hashtags;
     private javax.swing.JLabel lblAliasNombre;
     private javax.swing.JLabel lblFotoPerfil;
-    private javax.swing.JLabel lblFotoPerfil1;
+    private javax.swing.JPanel panelTrendingTopics;
+    private javax.swing.JTextField txtBuscar;
     // End of variables declaration//GEN-END:variables
 
     private static class RunnableImpl implements Runnable {
@@ -1707,3 +2253,140 @@ lblFotoPerfil1.setHorizontalAlignment(SwingConstants.CENTER);
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//MIGUEL ROBERTO GUZMAN ALATORRE

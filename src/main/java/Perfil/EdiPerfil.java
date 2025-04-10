@@ -70,6 +70,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Cursor; // Para el cursor de mano
 import Explorar.BusquedaTwitter;
+import Notificaciones.notificaciones;
 import PantallaInicio.Home;
 import runproyectlogin.Iniciarsesionlogin;
 import java.awt.Color;
@@ -523,14 +524,12 @@ private String obtenerContraseñaAntigua(int idUsuario) {
         pInicio = new javax.swing.JPanel();
         Inicio = new javax.swing.JLabel();
         pPerfil = new javax.swing.JPanel();
-        Perfil = new javax.swing.JLabel();
         pNotificaciones = new javax.swing.JPanel();
         Notificaciones = new javax.swing.JLabel();
         pExplorar = new javax.swing.JPanel();
         Explorar = new javax.swing.JLabel();
         panelDatos = new javax.swing.JPanel();
         Panel1 = new javax.swing.JPanel();
-        Tacha = new javax.swing.JLabel();
         TextoEP = new javax.swing.JLabel();
         btnCancelar = new javax.swing.JButton();
         btnGuardar = new javax.swing.JButton();
@@ -592,6 +591,11 @@ private String obtenerContraseñaAntigua(int idUsuario) {
         Inicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/brujula.png"))); // NOI18N
         Inicio.setText("Inicio");
         Inicio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Inicio.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                InicioMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout pInicioLayout = new javax.swing.GroupLayout(pInicio);
         pInicio.setLayout(pInicioLayout);
@@ -624,27 +628,15 @@ private String obtenerContraseñaAntigua(int idUsuario) {
             }
         });
 
-        Perfil.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
-        Perfil.setForeground(new java.awt.Color(102, 0, 153));
-        Perfil.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/perfil.png"))); // NOI18N
-        Perfil.setText("Perfil");
-        Perfil.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
         javax.swing.GroupLayout pPerfilLayout = new javax.swing.GroupLayout(pPerfil);
         pPerfil.setLayout(pPerfilLayout);
         pPerfilLayout.setHorizontalGroup(
             pPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pPerfilLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Perfil)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 209, Short.MAX_VALUE)
         );
         pPerfilLayout.setVerticalGroup(
             pPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pPerfilLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Perfil)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGap(0, 42, Short.MAX_VALUE)
         );
 
         pNotificaciones.setBackground(new java.awt.Color(246, 234, 250));
@@ -666,6 +658,11 @@ private String obtenerContraseñaAntigua(int idUsuario) {
         Notificaciones.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/Notificaciones.png"))); // NOI18N
         Notificaciones.setText("Notificaciones");
         Notificaciones.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Notificaciones.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                NotificacionesMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout pNotificacionesLayout = new javax.swing.GroupLayout(pNotificaciones);
         pNotificaciones.setLayout(pNotificacionesLayout);
@@ -674,14 +671,14 @@ private String obtenerContraseñaAntigua(int idUsuario) {
             .addGroup(pNotificacionesLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(Notificaciones)
-                .addContainerGap(24, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         pNotificacionesLayout.setVerticalGroup(
             pNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pNotificacionesLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(Notificaciones)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
 
         pExplorar.setBackground(new java.awt.Color(246, 234, 250));
@@ -698,28 +695,27 @@ private String obtenerContraseñaAntigua(int idUsuario) {
             }
         });
 
+        javax.swing.GroupLayout pExplorarLayout = new javax.swing.GroupLayout(pExplorar);
+        pExplorar.setLayout(pExplorarLayout);
+        pExplorarLayout.setHorizontalGroup(
+            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 209, Short.MAX_VALUE)
+        );
+        pExplorarLayout.setVerticalGroup(
+            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 59, Short.MAX_VALUE)
+        );
+
         Explorar.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
         Explorar.setForeground(new java.awt.Color(102, 0, 153));
         Explorar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/lupa.png"))); // NOI18N
         Explorar.setText("Explorar");
         Explorar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        javax.swing.GroupLayout pExplorarLayout = new javax.swing.GroupLayout(pExplorar);
-        pExplorar.setLayout(pExplorarLayout);
-        pExplorarLayout.setHorizontalGroup(
-            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pExplorarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Explorar)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        pExplorarLayout.setVerticalGroup(
-            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pExplorarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Explorar)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        Explorar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ExplorarMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout Menu2Layout = new javax.swing.GroupLayout(Menu2);
         Menu2.setLayout(Menu2Layout);
@@ -733,6 +729,10 @@ private String obtenerContraseñaAntigua(int idUsuario) {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(LogoTwitter2)
                 .addGap(43, 43, 43))
+            .addGroup(Menu2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Explorar)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         Menu2Layout.setVerticalGroup(
             Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -743,19 +743,18 @@ private String obtenerContraseñaAntigua(int idUsuario) {
                 .addComponent(pInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(pPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(8, 8, 8)
+                .addComponent(Explorar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(pExplorar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(pNotificaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(502, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         panelDatos.setBackground(new java.awt.Color(246, 234, 250));
 
         Panel1.setBackground(new java.awt.Color(246, 234, 250));
-
-        Tacha.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/tacha.png"))); // NOI18N
-        Tacha.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         TextoEP.setFont(new java.awt.Font("Arial Black", 0, 24)); // NOI18N
         TextoEP.setForeground(new java.awt.Color(102, 0, 153));
@@ -784,8 +783,6 @@ private String obtenerContraseñaAntigua(int idUsuario) {
             Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(Panel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(Tacha)
-                .addGap(18, 18, 18)
                 .addComponent(TextoEP)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnCancelar)
@@ -800,11 +797,9 @@ private String obtenerContraseñaAntigua(int idUsuario) {
             Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(Panel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(TextoEP)
-                        .addComponent(btnCancelar))
-                    .addComponent(Tacha))
+                .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(TextoEP)
+                    .addComponent(btnCancelar))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Panel1Layout.createSequentialGroup()
@@ -826,7 +821,7 @@ private String obtenerContraseñaAntigua(int idUsuario) {
             }
         });
 
-        lblFondoPortada.setText("jLabel8");
+        lblFondoPortada.setText("Foto de portada");
 
         javax.swing.GroupLayout panelFotoPortadaLayout = new javax.swing.GroupLayout(panelFotoPortada);
         panelFotoPortada.setLayout(panelFotoPortadaLayout);
@@ -895,16 +890,14 @@ private String obtenerContraseñaAntigua(int idUsuario) {
         jLabel7.setForeground(new java.awt.Color(153, 153, 153));
         jLabel7.setText("Confirmar contraseña");
 
-        txtPasswordAnterior.setText("jPasswordField1");
-
-        btnSeleccionarPortada.setText("jButton1");
+        btnSeleccionarPortada.setText("Subir portada");
         btnSeleccionarPortada.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSeleccionarPortadaActionPerformed(evt);
             }
         });
 
-        btnSeleccionarPerfil.setText("jButton1");
+        btnSeleccionarPerfil.setText("Cambiar foto");
         btnSeleccionarPerfil.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSeleccionarPerfilActionPerformed(evt);
@@ -937,77 +930,75 @@ private String obtenerContraseñaAntigua(int idUsuario) {
                         .addComponent(Panel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(Portada, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(panelDatosLayout.createSequentialGroup()
+                            .addGap(8, 8, 8)
                             .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnSeleccionarPerfil))
+                            .addGap(18, 18, 18)
+                            .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel6)
+                                .addComponent(jLabel3)
+                                .addComponent(txtNombreUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel2)
+                                .addComponent(txtAlias, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel4)
+                                .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel5)
+                                .addComponent(jLabel7)
+                                .addComponent(txtPasswordNueva, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(txtConfirmarPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGroup(panelDatosLayout.createSequentialGroup()
-                                    .addGap(9, 9, 9)
-                                    .addComponent(btnSeleccionarPerfil))
-                                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGap(26, 26, 26)
-                            .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelDatosLayout.createSequentialGroup()
-                                    .addComponent(txtPasswordAnterior)
+                                    .addComponent(txtPasswordAnterior, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGap(18, 18, 18)
-                                    .addComponent(btnMostrarContraseña, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(114, 114, 114))
-                                .addGroup(panelDatosLayout.createSequentialGroup()
-                                    .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jLabel3)
-                                        .addComponent(txtNombreUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel2)
-                                        .addComponent(txtAlias, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel4)
-                                        .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel6)
-                                        .addComponent(jLabel5)
-                                        .addComponent(jLabel7)
-                                        .addComponent(txtPasswordNueva, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(txtConfirmarPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGap(0, 152, Short.MAX_VALUE))))))
+                                    .addComponent(btnMostrarContraseña, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGap(0, 114, Short.MAX_VALUE))))
                 .addContainerGap(31, Short.MAX_VALUE))
         );
         panelDatosLayout.setVerticalGroup(
             panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelDatosLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(Panel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(Portada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnSeleccionarPortada)
-                .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(panelDatosLayout.createSequentialGroup()
-                        .addGap(46, 46, 46)
-                        .addComponent(jLabel2)
+                        .addComponent(Panel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtNombreUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(panelDatosLayout.createSequentialGroup()
+                        .addComponent(Portada, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
-                .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
+                        .addComponent(btnSeleccionarPortada)
+                        .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelDatosLayout.createSequentialGroup()
+                                .addGap(15, 15, 15)
+                                .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtNombreUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(panelDatosLayout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel2)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel3)
+                        .addGap(17, 17, 17))
                     .addComponent(btnSeleccionarPerfil))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(txtAlias, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(23, 23, 23)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel5)
                 .addGap(18, 18, 18)
                 .addGroup(panelDatosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnMostrarContraseña, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtPasswordAnterior, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(16, 16, 16)
+                    .addComponent(txtPasswordAnterior, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnMostrarContraseña, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(17, 17, 17)
                 .addComponent(jLabel6)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(txtPasswordNueva, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(4, 4, 4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel7)
                 .addGap(18, 18, 18)
                 .addComponent(txtConfirmarPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(64, Short.MAX_VALUE))
         );
 
         panelFotoPerfil.setBackground(new java.awt.Color(255, 255, 255));
@@ -1042,7 +1033,7 @@ private String obtenerContraseñaAntigua(int idUsuario) {
                 .addGroup(panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(panelDatos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(panelFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(124, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelPrincipalLayout.setVerticalGroup(
             panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1059,7 +1050,7 @@ private String obtenerContraseñaAntigua(int idUsuario) {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1176,6 +1167,24 @@ private boolean mostrarContraseña = false;
         panelFotoPerfil.setPreferredSize(new Dimension(100, 100)); // Ajusta según necesites
     }//GEN-LAST:event_panelFotoPerfilAncestorAdded
 
+    private void InicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_InicioMouseClicked
+  Home h = new Home();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_InicioMouseClicked
+
+    private void ExplorarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ExplorarMouseClicked
+         BusquedaTwitter h = new BusquedaTwitter();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_ExplorarMouseClicked
+
+    private void NotificacionesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_NotificacionesMouseClicked
+        notificaciones h = new notificaciones();
+        h.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_NotificacionesMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -1218,9 +1227,7 @@ private boolean mostrarContraseña = false;
     private javax.swing.JPanel Menu2;
     private javax.swing.JLabel Notificaciones;
     private javax.swing.JPanel Panel1;
-    private javax.swing.JLabel Perfil;
     private javax.swing.JPanel Portada;
-    private javax.swing.JLabel Tacha;
     private javax.swing.JLabel TextoEP;
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnGuardar;
