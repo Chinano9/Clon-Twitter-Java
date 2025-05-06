@@ -2,9 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package Perfil;
+package EditarPerfil;
 
-
+import ConexionBase.RetornarBaseDedatos;
+import UsuarioDatos.UsuarioDAO;
+import UsuarioID.UsuarioSesion;
 import java.awt.Insets;  // Este es el import necesario para setMargin()
 import Explorar.BusquedaTwitter;
 import java.awt.Dimension;
@@ -57,7 +59,6 @@ import java.sql.ResultSet;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import PantallaInicio.UsuarioDAO; // 👈 Asegúrate de que esta clase existe y tiene getConnection()
 import javax.swing.JFileChooser;
 
 import javax.swing.BorderFactory;
@@ -72,10 +73,10 @@ import java.awt.Cursor; // Para el cursor de mano
 import Explorar.BusquedaTwitter;
 import Notificaciones.notificaciones;
 import PantallaInicio.Home;
-import runproyectlogin.Iniciarsesionlogin;
+import IniciarSesion.Iniciarsesionlogin;
 import java.awt.Color;
 import javax.swing.SwingConstants;
-import PantallaInicio.UsuarioSesion;
+import UsuarioID.UsuarioSesion;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -141,7 +142,7 @@ private BufferedImage fotoPortada;
     }
 
    private void cargarDatosUsuario() {
-        Connection con = BasededatosTwitter.getConnection();
+        Connection con = RetornarBaseDedatos.getConnection();
         if (con != null) {
             try {
                 String sql = "SELECT nombre_usuario, alias, email, password, foto_perfil, fondo_portada FROM usuarios WHERE id_usuarios = ?"; // Incluir fondo_portada
@@ -244,7 +245,7 @@ private BufferedImage fotoPortada;
     }
 
           private void cargarFotoPerfilEnJPanel(JPanel panel) {
-        Connection con = BasededatosTwitter.getConnection();
+        Connection con = RetornarBaseDedatos.getConnection();
         if (con != null) {
             try {
                 String sql = "SELECT foto_perfil FROM usuarios WHERE id_usuarios = ?";
@@ -296,7 +297,7 @@ private void actualizarDatosUsuario() {
 
         System.out.println("ID del usuario a actualizar: " + idUsuario); // Depuración
 
-        Connection con = BasededatosTwitter.getConnection();
+        Connection con = RetornarBaseDedatos.getConnection();
         if (con != null) {
             FileInputStream fisFondoPortada = null; // Declarar fisFondoPortada aquí
             try {
@@ -373,7 +374,7 @@ private void actualizarDatosUsuario() {
 
     // Método para obtener el valor existente de un campo en la base de datos
     private String obtenerValorExistente(String columna, int idUsuario) {
-        Connection con = BasededatosTwitter.getConnection();
+        Connection con = RetornarBaseDedatos.getConnection();
         String valorExistente = null;
         if (con != null) {
             try {
@@ -415,7 +416,7 @@ private void actualizarDatosUsuario() {
     
      // Método para obtener los bytes existentes de una imagen en la base de datos
     private byte[] obtenerBytesExistentes(String columna, int idUsuario) {
-        Connection con = BasededatosTwitter.getConnection();
+        Connection con = RetornarBaseDedatos.getConnection();
         byte[] bytesExistentes = null;
         if (con != null) {
             try {
@@ -439,7 +440,7 @@ private void actualizarDatosUsuario() {
     // Método para obtener la contraseña antigua de la base de datos
 private String obtenerContraseñaAntigua(int idUsuario) {
     String contraseñaAntigua = null;
-    Connection con = BasededatosTwitter.getConnection();
+    Connection con = RetornarBaseDedatos.getConnection();
     if (con != null) {
         try {
             String sql = "SELECT password FROM usuarios WHERE id_usuarios = ?";
@@ -521,17 +522,12 @@ private String obtenerContraseñaAntigua(int idUsuario) {
         panelPrincipal = new javax.swing.JPanel();
         Menu2 = new javax.swing.JPanel();
         LogoTwitter2 = new javax.swing.JLabel();
-        pInicio = new javax.swing.JPanel();
-        Inicio = new javax.swing.JLabel();
-        pPerfil = new javax.swing.JPanel();
-        pNotificaciones = new javax.swing.JPanel();
-        Notificaciones = new javax.swing.JLabel();
-        pExplorar = new javax.swing.JPanel();
         Explorar = new javax.swing.JLabel();
+        Notificaciones = new javax.swing.JLabel();
+        Inicio = new javax.swing.JLabel();
         panelDatos = new javax.swing.JPanel();
         Panel1 = new javax.swing.JPanel();
         TextoEP = new javax.swing.JLabel();
-        btnCancelar = new javax.swing.JButton();
         btnGuardar = new javax.swing.JButton();
         Portada = new javax.swing.JPanel();
         panelFotoPortada = new javax.swing.JPanel();
@@ -572,84 +568,14 @@ private String obtenerContraseñaAntigua(int idUsuario) {
             }
         });
 
-        pInicio.setBackground(new java.awt.Color(246, 234, 250));
-        pInicio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        pInicio.addMouseListener(new java.awt.event.MouseAdapter() {
+        Explorar.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
+        Explorar.setForeground(new java.awt.Color(102, 0, 153));
+        Explorar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/lupa.png"))); // NOI18N
+        Explorar.setText("Explorar");
+        Explorar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Explorar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                pInicioMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                pInicioMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                pInicioMouseExited(evt);
-            }
-        });
-
-        Inicio.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
-        Inicio.setForeground(new java.awt.Color(102, 0, 153));
-        Inicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/brujula.png"))); // NOI18N
-        Inicio.setText("Inicio");
-        Inicio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        Inicio.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                InicioMouseClicked(evt);
-            }
-        });
-
-        javax.swing.GroupLayout pInicioLayout = new javax.swing.GroupLayout(pInicio);
-        pInicio.setLayout(pInicioLayout);
-        pInicioLayout.setHorizontalGroup(
-            pInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pInicioLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Inicio)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        pInicioLayout.setVerticalGroup(
-            pInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pInicioLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Inicio)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        pPerfil.setBackground(new java.awt.Color(246, 234, 250));
-        pPerfil.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        pPerfil.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                pPerfilMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                pPerfilMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                pPerfilMouseExited(evt);
-            }
-        });
-
-        javax.swing.GroupLayout pPerfilLayout = new javax.swing.GroupLayout(pPerfil);
-        pPerfil.setLayout(pPerfilLayout);
-        pPerfilLayout.setHorizontalGroup(
-            pPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 209, Short.MAX_VALUE)
-        );
-        pPerfilLayout.setVerticalGroup(
-            pPerfilLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 42, Short.MAX_VALUE)
-        );
-
-        pNotificaciones.setBackground(new java.awt.Color(246, 234, 250));
-        pNotificaciones.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        pNotificaciones.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                pNotificacionesMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                pNotificacionesMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                pNotificacionesMouseExited(evt);
+                ExplorarMouseClicked(evt);
             }
         });
 
@@ -664,56 +590,14 @@ private String obtenerContraseñaAntigua(int idUsuario) {
             }
         });
 
-        javax.swing.GroupLayout pNotificacionesLayout = new javax.swing.GroupLayout(pNotificaciones);
-        pNotificaciones.setLayout(pNotificacionesLayout);
-        pNotificacionesLayout.setHorizontalGroup(
-            pNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pNotificacionesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Notificaciones)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        pNotificacionesLayout.setVerticalGroup(
-            pNotificacionesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pNotificacionesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(Notificaciones)
-                .addContainerGap(24, Short.MAX_VALUE))
-        );
-
-        pExplorar.setBackground(new java.awt.Color(246, 234, 250));
-        pExplorar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        pExplorar.addMouseListener(new java.awt.event.MouseAdapter() {
+        Inicio.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
+        Inicio.setForeground(new java.awt.Color(102, 0, 153));
+        Inicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/brujula.png"))); // NOI18N
+        Inicio.setText("Inicio");
+        Inicio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        Inicio.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                pExplorarMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                pExplorarMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                pExplorarMouseExited(evt);
-            }
-        });
-
-        javax.swing.GroupLayout pExplorarLayout = new javax.swing.GroupLayout(pExplorar);
-        pExplorar.setLayout(pExplorarLayout);
-        pExplorarLayout.setHorizontalGroup(
-            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 209, Short.MAX_VALUE)
-        );
-        pExplorarLayout.setVerticalGroup(
-            pExplorarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 59, Short.MAX_VALUE)
-        );
-
-        Explorar.setFont(new java.awt.Font("Arial Black", 0, 18)); // NOI18N
-        Explorar.setForeground(new java.awt.Color(102, 0, 153));
-        Explorar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Resource/ImgHome/lupa.png"))); // NOI18N
-        Explorar.setText("Explorar");
-        Explorar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        Explorar.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                ExplorarMouseClicked(evt);
+                InicioMouseClicked(evt);
             }
         });
 
@@ -721,34 +605,35 @@ private String obtenerContraseñaAntigua(int idUsuario) {
         Menu2.setLayout(Menu2Layout);
         Menu2Layout.setHorizontalGroup(
             Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pInicio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(pPerfil, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(pNotificaciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(pExplorar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Menu2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(LogoTwitter2)
-                .addGap(43, 43, 43))
             .addGroup(Menu2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(Explorar)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(Menu2Layout.createSequentialGroup()
+                        .addGroup(Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(Explorar)
+                            .addComponent(Inicio))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Menu2Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Menu2Layout.createSequentialGroup()
+                                .addComponent(LogoTwitter2)
+                                .addGap(43, 43, 43))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Menu2Layout.createSequentialGroup()
+                                .addComponent(Notificaciones)
+                                .addContainerGap())))))
         );
         Menu2Layout.setVerticalGroup(
             Menu2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(Menu2Layout.createSequentialGroup()
                 .addGap(29, 29, 29)
                 .addComponent(LogoTwitter2)
-                .addGap(45, 45, 45)
-                .addComponent(pInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(pPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(8, 8, 8)
+                .addGap(32, 32, 32)
+                .addComponent(Inicio)
+                .addGap(51, 51, 51)
                 .addComponent(Explorar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pExplorar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(pNotificaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(59, 59, 59)
+                .addComponent(Notificaciones)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -759,12 +644,6 @@ private String obtenerContraseñaAntigua(int idUsuario) {
         TextoEP.setFont(new java.awt.Font("Arial Black", 0, 24)); // NOI18N
         TextoEP.setForeground(new java.awt.Color(102, 0, 153));
         TextoEP.setText("Editar Perfil");
-
-        btnCancelar.setBackground(new java.awt.Color(246, 234, 250));
-        btnCancelar.setFont(new java.awt.Font("Arial Black", 0, 14)); // NOI18N
-        btnCancelar.setForeground(new java.awt.Color(102, 0, 153));
-        btnCancelar.setText("Cancelar");
-        btnCancelar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         btnGuardar.setBackground(new java.awt.Color(246, 234, 250));
         btnGuardar.setFont(new java.awt.Font("Arial Black", 0, 14)); // NOI18N
@@ -784,9 +663,7 @@ private String obtenerContraseñaAntigua(int idUsuario) {
             .addGroup(Panel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(TextoEP)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnCancelar)
-                .addGap(114, 114, 114))
+                .addContainerGap(544, Short.MAX_VALUE))
             .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Panel1Layout.createSequentialGroup()
                     .addContainerGap(576, Short.MAX_VALUE)
@@ -797,10 +674,8 @@ private String obtenerContraseñaAntigua(int idUsuario) {
             Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(Panel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(TextoEP)
-                    .addComponent(btnCancelar))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(TextoEP)
+                .addContainerGap(7, Short.MAX_VALUE))
             .addGroup(Panel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Panel1Layout.createSequentialGroup()
                     .addContainerGap(10, Short.MAX_VALUE)
@@ -1029,7 +904,7 @@ private String obtenerContraseñaAntigua(int idUsuario) {
             panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelPrincipalLayout.createSequentialGroup()
                 .addComponent(Menu2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(44, 44, 44)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(panelDatos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(panelFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -1059,58 +934,6 @@ private String obtenerContraseñaAntigua(int idUsuario) {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void pExplorarMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseExited
-        pExplorar.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pExplorarMouseExited
-
-    private void pExplorarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseEntered
-        pExplorar.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pExplorarMouseEntered
-
-    private void pExplorarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pExplorarMouseClicked
-        BusquedaTwitter b = new BusquedaTwitter();
-        b.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_pExplorarMouseClicked
-
-    private void pNotificacionesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseExited
-        pNotificaciones.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pNotificacionesMouseExited
-
-    private void pNotificacionesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseEntered
-        pNotificaciones.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pNotificacionesMouseEntered
-
-    private void pNotificacionesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pNotificacionesMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_pNotificacionesMouseClicked
-
-    private void pPerfilMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseExited
-        pPerfil.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pPerfilMouseExited
-
-    private void pPerfilMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseEntered
-        pPerfil.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pPerfilMouseEntered
-
-    private void pPerfilMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pPerfilMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_pPerfilMouseClicked
-
-    private void pInicioMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseExited
-        pInicio.setBackground(colorNormalMenu);
-    }//GEN-LAST:event_pInicioMouseExited
-
-    private void pInicioMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseEntered
-        pInicio.setBackground(colorOscuroMenu);
-    }//GEN-LAST:event_pInicioMouseEntered
-
-    private void pInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pInicioMouseClicked
-        Home h = new Home();
-        h.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_pInicioMouseClicked
 
     private void LogoTwitter2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_LogoTwitter2MouseClicked
         Home h = new Home();
@@ -1229,7 +1052,6 @@ private boolean mostrarContraseña = false;
     private javax.swing.JPanel Panel1;
     private javax.swing.JPanel Portada;
     private javax.swing.JLabel TextoEP;
-    private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnMostrarContraseña;
     private javax.swing.JButton btnSeleccionarPerfil;
@@ -1243,10 +1065,6 @@ private boolean mostrarContraseña = false;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel lblFondoPortada;
     private javax.swing.JLabel lblFotoPerfil;
-    private javax.swing.JPanel pExplorar;
-    private javax.swing.JPanel pInicio;
-    private javax.swing.JPanel pNotificaciones;
-    private javax.swing.JPanel pPerfil;
     private javax.swing.JPanel panelDatos;
     private javax.swing.JPanel panelFotoPerfil;
     private javax.swing.JPanel panelFotoPortada;

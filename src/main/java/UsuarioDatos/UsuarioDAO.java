@@ -1,4 +1,4 @@
-package TweetVisual;
+package UsuarioDatos;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -10,14 +10,13 @@ package TweetVisual;
  * @author Macke
  */
 
-import PantallaInicio.*;
 import java.sql.ResultSet;
 import java.sql.SQLException; // 👈 Agregar este si falta
-import PantallaInicio.BasededatosTwitter; // 👈 Asegúrate de que esta clase existe y tiene getConnection()
 import java.util.Arrays;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import ConexionBase.RetornarBaseDedatos;
 
 
 
@@ -26,7 +25,7 @@ public class UsuarioDAO {
     String query = "SELECT foto_perfil FROM usuarios WHERE id_usuarios = ?";
     byte[] foto = null;
 
-    try (Connection con = BasededatosTwitter.getConnection();
+    try (Connection con = RetornarBaseDedatos.getConnection();
          PreparedStatement ps = con.prepareStatement(query)) {
         
         ps.setInt(1, idUsuario);
@@ -49,6 +48,8 @@ public class UsuarioDAO {
     }
     return foto;
 }
+
+
 
 
 

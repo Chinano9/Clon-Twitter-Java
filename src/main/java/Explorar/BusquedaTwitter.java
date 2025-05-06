@@ -6,104 +6,53 @@ package Explorar;
 
 import PantallaInicio.Home;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Image;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
+import ConexionBase.RetornarBaseDedatos;
+import UsuarioID.UsuarioSesion;
 import javax.swing.SwingConstants;
-import PantallaInicio.UsuarioSesion;
-import java.awt.Insets;  // Este es el import necesario para setMargin()
-import Explorar.BusquedaTwitter;
-import java.awt.Dimension;
-import javax.swing.SwingConstants;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import javax.swing.ImageIcon;
-import java.awt.Image;
-import javax.swing.JLabel;
-import java.sql.SQLException;
-import javax.swing.JOptionPane;
 import java.awt.GridLayout;
-import java.awt.Image;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import UsuarioDatos.UsuarioDAO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import javax.swing.JScrollPane;
 import java.awt.*;
+import java.util.ArrayList; // Importa ArrayList
+
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.sql.Blob;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import javax.swing.text.StyledDocument;
-import javax.swing.text.BadLocationException;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import Explorar.BusquedaTwitter;
 import Notificaciones.notificaciones;
-import Perfil.EdiPerfil;
+import EditarPerfil.EdiPerfil;
 import Perfilusuario.perfilusuario;
 import java.awt.Dimension;
-
-
-import java.util.Base64;
-
 import java.io.FileInputStream;
 import java.io.ByteArrayOutputStream;
-
 import java.nio.file.Files;
 import java.io.File;
 import java.io.IOException;
-
-import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.AlphaComposite;
-import java.awt.geom.Ellipse2D;
-import java.awt.image.BufferedImage;
-
 import javax.swing.BorderFactory;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Cursor; 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import runproyectlogin.Iniciarsesionlogin;
+import IniciarSesion.Iniciarsesionlogin;
 /**
  *
  * @author Jaime Paredes
  */
 public class BusquedaTwitter extends javax.swing.JFrame {
 private String filtro; 
-    private int usuarioIdPerfilMostrado = -1; // Variable global para almacenar el usuarioId del perfil mostrado
+    private int usuarioIdPerfilMostrado = -1; 
 
     Color colorNormal = new Color(255, 255, 255);
     Color colorOscuro = new Color(246, 246, 246);
@@ -111,8 +60,22 @@ private String filtro;
     /*Colores de los Hastags*/
     Color colorNomalHastags = new Color(255, 255, 255);
     Color colorOscuroHastags = new Color(246, 246, 246);
-    // Este método carga la imagen automáticamente
-    // Este método carga la imagen automáticamente
+
+    
+    private class Tweet { // Clase interna para representar un tweet
+    int usuarioId;
+    String nombreUsuario;
+    String alias;
+    // ... (Otros campos que necesites)
+
+    public Tweet(int usuarioId, String nombreUsuario, String alias) {
+        this.usuarioId = usuarioId;
+        this.nombreUsuario = nombreUsuario;
+        this.alias = alias;
+        // ...
+    }
+}
+    
 private void cargarFotoPerfil() {
     int idUsuario = UsuarioSesion.getUsuarioId();  // Obtener el ID del usuario actual
     UsuarioDAO usuarioDAO = new UsuarioDAO(); // Instancia del DAO
@@ -134,10 +97,10 @@ private void cargarFotoPerfil() {
 
 
 private void actualizarNombreYAlias() {
-    int idUsuario = PantallaInicio.UsuarioSesion.getUsuarioId(); // Obtener el ID del usuario en sesión
+    int idUsuario = UsuarioID.UsuarioSesion.getUsuarioId(); // Obtener el ID del usuario en sesión
 
     if (idUsuario != -1) {
-        try (Connection conexion = PantallaInicio.BasededatosTwitter.getConnection()) {
+        try (Connection conexion = ConexionBase.RetornarBaseDedatos.getConnection()) {
             String sql = "SELECT nombre_usuario, alias FROM usuarios WHERE id_usuarios = ?";
             PreparedStatement ps = conexion.prepareStatement(sql);
             ps.setInt(1, idUsuario);
@@ -166,7 +129,11 @@ private void actualizarNombreYAlias() {
 }
 
 public void buscarTweets(String textoBusqueda) {
-    try (Connection conexion = PantallaInicio.BasededatosTwitter.getConnection()) {
+    if (textoBusqueda == null || textoBusqueda.trim().isEmpty()) {
+        // Si está vacío, no hacer nada y salir del método
+        return;
+    }
+    try (Connection conexion = RetornarBaseDedatos.getConnection()) {
         // Consulta modificada para incluir foto_perfil
         String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion, t.id_tweet, " +
                     "t.usuario_id, t.multimedia, u.foto_perfil " +  // Añadido u.foto_perfil
@@ -182,16 +149,16 @@ public void buscarTweets(String textoBusqueda) {
         ContenedordeExplorer.setLayout(new BoxLayout(ContenedordeExplorer, BoxLayout.Y_AXIS));
 
         while (rs.next()) {
-            String nombre = rs.getString("nombre_usuario");
+    String nombreUsuario = rs.getString("nombre_usuario");
             String alias = rs.getString("alias");
             String contenido = rs.getString("contenido");
             String fecha = rs.getString("fecha_creacion");
             int idTweet = rs.getInt("id_tweet");
-            int idAutor = rs.getInt("usuario_id");
+            int usuarioId = rs.getInt("usuario_id"); // Obtener el ID del usuario
             Blob multimedia = rs.getBlob("multimedia");
-            Blob fotoPerfilBlob = rs.getBlob("foto_perfil");  // Nuevo: obtener foto de perfil
+            Blob fotoPerfilBlob = rs.getBlob("foto_perfil");
 
-            boolean esMio = (idAutor == UsuarioSesion.getUsuarioId());
+            boolean esMio = (usuarioId == UsuarioSesion.getUsuarioId());
 
             JPanel panelTweet = new JPanel(new BorderLayout());
             panelTweet.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
@@ -214,9 +181,29 @@ public void buscarTweets(String textoBusqueda) {
                     e.printStackTrace();
                 }
             }
+            
+            
+            
+            // Añadir nombre, alias y fecha
+            JLabel labelUsuarioInfo = new JLabel("<html><b>" + nombreUsuario + "</b> @" + alias + " 🕒 " + fecha + "</html>");
+            panelUsuario.add(labelUsuarioInfo);
+
+            JLabel lblNombreUsuarioAlias = new JLabel(nombreUsuario + " @" + alias);
+            lblNombreUsuarioAlias.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            // Agregar MouseListener para abrir el perfil del usuario
+            lblNombreUsuarioAlias.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    abrirPerfilUsuario(usuarioId); // Utiliza el usuarioId obtenido de la base de datos
+                }
+            });
+            panelUsuario.add(lblNombreUsuarioAlias);
+            panelTweet.add(panelUsuario, BorderLayout.NORTH);
+            
 
             // Añadir nombre, alias y fecha
-            JLabel labelUsuario = new JLabel("<html><b>" + nombre + "</b> @" + alias + " 🕒 " + fecha + "</html>");
+            JLabel labelUsuario = new JLabel("<html><b>" + nombreUsuario + "</b> @" + alias + " 🕒 " + fecha + "</html>");
             panelUsuario.add(labelUsuario);
             panelTweet.add(panelUsuario, BorderLayout.NORTH);
 
@@ -381,7 +368,7 @@ btnEditar.addActionListener(e -> {
 
                     // Llamar a editarTweet con la nueva imagen
                     editarTweet(idTweet, nuevoContenido, multimediaBytes);
-                    cargarTweets(filtro); // Ahora se actualiza correctamente
+                        cargarTweets(filtro);
                     dialog.dispose(); // Cerrar la ventana después de guardar
 
                 } catch (IOException ex) {
@@ -390,7 +377,7 @@ btnEditar.addActionListener(e -> {
             } else {
                 // Si no se seleccionó nueva multimedia, solo editar el contenido del tweet
                 editarTweet(idTweet, nuevoContenido, null);
-                cargarTweets(filtro);
+                        cargarTweets(filtro);
                 dialog.dispose();
             }
         }
@@ -434,38 +421,42 @@ panelInteracciones.add(btnEditar);
     }
 }
 
+private ArrayList<Tweet> tweets = new ArrayList<>(); // Lista para guardar los tweets
 
-public void cargarTweets(String filtro) {
-    try (Connection conexion = BasededatosTwitter.getConnection()) {
-        String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion, t.id_tweet, " +
-                     "t.usuario_id, t.multimedia, u.foto_perfil " +
+private void cargarTweets(String filtro) {
+    try (Connection conexion = RetornarBaseDedatos.getConnection()) {
+        String sql = "SELECT u.nombre_usuario, u.alias, t.contenido, t.fecha_creacion, t.multimedia, t.id_tweet, " +
+                     "t.usuario_id, u.foto_perfil " +
                      "FROM tweets t JOIN usuarios u ON t.usuario_id = u.id_usuarios ";
 
-       
-// Aplicar filtros según la categoría seleccionada
-if (filtro.equals("Trending")) {
-    // Solo tweets que contengan al menos un hashtag
-    sql += "WHERE t.contenido LIKE '%#%' ";
-} else if (filtro.equals("News")) {
-    sql += "WHERE t.contenido LIKE '%#NEWS%' ";
-} else if (filtro.equals("Sports")) {
-    sql += "WHERE t.contenido LIKE '%#SPORTS%' ";
-} else if (filtro.equals("Entretenimiento")) {
-    sql += "WHERE t.contenido LIKE '%#ENTRETENIMIENTO%' ";
-} else if (filtro.equals("Para Ti")) {
-    // Debe tener hashtags o no tener hashtags, pero NO puede incluir #NEWS, #SPORTS, ni #ENTRETENIMIENTO
-    sql += "WHERE (t.contenido NOT LIKE '%#NEWS%' AND " +
-           "t.contenido NOT LIKE '%#SPORTS%' AND " +
-           "t.contenido NOT LIKE '%#ENTRETENIMIENTO%') ";
-}
+        // Aplicar filtros según la categoría seleccionada
+        if (filtro != null && !filtro.isEmpty()) {
+            if (filtro.equals("Trending")) {
+                // Solo tweets que contengan al menos un hashtag
+                sql += "WHERE t.contenido LIKE '%#%' ";
+            } else if (filtro.equals("News")) {
+                sql += "WHERE t.contenido LIKE '%#NEWS%' ";
+            } else if (filtro.equals("Sports")) {
+                sql += "WHERE t.contenido LIKE '%#SPORTS%' ";
+            } else if (filtro.equals("Entretenimiento")) {
+                sql += "WHERE t.contenido LIKE '%#ENTRETENIMIENTO%' ";
+            } else if (filtro.equals("Para Ti")) {
+                // Mostrar tweets que NO contengan #NEWS, #SPORTS ni #ENTRETENIMIENTO (sin importar otros hashtags)
+                sql += "WHERE LOWER(t.contenido) NOT LIKE '%#news%' " +
+                       "AND LOWER(t.contenido) NOT LIKE '%#sports%' " +
+                       "AND LOWER(t.contenido) NOT LIKE '%#entretenimiento%' ";
+            }
+        }
 
-sql += "ORDER BY t.fecha_creacion DESC";
+        sql += "ORDER BY t.fecha_creacion DESC";
 
         PreparedStatement ps = conexion.prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
 
         ContenedordeExplorer.removeAll();
         ContenedordeExplorer.setLayout(new BoxLayout(ContenedordeExplorer, BoxLayout.Y_AXIS));
+
+        tweets.clear(); // Limpiar la lista antes de cargar nuevos tweets
 
         while (rs.next()) {
             int usuarioId = rs.getInt("usuario_id");
@@ -477,6 +468,7 @@ sql += "ORDER BY t.fecha_creacion DESC";
             int idTweet = rs.getInt("id_tweet");
             Blob fotoPerfilBlob = rs.getBlob("foto_perfil");
 
+            tweets.add(new Tweet(usuarioId, nombreUsuario, alias)); // Crear y agregar Tweet a la lista
 
             boolean esMio = (usuarioId == UsuarioSesion.getUsuarioId());
 
@@ -509,7 +501,19 @@ sql += "ORDER BY t.fecha_creacion DESC";
             JLabel lblNombreUsuario = new JLabel(nombreUsuario + " @" + alias);
             lblNombreUsuario.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-            
+            // Agregar MouseListener para abrir el perfil del usuario
+            lblNombreUsuario.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    // Obtener el usuarioId del Tweet correspondiente al JLabel clickeado
+                    for (Tweet tweet : tweets) {
+                        if (tweet.nombreUsuario.equals(nombreUsuario) && tweet.alias.equals(alias)) {
+                            abrirPerfilUsuario(tweet.usuarioId);
+                            return; // Importante: salir del bucle después de encontrar el Tweet
+                        }
+                    }
+                }
+            });
             panelUsuario.add(lblNombreUsuario);
             panelTweet.add(panelUsuario, BorderLayout.NORTH);
 
@@ -716,8 +720,9 @@ sql += "ORDER BY t.fecha_creacion DESC";
 }
 
 
+
 private void darLike(int idTweet) {
-    try (Connection c = BasededatosTwitter.getConnection()) {
+    try (Connection c = RetornarBaseDedatos.getConnection()) {
         String sql = "INSERT INTO likes (tweet_id, usuario_id, fecha_like) VALUES (?, ?, NOW())";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setInt(1, idTweet);
@@ -729,7 +734,7 @@ private void darLike(int idTweet) {
 }
 
 private void mostrarComentarios(int idTweet, JPanel panelContenedorTweets) {
-    try (Connection conexion = BasededatosTwitter.getConnection()) {
+    try (Connection conexion = RetornarBaseDedatos.getConnection()) {
         String sql = "SELECT c.id_comentario, c.contenido, c.fecha_creacion, " +
                     "u.nombre_usuario, u.alias, c.usuario_id, c.multimedia " +
                     "FROM comentarios c JOIN usuarios u ON c.usuario_id = u.id_usuarios " +
@@ -862,7 +867,7 @@ private void mostrarComentarios(int idTweet, JPanel panelContenedorTweets) {
 }
 
 private void quitarRetweet(int idTweet) {
-    try (Connection c = BasededatosTwitter.getConnection()) {
+    try (Connection c = RetornarBaseDedatos.getConnection()) {
         String sql = "DELETE FROM retweets WHERE tweet_id = ? AND usuario_id = ?";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setInt(1, idTweet);
@@ -874,7 +879,7 @@ private void quitarRetweet(int idTweet) {
 }
 
 public void guardarMultimediaComentario(byte[] multimedia, int idTweet) {
-    try (Connection conexion = BasededatosTwitter.getConnection()) {
+    try (Connection conexion = RetornarBaseDedatos.getConnection()) {
         String sql = "UPDATE comentarios SET multimedia = ? WHERE tweet_id = ?";
 
         PreparedStatement ps = conexion.prepareStatement(sql);
@@ -894,7 +899,7 @@ public void guardarMultimediaComentario(byte[] multimedia, int idTweet) {
 }
 
 public void eliminarComentario(int idComentario) {
-    try (Connection conexion = BasededatosTwitter.getConnection()) {
+    try (Connection conexion = RetornarBaseDedatos.getConnection()) {
         String sql = "DELETE FROM comentarios WHERE id_comentario = ?";
         PreparedStatement ps = conexion.prepareStatement(sql);
         ps.setInt(1, idComentario);
@@ -1055,7 +1060,7 @@ private void editarComentario(int idComentario, String contenidoActual) {
 }
 
 private byte[] obtenerMultimediaComentario(int idComentario) {
-    try (Connection conn = BasededatosTwitter.getConnection()) {
+    try (Connection conn = RetornarBaseDedatos.getConnection()) {
         String sql = "SELECT multimedia FROM comentarios WHERE id_comentario = ?";
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setInt(1, idComentario);
@@ -1072,7 +1077,7 @@ private byte[] obtenerMultimediaComentario(int idComentario) {
 }
 
 private void actualizarComentario(int idComentario, String nuevoContenido) throws SQLException {
-    try (Connection conn = BasededatosTwitter.getConnection()) {
+    try (Connection conn = RetornarBaseDedatos.getConnection()) {
         String sql = "UPDATE comentarios SET contenido = ?, fecha_creacion = NOW() " +
                     "WHERE id_comentario = ?";
         PreparedStatement ps = conn.prepareStatement(sql);
@@ -1085,7 +1090,7 @@ private void actualizarComentario(int idComentario, String nuevoContenido) throw
 
 private void actualizarComentarioConImagen(int idComentario, String nuevoContenido, byte[] imagenBytes) 
     throws SQLException {
-    try (Connection conn = BasededatosTwitter.getConnection()) {
+    try (Connection conn = RetornarBaseDedatos.getConnection()) {
         String sql = "UPDATE comentarios SET contenido = ?, multimedia = ?, fecha_creacion = NOW() " +
                     "WHERE id_comentario = ?";
         PreparedStatement ps = conn.prepareStatement(sql);
@@ -1099,7 +1104,7 @@ private void actualizarComentarioConImagen(int idComentario, String nuevoConteni
 
 
 private void quitarLike(int idTweet) {
-    try (Connection c = BasededatosTwitter.getConnection()) {
+    try (Connection c = RetornarBaseDedatos.getConnection()) {
         String sql = "DELETE FROM likes WHERE tweet_id = ? AND usuario_id = ?";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setInt(1, idTweet);
@@ -1111,7 +1116,7 @@ private void quitarLike(int idTweet) {
 }
 
 private boolean usuarioPuedeDarLike(int idTweet) {
-    try (Connection c = BasededatosTwitter.getConnection()) {
+    try (Connection c = RetornarBaseDedatos.getConnection()) {
         String sql = "SELECT 1 FROM likes WHERE tweet_id = ? AND usuario_id = ?";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setInt(1, idTweet);
@@ -1121,7 +1126,7 @@ private boolean usuarioPuedeDarLike(int idTweet) {
 }
 
 private int obtenerTotalLikes(int idTweet) {
-    try (Connection c = BasededatosTwitter.getConnection()) {
+    try (Connection c = RetornarBaseDedatos.getConnection()) {
         String sql = "SELECT COUNT(*) FROM likes WHERE tweet_id = ?";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setInt(1, idTweet);
@@ -1133,7 +1138,7 @@ private int obtenerTotalLikes(int idTweet) {
 
 // --- Lo mismo para retweets ---
 private boolean usuarioPuedeRetweetear(int idTweet) {
-    try (Connection c = BasededatosTwitter.getConnection()) {
+    try (Connection c = RetornarBaseDedatos.getConnection()) {
         String sql = "SELECT 1 FROM retweets WHERE tweet_id = ? AND usuario_id = ?";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setInt(1, idTweet);
@@ -1143,7 +1148,7 @@ private boolean usuarioPuedeRetweetear(int idTweet) {
 }
 
 private void retweetear(int idTweet) {
-    try (Connection c = BasededatosTwitter.getConnection()) {
+    try (Connection c = RetornarBaseDedatos.getConnection()) {
         String sql = "INSERT INTO retweets (tweet_id, usuario_id, fecha_retweet) VALUES (?, ?, NOW())";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setInt(1, idTweet);
@@ -1156,7 +1161,7 @@ private void retweetear(int idTweet) {
 
 
 private int obtenerTotalRetweets(int idTweet) {
-    try (Connection c = BasededatosTwitter.getConnection()) {
+    try (Connection c = RetornarBaseDedatos.getConnection()) {
         String sql = "SELECT COUNT(*) FROM retweets WHERE tweet_id = ?";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setInt(1, idTweet);
@@ -1166,7 +1171,7 @@ private int obtenerTotalRetweets(int idTweet) {
     return 0;
 }
 private void eliminarTweet(int idTweet) {
-    try (Connection c = BasededatosTwitter.getConnection()) {
+    try (Connection c = RetornarBaseDedatos.getConnection()) {
         String sql = "DELETE FROM tweets WHERE id_tweet = ? AND usuario_id = ?";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setInt(1, idTweet);
@@ -1180,7 +1185,7 @@ private void eliminarTweet(int idTweet) {
 
 
 private void editarTweet(int id_tweet, String contenidoNuevo, byte[] multimediaBytes) {
-    try (Connection c = BasededatosTwitter.getConnection()) {
+    try (Connection c = RetornarBaseDedatos.getConnection()) {
         String sql;
         PreparedStatement ps;
 
@@ -1214,7 +1219,7 @@ private void editarTweet(int id_tweet, String contenidoNuevo, byte[] multimediaB
 }
 
 private void cargarTrendingTopics() {
-    try (Connection conexion = PantallaInicio.BasededatosTwitter.getConnection()) {
+    try (Connection conexion = ConexionBase.RetornarBaseDedatos.getConnection()) {
         // Consulta para obtener hashtags populares
         String sql = "SELECT " +
                 "SUBSTRING_INDEX(SUBSTRING_INDEX(t.contenido, '#', -1), ' ', 1) AS hashtag, " +
@@ -1300,7 +1305,7 @@ private void cargarTrendingTopics() {
 
 private String obtenerMultimediaDeTweet(int id_tweet) {
     String rutaMultimedia = null;
-    try (Connection c = PantallaInicio.BasededatosTwitter.getConnection()) {
+    try (Connection c = ConexionBase.RetornarBaseDedatos.getConnection()) {
         String sql = "SELECT multimedia FROM tweets WHERE id_tweet = ?";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setInt(1, id_tweet);
@@ -1316,7 +1321,7 @@ private String obtenerMultimediaDeTweet(int id_tweet) {
 
 
 private int obtenerTotalComentarios(int idTweet) {
-    try (Connection c = PantallaInicio.BasededatosTwitter.getConnection()) {
+    try (Connection c = ConexionBase.RetornarBaseDedatos.getConnection()) {
         String sql = "SELECT COUNT(*) FROM comentarios WHERE tweet_id = ?";
         PreparedStatement ps = c.prepareStatement(sql);
         ps.setInt(1, idTweet);
@@ -1333,55 +1338,114 @@ private void abrirVentanaComentario(int idTweet) {
     System.out.println("🧠 ID del usuario en sesión: " + usuarioId);
 
     // Crear la ventana de comentarios
-    JPanel panelComentario = new JPanel();
-    panelComentario.setLayout(new BoxLayout(panelComentario, BoxLayout.Y_AXIS));
+    JDialog ventanaComentario = new JDialog();
+    ventanaComentario.setTitle("Comentar Tweet");
+    ventanaComentario.setSize(450, 400);
+    ventanaComentario.setLocationRelativeTo(null);
+    ventanaComentario.setLayout(new BorderLayout());
 
-    // Campo de texto para el comentario
+    // Panel principal
+    JPanel panelPrincipal = new JPanel();
+    panelPrincipal.setLayout(new BoxLayout(panelPrincipal, BoxLayout.Y_AXIS));
+    panelPrincipal.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+    // Área de texto para el comentario
     JTextArea textoComentario = new JTextArea(5, 30);
     textoComentario.setWrapStyleWord(true);
     textoComentario.setLineWrap(true);
-    panelComentario.add(new JScrollPane(textoComentario));
+    JScrollPane scrollTexto = new JScrollPane(textoComentario);
+    panelPrincipal.add(new JLabel("Escribe tu comentario:"));
+    panelPrincipal.add(Box.createVerticalStrut(5));
+    panelPrincipal.add(scrollTexto);
+    panelPrincipal.add(Box.createVerticalStrut(10));
 
-    // Botón para seleccionar un archivo multimedia
+    // Panel para la selección de multimedia
+    JPanel panelMultimedia = new JPanel();
+    panelMultimedia.setLayout(new BoxLayout(panelMultimedia, BoxLayout.Y_AXIS));
+    panelMultimedia.setBorder(BorderFactory.createTitledBorder("Multimedia (Opcional)"));
+
+    JLabel lblMultimediaSeleccionada = new JLabel("(No se ha seleccionado ningún archivo)");
+    JLabel lblVistaPreviaMultimedia = new JLabel(); // Para una vista previa básica
+
+    final File[] archivoMultimedia = {null}; // Usamos un array para hacerlo "final"
+
     JButton btnSeleccionarMultimedia = new JButton("Seleccionar Multimedia");
-    panelComentario.add(btnSeleccionarMultimedia);
-
-    // Usar un contenedor mutable para almacenar el archivo multimedia
-    final File[] archivoMultimedia = new File[1];  // Usamos un array para hacerlo "final"
-
-    // Acción del botón para seleccionar el archivo
     btnSeleccionarMultimedia.addActionListener(e -> {
         JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showOpenDialog(this);
+        fileChooser.setDialogTitle("Seleccionar archivo multimedia");
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter(
+                "Imágenes y otros archivos soportados", "jpg", "jpeg", "png", "gif", /* Agrega otros formatos si es necesario */ "mp4", "avi", "mov" /* etc. */
+        ));
+
+        int result = fileChooser.showOpenDialog(ventanaComentario);
         if (result == JFileChooser.APPROVE_OPTION) {
             archivoMultimedia[0] = fileChooser.getSelectedFile();
+            lblMultimediaSeleccionada.setText("Archivo seleccionado: " + archivoMultimedia[0].getName());
+
+            // Mostrar una vista previa básica (solo para imágenes por simplicidad)
+            String nombreArchivo = archivoMultimedia[0].getName().toLowerCase();
+            if (nombreArchivo.endsWith(".jpg") || nombreArchivo.endsWith(".jpeg") || nombreArchivo.endsWith(".png") || nombreArchivo.endsWith(".gif")) {
+                try {
+                    ImageIcon icon = new ImageIcon(archivoMultimedia[0].getAbsolutePath());
+                    Image imagenEscalada = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+                    lblVistaPreviaMultimedia.setIcon(new ImageIcon(imagenEscalada));
+                    lblVistaPreviaMultimedia.setText("");
+                } catch (Exception ex) {
+                    lblVistaPreviaMultimedia.setIcon(null);
+                    lblVistaPreviaMultimedia.setText("(Vista previa no disponible)");
+                }
+            } else {
+                lblVistaPreviaMultimedia.setIcon(null);
+                lblVistaPreviaMultimedia.setText("(Archivo no es una imagen para previsualizar)");
+            }
         }
     });
 
-    // Botón para comentar
+    JButton btnEliminarMultimedia = new JButton("❌ Eliminar Selección");
+    btnEliminarMultimedia.addActionListener(e -> {
+        archivoMultimedia[0] = null;
+        lblMultimediaSeleccionada.setText("(No se ha seleccionado ningún archivo)");
+        lblVistaPreviaMultimedia.setIcon(null);
+        lblVistaPreviaMultimedia.setText("");
+    });
+
+    panelMultimedia.add(btnSeleccionarMultimedia);
+    panelMultimedia.add(lblMultimediaSeleccionada);
+    panelMultimedia.add(lblVistaPreviaMultimedia);
+    panelMultimedia.add(btnEliminarMultimedia);
+    panelPrincipal.add(panelMultimedia);
+    panelPrincipal.add(Box.createVerticalStrut(10));
+
+    // Panel para botones de acción
+    JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+
+    // Botón Comentar
     JButton btnComentar = new JButton("💬 Comentar");
     btnComentar.addActionListener(e -> {
         String comentarioTexto = textoComentario.getText().trim();
         if (!comentarioTexto.isEmpty()) {
             byte[] multimediaBytes = null;
             if (archivoMultimedia[0] != null) {
-                multimediaBytes = cargarArchivoMultimedia(archivoMultimedia[0]); // Convertir archivo en bytes
+                multimediaBytes = cargarArchivoMultimedia(archivoMultimedia[0]); // Necesitas implementar esta función
             }
-            agregarComentario(comentarioTexto, idTweet, multimediaBytes); // Guardar comentario y multimedia
+            agregarComentario(comentarioTexto, idTweet, multimediaBytes); // Necesitas implementar esta función
+            ventanaComentario.dispose();
+            // Aquí podrías agregar lógica para refrescar la vista de comentarios
         } else {
-            JOptionPane.showMessageDialog(this, "El comentario no puede estar vacío.");
+            JOptionPane.showMessageDialog(ventanaComentario, "El comentario no puede estar vacío.");
         }
     });
+    panelBotones.add(btnComentar);
 
-    panelComentario.add(btnComentar);
+    // Botón Cancelar
+    JButton btnCancelar = new JButton("Cancelar");
+    btnCancelar.addActionListener(e -> ventanaComentario.dispose());
+    panelBotones.add(btnCancelar);
 
-    // Mostrar el diálogo
-    JDialog ventanaComentario = new JDialog();
-    ventanaComentario.setTitle("Comentar Tweet");
-    ventanaComentario.setSize(400, 300);
-    ventanaComentario.setLocationRelativeTo(null);
+    ventanaComentario.add(panelPrincipal, BorderLayout.CENTER);
+    ventanaComentario.add(panelBotones, BorderLayout.SOUTH);
     ventanaComentario.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-    ventanaComentario.add(panelComentario);
     ventanaComentario.setVisible(true);
 }
 
@@ -1404,7 +1468,7 @@ private byte[] cargarArchivoMultimedia(File archivo) {
 }
 
 private void agregarComentario(String contenido, int idTweet, byte[] multimedia) {
-    try (Connection conexion = BasededatosTwitter.getConnection()) {
+    try (Connection conexion = RetornarBaseDedatos.getConnection()) {
         String sql = "INSERT INTO comentarios (tweet_id, usuario_id, contenido, multimedia, fecha_creacion) " +
                      "VALUES (?, ?, ?, ?, NOW())";
         PreparedStatement ps = conexion.prepareStatement(sql);
@@ -1499,42 +1563,46 @@ private void agregarMenuFotoPerfil() {
         }
     });
 }
-
+   
 private void mostrarMenuContextualFotoPerfil(java.awt.event.MouseEvent evt) {
-    JPopupMenu menu = new JPopupMenu();
+        JPopupMenu menu = new JPopupMenu();
 
-    // Opción "Ver Perfil"
- JMenuItem itemVerPerfil = new JMenuItem("Ver Perfil");
-itemVerPerfil.addActionListener(new ActionListener() {
-    public void actionPerformed(ActionEvent evt) {
-        int usuarioId = usuarioIdPerfilMostrado; // Obtener el ID del usuario seleccionado
-        perfilusuario perfil = new perfilusuario(usuarioId); // Pasar ID al perfil
-        perfil.setVisible(true);
+        // Opción "Ver Perfil"
+        JMenuItem itemVerPerfil = new JMenuItem("Ver Perfil");
+        itemVerPerfil.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                int usuarioId = usuarioIdPerfilMostrado; // Obtener el ID del usuario seleccionado
+                perfilusuario perfil = new perfilusuario(usuarioId); // Pasar ID al perfil
+                perfil.setVisible(true);
+                BusquedaTwitter.this.dispose(); // Cerrar la ventana principal
+            }
+        });
+        menu.add(itemVerPerfil);
+
+        // Opción "Configuración"
+        JMenuItem itemConfiguracion = new JMenuItem("Configuración");
+        itemConfiguracion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                abrirConfiguracion();
+                BusquedaTwitter.this.dispose(); // Cerrar la ventana principal
+            }
+        });
+        menu.add(itemConfiguracion);
+
+        // Opción "Cerrar Sesión"
+        JMenuItem itemCerrarSesion = new JMenuItem("Cerrar Sesión");
+        itemCerrarSesion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cerrarSesion();
+                BusquedaTwitter.this.dispose(); // Cerrar la ventana principal
+            }
+        });
+        menu.add(itemCerrarSesion);
+
+        menu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
-});
-menu.add(itemVerPerfil);
 
 
-    // Opción "Configuración"
-    JMenuItem itemConfiguracion = new JMenuItem("Configuración");
-    itemConfiguracion.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            abrirConfiguracion();
-        }
-    });
-    menu.add(itemConfiguracion);
-
-    // Opción "Cerrar Sesión"
-    JMenuItem itemCerrarSesion = new JMenuItem("Cerrar Sesión");
-    itemCerrarSesion.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            cerrarSesion();
-        }
-    });
-    menu.add(itemCerrarSesion);
-
-    menu.show(evt.getComponent(), evt.getX(), evt.getY());
-}
 
  private void mostrarMenuOpciones(java.awt.event.MouseEvent evt) {
         JPopupMenu menu = new JPopupMenu();
@@ -1616,7 +1684,8 @@ private void abrirConfiguracion() {
 public BusquedaTwitter() {
     initComponents();  // Método generado por NetBeans GUI Builder
       cargarFotoPerfil(); // Llamamos al método para cargar la imagen de perfil
-    cargarTweets("Para Ti");
+       cargarTweets("Para Ti"); // Carga inicial
+
     cargarTrendingTopics(); 
         agregarMenuFotoPerfil();
 
@@ -1657,6 +1726,11 @@ public BusquedaTwitter() {
         panelTrendingTopics = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
 
         PanelPrincipal.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -1752,7 +1826,7 @@ public BusquedaTwitter() {
                 .addComponent(btnExprorar2)
                 .addGap(55, 55, 55)
                 .addComponent(btnNotificaciones2)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(469, Short.MAX_VALUE))
         );
 
         PanelBuscador.setBackground(new java.awt.Color(255, 255, 255));
@@ -1835,6 +1909,11 @@ public BusquedaTwitter() {
                 btnEntretenimientoAncestorMoved(evt);
             }
             public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+        btnEntretenimiento.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEntretenimientoActionPerformed(evt);
             }
         });
 
@@ -1984,19 +2063,13 @@ public BusquedaTwitter() {
                     .addComponent(PanelBuscador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ScrollBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 588, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblAliasNombre)
                     .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(PanelPrincipalLayout.createSequentialGroup()
-                                .addGap(18, 18, 18)
-                                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(PanelPrincipalLayout.createSequentialGroup()
-                                .addGap(0, 0, 0)
-                                .addComponent(lblAliasNombre)))
-                        .addGap(105, 105, 105))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelPrincipalLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
-                        .addComponent(panelTrendingTopics, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())))
+                            .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(panelTrendingTopics, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
         PanelPrincipalLayout.setVerticalGroup(
             PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2013,8 +2086,9 @@ public BusquedaTwitter() {
                 .addGroup(PanelPrincipalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(ScrollBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(PanelPrincipalLayout.createSequentialGroup()
+                        .addGap(25, 25, 25)
                         .addComponent(panelTrendingTopics, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 114, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -2186,6 +2260,20 @@ private void realizarBusqueda() {
       buscarTweets(txtBuscar.getText());
 
     }//GEN-LAST:event_btnBusquedaActionPerformed
+
+    private void btnEntretenimientoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntretenimientoActionPerformed
+       cargarTweets("Entretenimiento");
+    // Crear el panel del tweet
+                JPanel panelTweet = new JPanel();
+                panelTweet.setLayout(new BoxLayout(panelTweet, BoxLayout.Y_AXIS));
+                panelTweet.setMaximumSize(new Dimension(ContenedordeExplorer.getWidth(), 300));
+    }//GEN-LAST:event_btnEntretenimientoActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+    cargarTweets("Para Ti");
+  
+
+    }//GEN-LAST:event_formWindowOpened
 
     /**
      * @param args the command line arguments

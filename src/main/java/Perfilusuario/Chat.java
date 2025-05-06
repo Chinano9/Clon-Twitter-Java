@@ -3,10 +3,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package Perfilusuario;
-import runproyectlogin.Iniciarsesionlogin;
+import IniciarSesion.Iniciarsesionlogin;
 import Explorar.BusquedaTwitter;
 import PantallaInicio.Home;
-import Perfil.EdiPerfil;
+import EditarPerfil.EdiPerfil;
+import ConexionBase.RetornarBaseDedatos;
+import UsuarioDatos.UsuarioDAO;
+import UsuarioID.UsuarioSesion;
 import java.awt.Color;
 import java.awt.Insets;  // Este es el import necesario para setMargin()
 import Explorar.BusquedaTwitter;
@@ -60,7 +63,6 @@ import java.sql.ResultSet;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import PantallaInicio.UsuarioDAO; // 👈 Asegúrate de que esta clase existe y tiene getConnection()
 import javax.swing.JFileChooser;
 import javax.swing.*;
 import java.sql.Connection;
@@ -88,10 +90,10 @@ import java.awt.event.MouseEvent;
 import java.awt.Cursor; // Para el cursor de mano
 import Explorar.BusquedaTwitter;
 import PantallaInicio.Home;
-import runproyectlogin.Iniciarsesionlogin;
+import IniciarSesion.Iniciarsesionlogin;
 import java.awt.Color;
 import javax.swing.SwingConstants;
-import PantallaInicio.UsuarioSesion;
+import UsuarioID.UsuarioSesion;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -142,7 +144,7 @@ public class Chat extends  JFrame {
     public Chat(int idUsuario, int idDestinatario) {
         this.idUsuario = idUsuario;
         this.idDestinatario = idDestinatario;
-                conexion = BasededatosTwitter.getConnection();
+                conexion = RetornarBaseDedatos.getConnection();
 
         setTitle("Chat con Usuario " + obtenerNombreUsuario(idDestinatario));
         setSize(600, 400);
@@ -328,7 +330,7 @@ private void agregarMensaje(String remitente, String mensaje, String fecha, byte
 public void obtenerMensajes(int usuarioId) {
         String sql = "SELECT * FROM mensajes WHERE id_remitente = ? OR id_destinatario = ? ORDER BY fecha_envio DESC";
 
-        try (Connection con = BasededatosTwitter.getConnection();
+        try (Connection con = RetornarBaseDedatos.getConnection();
              PreparedStatement pst = con.prepareStatement(sql)) {
 
             pst.setInt(1, usuarioId);
@@ -377,6 +379,7 @@ public void obtenerMensajes(int usuarioId) {
         txtChat = new javax.swing.JTextPane();
         jLabel1 = new javax.swing.JLabel();
         btnAdjuntar = new javax.swing.JButton();
+        lblFotoPerfil = new javax.swing.JLabel();
 
         hola233.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -395,6 +398,18 @@ public void obtenerMensajes(int usuarioId) {
         jLabel1.setText("CHAT");
 
         btnAdjuntar.setText("Adjuntar");
+
+        lblFotoPerfil.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/darzks9-1de75000-56bc-4ef0-b8cf-5e048609b271.png"))); // NOI18N
+        lblFotoPerfil.setText("jLabel2");
+        lblFotoPerfil.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                lblFotoPerfilAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
 
         javax.swing.GroupLayout hola233Layout = new javax.swing.GroupLayout(hola233);
         hola233.setLayout(hola233Layout);
@@ -416,13 +431,18 @@ public void obtenerMensajes(int usuarioId) {
                         .addGap(48, 48, 48)
                         .addGroup(hola233Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(hola233Layout.createSequentialGroup()
+                        .addGap(79, 79, 79)
+                        .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(45, Short.MAX_VALUE))
         );
         hola233Layout.setVerticalGroup(
             hola233Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(hola233Layout.createSequentialGroup()
-                .addGap(69, 69, 69)
+                .addGap(35, 35, 35)
+                .addComponent(lblFotoPerfil, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -433,7 +453,7 @@ public void obtenerMensajes(int usuarioId) {
                     .addComponent(btnAdjuntar))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(txtMensaje, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(83, Short.MAX_VALUE))
+                .addContainerGap(264, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -444,15 +464,21 @@ public void obtenerMensajes(int usuarioId) {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(hola233, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(hola233, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarActionPerformed
 
     }//GEN-LAST:event_btnEnviarActionPerformed
+
+    private void lblFotoPerfilAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_lblFotoPerfilAncestorAdded
+ImageIcon iconoOriginal = new ImageIcon(getClass().getResource("/imagenes/perfil.png")); // Asegúrate de que la ruta sea correcta
+Image imagenOriginal = iconoOriginal.getImage();
+Image imagenEscalada = imagenOriginal.getScaledInstance(lblFotoPerfil.getWidth(), lblFotoPerfil.getHeight(), Image.SCALE_SMOOTH);
+ImageIcon iconoEscalado = new ImageIcon(imagenEscalada);
+lblFotoPerfil.setIcon(iconoEscalado);
+    }//GEN-LAST:event_lblFotoPerfilAncestorAdded
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -462,6 +488,7 @@ public void obtenerMensajes(int usuarioId) {
     private javax.swing.JPanel hola233;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblFotoPerfil;
     private javax.swing.JTextPane txtChat;
     private javax.swing.JTextField txtMensaje;
     // End of variables declaration//GEN-END:variables

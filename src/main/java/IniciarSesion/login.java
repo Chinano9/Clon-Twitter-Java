@@ -2,12 +2,15 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package runproyectlogin;
+package IniciarSesion;
 //Hola prueba del cambio 2 holaaa
 /**
  *
  * @author alan_
  */
+import ConexionBase.RetornarBaseDedatos;
+import UsuarioDatos.UsuarioDAO;
+import UsuarioID.UsuarioSesion;
 import java.io.FileNotFoundException;
 import java.io.FileInputStream;
 import java.sql.Connection;
@@ -65,7 +68,7 @@ public class login extends javax.swing.JFrame {
     
     //Crear verificacion de si se encuentra el nombre de usuario para crear cuenta
 public static boolean verificarExistencianombreusuario(String nombreusuario) {
-Connection conexion = BasededatosTwitter.getConnection();
+Connection conexion = RetornarBaseDedatos.getConnection();
     
 
     if (conexion == null) {
@@ -308,113 +311,119 @@ Connection conexion = BasededatosTwitter.getConnection();
     }//GEN-LAST:event_b_showpasswordActionPerformed
 
     private void b_crearcuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_crearcuentaActionPerformed
- // Conexión a la base de datos
-    Connection conexion = null;
-    
-    try {
-        // Obtener conexión a la base de datos
-        conexion = BasededatosTwitter.getConnection();
-        
-        if (conexion == null) {
-            JOptionPane.showMessageDialog(this, "Error al conectar con la base de datos.");
-            return;
-        }
+     // Conexión a la base de datos
+        Connection conexion = null;
 
-        // Tomar los datos
-        String nombre_usuario = tf_nombreusuario.getText().trim();
-        String email = tf_correo.getText().trim();
-        String password = tf_password.getText().trim();
-
-        // Verificar que se llenaron los datos
-        if (nombre_usuario.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
-            return;
-        }
-
-        // Verificar si no existe nombre de usuario
-        if (verificarExistencianombreusuario(nombre_usuario)) {
-            JOptionPane.showMessageDialog(this, "El nombre de usuario ya existe, crea uno nuevo.");
-            return;
-        } else {
-            System.out.println("Datos validados.");
-        }
-
-        // Validar la contraseña con los parámetros requeridos
-        if (!validarContrasena(password)) {
-            JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 8 caracteres, incluir números, letras y caracteres especiales.");
-            return;
-        }
-
-        if (!esCorreoValido(email)) {
-            JOptionPane.showMessageDialog(this, "El formato de correo electrónico es incorrecto.");
-            return;
-        }
-
-        // Insertar en la base de datos
-        String sql = "INSERT INTO usuarios (nombre_usuario, email, password, foto_perfil) VALUES (?, ?, ?, ?)";
-        PreparedStatement ps = conexion.prepareStatement(sql);
-        ps.setString(1, nombre_usuario);
-        ps.setString(2, email);
-        ps.setString(3, password);
-
-        // Verificar si se seleccionó una foto
-        FileInputStream fis = null;
         try {
-            if (archivoFotoSeleccionada != null) {
-                fis = new FileInputStream(archivoFotoSeleccionada);
-                ps.setBinaryStream(4, fis, (int) archivoFotoSeleccionada.length());
-            } else {
-                ps.setNull(4, java.sql.Types.BLOB);
+            // Obtener conexión a la base de datos
+            conexion = RetornarBaseDedatos.getConnection();
+
+            if (conexion == null) {
+                JOptionPane.showMessageDialog(this, "Error al conectar con la base de datos.");
+                return;
             }
 
-            ps.executeUpdate();
-            JOptionPane.showMessageDialog(this, "¡Usuario creado con éxito!");
+            // Tomar los datos
+            String nombre_usuario = tf_nombreusuario.getText().trim();
+            String email = tf_correo.getText().trim();
+            String password = tf_password.getText().trim();
 
-            // Limpiar los campos
-            tf_nombreusuario.setText("");
-            tf_correo.setText("");
-            tf_password.setText("");
+            // Verificar que se llenaron los datos
+            if (nombre_usuario.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
+                return;
+            }
 
-            // Cambiar a pantalla de inicio
-            PantallaInicio.Home inicio1 = new PantallaInicio.Home();
-            inicio1.setVisible(true);
-            this.dispose();
+            // Verificar si no existe nombre de usuario
+            if (verificarExistencianombreusuario(nombre_usuario)) {
+JOptionPane.showMessageDialog(this, "El nombre de usuario ya existe, crea uno nuevo.");                return;
+            } else {
+                System.out.println("Datos validados.");
+            }
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error al cargar la imagen: " + e.getMessage());
-        } finally {
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(this, "Error al cerrar el archivo: " + e.getMessage());
+            // Validar la contraseña con los parámetros requeridos
+            if (!validarContrasena(password)) {
+                JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 8 caracteres, incluir números, letras y caracteres especiales.");
+                return;
+            }
+
+            if (!esCorreoValido(email)) {
+                JOptionPane.showMessageDialog(this, "El formato de correo electrónico es incorrecto.");
+                return;
+            }
+
+            byte[] fotoPerfilBytes = null; // Inicializar la variable
+
+            // Insertar en la base de datos
+            String sql = "INSERT INTO usuarios (nombre_usuario, email, password, alias, foto_perfil) VALUES (?, ?, ?, generar_alias_con_nombre(?), ?)";
+            PreparedStatement ps = conexion.prepareStatement(sql);
+            ps.setString(1, nombre_usuario);
+            ps.setString(2, email);
+            ps.setString(3, password);
+            ps.setString(4, nombre_usuario); // ¡Aquí pasamos el nombre de usuario a la función MySQL para el alias!
+
+            FileInputStream fis = null;
+            try {
+                if (archivoFotoSeleccionada != null) {
+                    fis = new FileInputStream(archivoFotoSeleccionada);
+                    ps.setBinaryStream(5, fis, (int) archivoFotoSeleccionada.length()); // Insertar la foto de perfil
+                } else {
+                    ps.setNull(5, java.sql.Types.BLOB); // Si no se seleccionó foto, insertar null
+                }
+
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(this, "¡Usuario creado con éxito!");
+
+                // Limpiar los campos
+                tf_nombreusuario.setText("");
+                tf_correo.setText("");
+                tf_password.setText("");
+
+                // Cambiar a pantalla de inicio
+                PantallaInicio.Home inicio1 = new PantallaInicio.Home();
+                inicio1.setVisible(true);
+                this.dispose();
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error al cargar la imagen: " + e.getMessage());
+            } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        JOptionPane.showMessageDialog(this, "Error al cerrar el archivo: " + e.getMessage());
+                    }
                 }
             }
-        }
 
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Hubo un error al crear su cuenta, intenta más tarde: " + e.getMessage());
-    } finally {
-        try {
-            if (conexion != null) conexion.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Hubo un error al crear su cuenta, intenta más tarde: " + e.getMessage());
+        } finally {
+            try {
+                if (conexion != null) conexion.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
-    }
     }//GEN-LAST:event_b_crearcuentaActionPerformed
 
     private void check_terminosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_check_terminosActionPerformed
         b_crearcuenta.setEnabled(check_terminos.isSelected());//Activar boton de crear cuenta al aceptar terminos.
     }//GEN-LAST:event_check_terminosActionPerformed
+    private boolean ventanaInicioSesionAbierta = false;
 
     private void b_iniciarsesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_iniciarsesionActionPerformed
-        //Cambiar a pantalla de inicio
-        runproyectlogin.Iniciarsesionlogin inicio2 = new runproyectlogin.Iniciarsesionlogin();
-        inicio2.setVisible(true);
-        this.dispose();
+     if (!ventanaInicioSesionAbierta) {
+            // Si la ventana de inicio de sesión no se ha abierto, la creamos y la mostramos
+            IniciarSesion.Iniciarsesionlogin inicio2 = new IniciarSesion.Iniciarsesionlogin();
+            inicio2.setVisible(true);
+            this.dispose(); // Cierra la ventana actual (asumiendo que es la de "Crear cuenta" u otra anterior)
+            ventanaInicioSesionAbierta = true;
+
+        } 
     }//GEN-LAST:event_b_iniciarsesionActionPerformed
 
     private void tf_correoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tf_correoActionPerformed

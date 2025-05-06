@@ -2,12 +2,15 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package runproyectlogin;
+package IniciarSesion;
 //Hola
 /**
  *
  * @author alan_
  */
+import ConexionBase.RetornarBaseDedatos;
+import UsuarioDatos.UsuarioDAO;
+import UsuarioID.UsuarioSesion;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.Connection;
@@ -16,11 +19,53 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
-import PantallaInicio.UsuarioSesion; // Agregar esta línea arriba de la clase
-
-import Perfil.EdiPerfil;
+import UsuarioID.UsuarioSesion; // Agregar esta línea arriba de la clase
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import EditarPerfil.EdiPerfil;
 
 public class Iniciarsesionlogin extends javax.swing.JFrame {
+    
+private void ejecutarInicioSesion() {
+    Connection conexion = null;
+    try {
+        // Obtener conexión a la base de datos
+        conexion = RetornarBaseDedatos.getConnection();
+        if (conexion == null) {
+            JOptionPane.showMessageDialog(this, "Error al conectar con la base de datos.");
+            return;
+        }
+
+        // Tomar los datos ingresados por el usuario
+        String usuarioOEmail = tf_correoyacuenta.getText().trim(); // Puede ser usuario o email
+        String password = tf_passwordyacuenta.getText().trim();
+
+        // Verificar que los campos no estén vacíos
+        if (usuarioOEmail.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
+            return;
+        }
+
+        int idUsuario = obtenerIdUsuario(usuarioOEmail, password);
+        if (idUsuario != -1) {
+            System.out.println("ID del usuario obtenido: " + idUsuario); // Depuración
+            UsuarioSesion.setUsuarioId(idUsuario);
+
+            // Cambiar a pantalla de inicio
+            PantallaInicio.Home inicio1 = new PantallaInicio.Home();
+            inicio1.setVisible(true);
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "No se encontró la cuenta, usuario/correo y/o contraseña incorrectos.");
+        }
+    } finally {
+        try {
+            if (conexion != null) conexion.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
 
     /**
      * Creates new form login1123213
@@ -32,7 +77,7 @@ public int obtenerIdUsuario(String usuarioOEmail, String password) {
     int idUsuario = -1;
 
     try {
-        conexion = BasededatosTwitter.getConnection();
+        conexion = RetornarBaseDedatos.getConnection();
         String consulta = "SELECT id_usuarios FROM usuarios WHERE (email = ? OR nombre_usuario = ?) AND password = ?";
         pst = conexion.prepareStatement(consulta);
         pst.setString(1, usuarioOEmail);
@@ -57,10 +102,25 @@ public int obtenerIdUsuario(String usuarioOEmail, String password) {
     return idUsuario;
 }
 
+ private void agregarListenersEnter() {
+        tf_correoyacuenta.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ejecutarInicioSesion();
+            }
+        });
+
+        tf_passwordyacuenta.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ejecutarInicioSesion();
+            }
+        });
+    }
 
     //Crear verificacion de si se encuentra la cuenta
    public static boolean verificarExistencianombreusuario(String nombreusuario) {
-Connection conexion = BasededatosTwitter.getConnection();
+Connection conexion = RetornarBaseDedatos.getConnection();
     
     if (conexion == null) {
         return false;
@@ -97,6 +157,7 @@ public class VentanaUtilidades {
         initComponents();
         // b_iniciarsesionyacuenta.setEnabled(false); // Inicialmente deshabilitado hasta marcar los terminos.
                  VentanaUtilidades.configurarResolucionVentana(this);
+        agregarListenersEnter();
 
         //Letras azules boton iniciar sesion
         b_crearcuentayacuenta.setText("Crea una");
@@ -277,63 +338,42 @@ public class VentanaUtilidades {
     }//GEN-LAST:event_b_showpasswordyacuentaActionPerformed
 
     private void b_iniciarsesionyacuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_iniciarsesionyacuentaActionPerformed
-Connection conexion = null;
 
-try {
-    // Obtener conexión a la base de datos
-    conexion = BasededatosTwitter.getConnection();
-    if (conexion == null) {
-        JOptionPane.showMessageDialog(this, "Error al conectar con la base de datos.");
-        return;
-    }
-
-    // Tomar los datos ingresados por el usuario
-    String usuarioOEmail = tf_correoyacuenta.getText().trim(); // Puede ser usuario o email
-    String password = tf_passwordyacuenta.getText().trim();
-
-    // Verificar que los campos no estén vacíos
-    if (usuarioOEmail.isEmpty() || password.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
-        return;
-    }
-
-    int idUsuario = obtenerIdUsuario(usuarioOEmail, password);
-    if (idUsuario != -1) {
-        System.out.println("ID del usuario obtenido: " + idUsuario); // Depuración
-        UsuarioSesion.setUsuarioId(idUsuario);
-
-        // Cambiar a pantalla de inicio
-        PantallaInicio.Home inicio1 = new PantallaInicio.Home();
-        inicio1.setVisible(true);
-        this.dispose();
-    } else {
-        JOptionPane.showMessageDialog(this, "No se encontró la cuenta, usuario/correo y/o contraseña incorrectos.");
-    }
-} finally {
-    try {
-        if (conexion != null) conexion.close();
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-}
-
-
+    ejecutarInicioSesion();
     }//GEN-LAST:event_b_iniciarsesionyacuentaActionPerformed
+    private static IniciarSesion.login ventanaCrearCuentaVisible = null;
 
     private void b_crearcuentayacuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_b_crearcuentayacuentaActionPerformed
          
-        //Cambiar a pantalla de crear cuenta
-        runproyectlogin.login inicionocuenta = new runproyectlogin.login();
-        inicionocuenta.setVisible(true);
-        this.dispose();
+ if (ventanaCrearCuentaVisible == null || !ventanaCrearCuentaVisible.isVisible()) {
+            // Si no existe una instancia visible, creamos una nueva y la mostramos
+            ventanaCrearCuentaVisible = new IniciarSesion.login();
+            ventanaCrearCuentaVisible.setVisible(true);
+            this.dispose(); // Cierra la ventana actual (asumiendo que es la de inicio de sesión)
+        } else {
+            // Si ya existe una instancia visible, puedes simplemente enfocarla
+            ventanaCrearCuentaVisible.toFront();
+        }
+ 
     }//GEN-LAST:event_b_crearcuentayacuentaActionPerformed
 
     private void tf_correoyacuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tf_correoyacuentaActionPerformed
-        // TODO add your handling code here:
+      tf_correoyacuenta.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        ejecutarInicioSesion();
+    }
+});
+      
     }//GEN-LAST:event_tf_correoyacuentaActionPerformed
 
     private void tf_passwordyacuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tf_passwordyacuentaActionPerformed
-        // TODO add your handling code here:
+       tf_passwordyacuenta.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        ejecutarInicioSesion();
+    }
+});
     }//GEN-LAST:event_tf_passwordyacuentaActionPerformed
 
     /**
